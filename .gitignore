@@ -1,0 +1,17 @@
+# Dependency / vendor 
+vendor/
+
+# Upload file 
+uploads/
+public/uploads/
+
+# Cache / log
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

@@ -1,6 +1,9 @@
 # Dependency / vendor 
 vendor/
 
+# Config
+config/config.php
+
 # Upload file 
 uploads/
 public/uploads/

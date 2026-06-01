@@ -5,6 +5,7 @@ $title = "Dashboard";
 AuthController::requireLogin();
 
 $role = $_SESSION['role'];
+$userData = StaffController::show($conn, $_SESSION['user_id'] ?? null);
 ob_start();
 ?>
 
@@ -280,7 +281,14 @@ ob_start();
 <div class="flex items-center justify-between mb-6">
     <div>
         <h1 class="text-xl font-bold text-[#1E293B] tracking-tight">Dashboard</h1>
-        <p class="text-sm text-[#64748B] mt-0.5">Selamat datang kembali, <span class="font-semibold text-[#1E3A8A]"><?= $_SESSION['username'] ?? 'Admin' ?></span> 👋</p>
+        <p class="text-sm text-[#64748B] mt-0.5">Selamat datang kembali, <span class="font-semibold text-[#1E3A8A]">
+            <?php if($_SESSION['role'] == 'admin'): ?>
+                    <?= $_SESSION['username'] ?? 'User' ?>
+                <?php else: ?>
+                    <?= $userData['nama_staff'] ?? 'User' ?>
+                <?php endif; ?>
+
+        </span> 👋</p>
     </div>
     <div class="flex items-center gap-2">
         <div class="flex items-center gap-2 bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-sm text-[#475569]">

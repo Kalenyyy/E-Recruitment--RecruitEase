@@ -1,7 +1,9 @@
 <?php
-require_once __DIR__ . "/../../controllers/AuthController.php";
+require_once __DIR__ . "/../../init.php";
 
 $role = $_SESSION['role'] ?? 'guest';
+// get user data for footer
+$userData = StaffController::show($conn, $_SESSION['user_id'] ?? null);
 ?>
 
 <style>
@@ -163,12 +165,20 @@ $role = $_SESSION['role'] ?? 'guest';
     <!-- FOOTER -->
     <div class="flex items-center gap-3 border-t border-white/10 px-3 py-3">
         <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-400 text-xs font-bold text-white">
-            <?= strtoupper(substr($_SESSION['username'] ?? 'U', 0, 2)) ?>
+            <?php if($_SESSION['role'] == 'admin'): ?>
+                <?= strtoupper(substr($_SESSION['username'] ?? 'U', 0, 2)) ?>
+            <?php else: ?>
+                <?= strtoupper(substr($userData['nama_staff'] ?? 'U', 0, 2)) ?>
+            <?php endif; ?>
         </div>
 
         <div class="sidebar-text">
             <p class="text-xs font-semibold text-white">
-                <?= $_SESSION['username'] ?? 'User' ?>
+                <?php if($_SESSION['role'] == 'admin'): ?>
+                    <?= $_SESSION['username'] ?? 'User' ?>
+                <?php else: ?>
+                    <?= $userData['nama_staff'] ?? 'User' ?>
+                <?php endif; ?>
             </p>
             <p class="text-[10px] text-blue-300">
                 <?php if ($_SESSION['role'] === 'admin'): ?>

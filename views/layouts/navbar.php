@@ -1,6 +1,9 @@
 <?php
-require_once __DIR__ . "/../../controllers/AuthController.php";
-require_once __DIR__ . "../../../init.php";
+require_once __DIR__ . "/../../init.php";
+
+
+$role = $_SESSION['role'] ?? 'guest';
+$userData = StaffController::show($conn, $_SESSION['user_id'] ?? null);
 ?>
 
 <style>
@@ -74,12 +77,20 @@ require_once __DIR__ . "../../../init.php";
                 class="flex items-center gap-2.5 rounded-xl px-3 py-1.5 transition hover:bg-slate-100">
 
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-900 to-blue-500 text-sm font-bold text-white">
-                    <?= strtoupper(substr($_SESSION['username'] ?? 'U', 0, 2)) ?>
+                    <?php if($_SESSION['role'] == 'admin'): ?>
+                        <?= strtoupper(substr($_SESSION['username'] ?? 'U', 0, 2)) ?>
+                    <?php else: ?>
+                        <?= strtoupper(substr($userData['nama_staff'] ?? 'U', 0, 2)) ?>
+                    <?php endif; ?>
                 </div>
 
                 <div class="hidden flex-col text-left leading-tight md:flex">
                     <span class="text-sm font-semibold text-slate-800">
-                        <?= $_SESSION['username'] ?? 'User' ?>
+                        <?php if($_SESSION['role'] == 'admin'): ?>
+                            <?= $_SESSION['username'] ?? 'User' ?>
+                        <?php else: ?>
+                            <?= $userData['nama_staff'] ?? 'User' ?>
+                        <?php endif; ?>
                     </span>
                     <?php if ($_SESSION['role'] == 'admin'): ?>
                         <span class="text-[10px] text-slate-500">Administrator</span>
@@ -103,7 +114,11 @@ require_once __DIR__ . "../../../init.php";
                 <div class="border-b border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
                     <p class="mb-0.5 text-xs text-slate-500">Masuk sebagai</p>
                     <p class="truncate text-sm font-semibold text-blue-900">
-                        <?= $_SESSION['username'] ?? 'User' ?>
+                        <?php if($_SESSION['role'] == 'admin'): ?>
+                            <?= $_SESSION['username'] ?? 'User' ?>
+                        <?php else: ?>
+                            <?= $userData['nama_staff'] ?? 'User' ?>
+                        <?php endif; ?>
                     </p>
                 </div>
 

@@ -1,12 +1,24 @@
 <?php
-require_once __DIR__ . "../../init.php";
+require_once __DIR__ . "/../init.php";
 
+// ==========================================
+// INITIALIZE VARIABLES
+// ==========================================
 $error = "";
 $success = "";
 $fieldErrors = [];
+$formData = [
+    'full_name' => '',
+    'email' => '',
+    'username' => '',
+    'phone' => '',
+];
 
+// ==========================================
+// PROCESS FORM SUBMISSION
+// ==========================================
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
+    // Tangkap dan trim semua input dari form
     $full_name        = trim($_POST['full_name'] ?? '');
     $email            = trim($_POST['email'] ?? '');
     $username         = trim($_POST['username'] ?? '');
@@ -14,7 +26,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password         = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    // VALIDASI
+    // Simpan ke formData untuk repopulate form jika ada error
+    $formData = compact('full_name', 'email', 'username', 'phone');
+
+    // ------------------------------------------
+    // VALIDASI INPUT
+    // ------------------------------------------
     if (empty($full_name)) {
         $fieldErrors['full_name'] = "Nama lengkap wajib diisi.";
     }
@@ -45,6 +62,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $fieldErrors['confirm_password'] = "Konfirmasi password tidak cocok.";
     }
 
+    // ------------------------------------------
+    // PROSES REGISTRASI JIKA VALIDASI LOLOS
+    // ------------------------------------------
     if (empty($fieldErrors)) {
         $result = AuthController::register(
             $full_name,
@@ -55,21 +75,87 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         );
 
         if ($result === true) {
-
-            $success = "Akun berhasil dibuat! Mengarahkan ke halaman login...";
-            header("Refresh: 2; url=" . BASE_URL . "views/login.php");
+            $success = "Akun berhasil dibuat! Mengarahkan ke halaman login dalam 3 detik...";
         } elseif ($result === 'username_taken') {
+            // Username sudah terdaftar
             $fieldErrors['username'] = "Username sudah digunakan.";
         } elseif ($result === 'email_taken') {
+            // Email sudah terdaftar
             $fieldErrors['email'] = "Email sudah terdaftar.";
         } else {
+            // Error lainnya
             $error = "Terjadi kesalahan. Silakan coba lagi.";
         }
     }
 
+    // Jika ada field error, tampilkan pesan error umum
     if (!empty($fieldErrors)) {
         $error = "Mohon periksa kembali data yang diisi.";
     }
+}
+
+/**
+ * Helper function untuk print input field dengan konsisten
+ * Mengurangi duplikasi kode dan membuat form lebih mudah dimaintain
+ * 
+ * @param string $name       Field name dan id
+ * @param string $label      Label text yang ditampilkan
+ * @param string $type       Input type (text, email, password, tel, dll)
+ * @param string $icon       Icon class dari Tabler Icons
+ * @param string $placeholder Placeholder text
+ * @param array $fieldErrors  Array error dari validasi
+ * @param array $formData    Array data form untuk repopulate
+ * @param bool $isPassword   Apakah field adalah password (untuk toggle visibility)
+ */
+function printInputField($name, $label, $type, $icon, $placeholder, $fieldErrors, $formData, $isPassword = false) {
+    $hasError = isset($fieldErrors[$name]);
+    $errorClass = $hasError 
+        ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10' 
+        : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/10';
+    
+    $value = htmlspecialchars($formData[$name] ?? '');
+    $id = $isPassword ? "id=\"{$name}\"" : "";
+    
+    $toggleButton = '';
+    if ($isPassword) {
+        $eyeId = $name === 'password' ? 'eyeIcon' : 'eyeConfirmIcon';
+        $toggleId = $name === 'password' ? 'togglePw' : 'toggleConfirmPw';
+        $toggleButton = "
+            <button type=\"button\" id=\"{$toggleId}\"
+                class=\"absolute right-3 top-1/2 -translate-y-1/2
+               text-slate-400 hover:text-slate-600 transition\">
+                <i class=\"ti ti-eye text-base\" id=\"{$eyeId}\"></i>
+            </button>";
+    }
+    
+    ?>
+    <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">
+            <?= $label ?>
+        </label>
+
+        <div class="relative">
+            <i class="ti <?= $icon ?> absolute left-3 top-1/2 -translate-y-1/2
+          text-slate-400 text-base pointer-events-none"></i>
+
+            <input type="<?= $type ?>" name="<?= $name ?>" <?= $id ?>
+                value="<?= $isPassword ? '' : $value ?>"
+                placeholder="<?= $placeholder ?>"
+                class="w-full h-[42px] pl-9 <?= $isPassword ? 'pr-10' : 'pr-3' ?> border rounded-lg
+               text-sm bg-white text-slate-800 placeholder-slate-400
+               outline-none transition focus:ring-2 <?= $errorClass ?>">
+            
+            <?= $toggleButton ?>
+        </div>
+
+        <?php if ($hasError): ?>
+            <p class="flex items-center gap-1 text-xs text-red-500 mt-1">
+                <i class="ti ti-alert-circle"></i>
+                <?= $fieldErrors[$name] ?>
+            </p>
+        <?php endif; ?>
+    </div>
+    <?php
 }
 ?>
 
@@ -83,16 +169,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-    <style>
-        .input-error {
-            border-color: #EF4444 !important;
-            background: #FFF8F8;
-        }
-
-        .input-error:focus {
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
-        }
-    </style>
 </head>
 
 <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4 py-10">
@@ -140,10 +216,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
 
-        <!-- Right Pane -->
+        <!-- Right Pane - Form Section -->
         <div class="w-full lg:w-[480px] bg-slate-50 flex items-center justify-center p-10">
             <div class="w-full">
 
+                <!-- Header Section -->
                 <div class="mb-7">
                     <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700
                              text-xs px-3 py-1 rounded-full mb-3">
@@ -153,6 +230,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <p class="text-sm text-slate-500">Isi data diri Anda untuk mendaftar</p>
                 </div>
 
+                <!-- Error Message Alert -->
                 <?php if ($error): ?>
                     <div class="flex items-center gap-2 bg-red-50 border border-red-200
                         text-red-800 text-sm rounded-lg px-4 py-3 mb-5">
@@ -161,6 +239,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                 <?php endif; ?>
 
+                <!-- Success Message Alert -->
                 <?php if ($success): ?>
                     <div class="flex items-center gap-2 bg-green-50 border border-green-200
                         text-green-800 text-sm rounded-lg px-4 py-3 mb-5">
@@ -169,202 +248,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
                 <?php endif; ?>
 
+                <!-- Registration Form -->
                 <form action="register.php" method="POST" class="space-y-4" novalidate>
 
                     <!-- Nama Lengkap -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                            Nama Lengkap
-                        </label>
-
-                        <div class="relative">
-                            <i class="ti ti-id-badge absolute left-3 top-1/2 -translate-y-1/2
-                      text-slate-400 text-base pointer-events-none"></i>
-
-                            <input type="text" name="full_name"
-                                value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>"
-                                placeholder="Masukkan nama lengkap Anda"
-                                class="w-full h-[42px] pl-9 pr-3 border rounded-lg
-                       text-sm bg-white text-slate-800 placeholder-slate-400
-                       outline-none transition focus:ring-2
-                       <?= isset($fieldErrors['full_name'])
-                            ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10'
-                            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/10'
-                        ?>">
-                        </div>
-
-                        <?php if (isset($fieldErrors['full_name'])): ?>
-                            <p class="flex items-center gap-1 text-xs text-red-500 mt-1">
-                                <i class="ti ti-alert-circle"></i>
-                                <?= $fieldErrors['full_name'] ?>
-                            </p>
-                        <?php endif; ?>
-                    </div>
+                    <?php printInputField('full_name', 'Nama Lengkap', 'text', 'ti-id-badge', 'Masukkan nama lengkap Anda', $fieldErrors, $formData); ?>
 
                     <!-- Email -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                            Email
-                        </label>
+                    <?php printInputField('email', 'Email', 'email', 'ti-mail', 'contoh@email.com', $fieldErrors, $formData); ?>
 
-                        <div class="relative">
-                            <i class="ti ti-mail absolute left-3 top-1/2 -translate-y-1/2
-                      text-slate-400 text-base pointer-events-none"></i>
-
-                            <input type="email" name="email"
-                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
-                                placeholder="contoh@email.com"
-                                class="w-full h-[42px] pl-9 pr-3 border rounded-lg
-                       text-sm bg-white text-slate-800 placeholder-slate-400
-                       outline-none transition focus:ring-2
-                       <?= isset($fieldErrors['email'])
-                            ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10'
-                            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/10'
-                        ?>">
-                        </div>
-
-                        <?php if (isset($fieldErrors['email'])): ?>
-                            <p class="flex items-center gap-1 text-xs text-red-500 mt-1">
-                                <i class="ti ti-alert-circle"></i>
-                                <?= $fieldErrors['email'] ?>
-                            </p>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Username & No HP -->
+                    <!-- Username & No HP (Grid 2 Kolom) -->
                     <div class="grid grid-cols-2 gap-3">
-
-                        <!-- Username -->
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                                Username
-                            </label>
-
-                            <div class="relative">
-                                <i class="ti ti-user absolute left-3 top-1/2 -translate-y-1/2
-                          text-slate-400 text-base pointer-events-none"></i>
-
-                                <input type="text" name="username"
-                                    value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
-                                    placeholder="username_anda"
-                                    class="w-full h-[42px] pl-9 pr-3 border rounded-lg
-                           text-sm bg-white text-slate-800 placeholder-slate-400
-                           outline-none transition focus:ring-2
-                           <?= isset($fieldErrors['username'])
-                                ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10'
-                                : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/10'
-                            ?>">
-                            </div>
-
-                            <?php if (isset($fieldErrors['username'])): ?>
-                                <p class="flex items-center gap-1 text-xs text-red-500 mt-1">
-                                    <i class="ti ti-alert-circle"></i>
-                                    <?= $fieldErrors['username'] ?>
-                                </p>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- Phone -->
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                                No. HP
-                            </label>
-
-                            <div class="relative">
-                                <i class="ti ti-phone absolute left-3 top-1/2 -translate-y-1/2
-                          text-slate-400 text-base pointer-events-none"></i>
-
-                                <input type="tel" name="phone"
-                                    value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>"
-                                    placeholder="08xxxxxxxxxx"
-                                    class="w-full h-[42px] pl-9 pr-3 border rounded-lg
-                           text-sm bg-white text-slate-800 placeholder-slate-400
-                           outline-none transition focus:ring-2
-                           <?= isset($fieldErrors['phone'])
-                                ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10'
-                                : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/10'
-                            ?>">
-                            </div>
-
-                            <?php if (isset($fieldErrors['phone'])): ?>
-                                <p class="flex items-center gap-1 text-xs text-red-500 mt-1">
-                                    <i class="ti ti-alert-circle"></i>
-                                    <?= $fieldErrors['phone'] ?>
-                                </p>
-                            <?php endif; ?>
-                        </div>
+                        <div><?php printInputField('username', 'Username', 'text', 'ti-user', 'username_anda', $fieldErrors, $formData); ?></div>
+                        <div><?php printInputField('phone', 'No. HP', 'tel', 'ti-phone', '08xxxxxxxxxx', $fieldErrors, $formData); ?></div>
                     </div>
 
                     <!-- Password -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                            Password
-                        </label>
-
-                        <div class="relative">
-                            <i class="ti ti-lock absolute left-3 top-1/2 -translate-y-1/2
-                      text-slate-400 text-base pointer-events-none"></i>
-
-                            <input type="password" name="password" id="password"
-                                placeholder="Minimal 8 karakter"
-                                class="w-full h-[42px] pl-9 pr-10 border rounded-lg
-                       text-sm bg-white text-slate-800 placeholder-slate-400
-                       outline-none transition focus:ring-2
-                       <?= isset($fieldErrors['password'])
-                            ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10'
-                            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/10'
-                        ?>">
-
-                            <button type="button" id="togglePw"
-                                class="absolute right-3 top-1/2 -translate-y-1/2
-                       text-slate-400 hover:text-slate-600 transition">
-                                <i class="ti ti-eye text-base" id="eyeIcon"></i>
-                            </button>
-                        </div>
-
-                        <?php if (isset($fieldErrors['password'])): ?>
-                            <p class="flex items-center gap-1 text-xs text-red-500 mt-1">
-                                <i class="ti ti-alert-circle"></i>
-                                <?= $fieldErrors['password'] ?>
-                            </p>
-                        <?php endif; ?>
-                    </div>
+                    <?php printInputField('password', 'Password', 'password', 'ti-lock', 'Minimal 8 karakter', $fieldErrors, $formData, true); ?>
 
                     <!-- Confirm Password -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                            Konfirmasi Password
-                        </label>
+                    <?php printInputField('confirm_password', 'Konfirmasi Password', 'password', 'ti-lock-check', 'Ulangi password Anda', $fieldErrors, $formData, true); ?>
 
-                        <div class="relative">
-                            <i class="ti ti-lock-check absolute left-3 top-1/2 -translate-y-1/2
-                      text-slate-400 text-base pointer-events-none"></i>
-
-                            <input type="password" name="confirm_password" id="confirm_password"
-                                placeholder="Ulangi password Anda"
-                                class="w-full h-[42px] pl-9 pr-10 border rounded-lg
-                       text-sm bg-white text-slate-800 placeholder-slate-400
-                       outline-none transition focus:ring-2
-                       <?= isset($fieldErrors['confirm_password'])
-                            ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10'
-                            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/10'
-                        ?>">
-
-                            <button type="button" id="toggleConfirmPw"
-                                class="absolute right-3 top-1/2 -translate-y-1/2
-                       text-slate-400 hover:text-slate-600 transition">
-                                <i class="ti ti-eye text-base" id="eyeConfirmIcon"></i>
-                            </button>
-                        </div>
-
-                        <?php if (isset($fieldErrors['confirm_password'])): ?>
-                            <p class="flex items-center gap-1 text-xs text-red-500 mt-1">
-                                <i class="ti ti-alert-circle"></i>
-                                <?= $fieldErrors['confirm_password'] ?>
-                            </p>
-                        <?php endif; ?>
-                    </div>
-
+                    <!-- Submit Button -->
                     <button type="submit"
                         class="w-full h-11 bg-[#1E3A8A] hover:bg-[#1D4ED8]
                active:scale-[0.99] text-white text-sm font-medium
@@ -375,12 +280,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 </form>
 
+                <!-- Divider Section -->
                 <div class="flex items-center gap-3 my-5">
                     <hr class="flex-1 border-slate-200">
                     <span class="text-xs text-slate-400">atau</span>
                     <hr class="flex-1 border-slate-200">
                 </div>
 
+                <!-- Login Link Section -->
                 <p class="text-center text-sm text-slate-500">
                     Sudah punya akun?
                     <a href="login.php" class="text-blue-700 font-medium hover:underline">
@@ -414,6 +321,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             } else {
                 pw.type = 'password';
                 icon.className = 'ti ti-eye text-base';
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', function() {
+            // Cek apakah ada success alert (bg-green-50)
+            const successAlert = document.querySelector('.bg-green-50');
+            if (successAlert) {
+                let countdown = 3; // Timer 3 detik
+                const successText = successAlert.querySelector('span');
+                const originalText = successText.textContent;
+
+                // Update countdown setiap detik
+                const countdownInterval = setInterval(function() {
+                    countdown--;
+                    successText.textContent = `Akun berhasil dibuat! Mengarahkan ke halaman login dalam ${countdown} detik...`;
+                    
+                    // Jika countdown habis, redirect
+                    if (countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        window.location.href = '<?= BASE_URL ?>views/login.php';
+                    }
+                }, 1000);
+
+                // Redirect juga setelah 3 detik sebagai backup
+                setTimeout(function() {
+                    clearInterval(countdownInterval);
+                    window.location.href = '<?= BASE_URL ?>views/login.php';
+                }, 3000);
             }
         });
     </script>

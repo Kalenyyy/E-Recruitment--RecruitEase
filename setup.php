@@ -99,6 +99,56 @@ if (mysqli_query($conn, $sqlStaff)) {
     echo 'Error membuat tabel staff: ' . mysqli_error($conn);
 }
 
+$sqlCandidate = "CREATE TABLE IF NOT EXISTS candidates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL UNIQUE,
+
+    nama_lengkap VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    no_hp VARCHAR(20) NOT NULL,
+
+    alamat TEXT DEFAULT NULL,
+    tanggal_lahir DATE DEFAULT NULL,
+
+    jenis_kelamin ENUM('L', 'P') DEFAULT NULL,
+
+    is_disabled BOOLEAN DEFAULT FALSE,
+    disability_description TEXT DEFAULT NULL,
+
+    foto VARCHAR(255) DEFAULT NULL,
+    cv_file VARCHAR(255) DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+";
+
+if (mysqli_query($conn, $sqlCandidate)) {
+    echo 'Tabel candidates berhasil dibuat <br>';
+} else {
+    echo 'Error membuat tabel candidates: ' . mysqli_error($conn);
+}
+
+$sqlCandidateDisabilities = "CREATE TABLE IF NOT EXISTS candidate_disabilities (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    candidate_id INT NOT NULL,
+    disability_type VARCHAR(100) NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (candidate_id) REFERENCES candidates(id) ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlCandidateDisabilities)) {
+    echo 'Tabel candidate_disabilities berhasil dibuat <br>';
+} else {
+    echo 'Error membuat tabel candidate_disabilities: ' . mysqli_error($conn);
+}
+
 /* =========================
    4. INSERT ADMIN DEFAULT
 ========================= */

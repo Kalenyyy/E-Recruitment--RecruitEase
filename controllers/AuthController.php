@@ -47,24 +47,39 @@ class AuthController
     return false;
 }
 
-    // public static function register($full_name, $email, $username, $phone, $password)
-    // {
-    //     if (User::findByUsername($username)) {
-    //         return 'username_taken';
-    //     }
+    public static function register($full_name, $email, $username, $phone, $password)
+    {
+        global $conn;
 
-    //     if (User::findByEmail($email)) {
-    //         return 'email_taken';
-    //     }
+        // Cek apakah username sudah terdaftar
+        if (User::findByUsername($username)) {
+            return 'username_taken';
+        }
 
-    //     $hashed = password_hash($password, PASSWORD_DEFAULT);
+        // Cek apakah email sudah terdaftar
+        if (User::findByEmail($email)) {
+            return 'email_taken';
+        }
 
-    //     return User::create(
-    //         $full_name,
-    //         $email,
-    //         $username,
-    //         $phone,
-    //         $hashed
-    //     );
-    // }
+        // Hash password
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+
+        // Insert ke tabel users dengan role 'candidate'
+        $user_id = User::insert($conn, $username, $email, $hashed, 'candidate');
+
+        if (!$user_id) {
+            return false;
+        }
+
+        // Insert ke tabel candidates
+        $candidate_id = Candidate::insert($conn, $user_id, $full_name, $email, $phone);
+
+        if (!$candidate_id) {
+            // Jika insert candidate gagal, delete user yang baru dibuat
+            User::delete($conn, $user_id);
+            return false;
+        }
+
+        return true;
+    }
 }

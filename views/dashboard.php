@@ -6,6 +6,7 @@ AuthController::requireLogin();
 
 $role = $_SESSION['role'];
 $userData = StaffController::show($conn, $_SESSION['user_id'] ?? null);
+$candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] ?? null);
 ob_start();
 ?>
 
@@ -284,10 +285,11 @@ ob_start();
         <p class="text-sm text-[#64748B] mt-0.5">Selamat datang kembali, <span class="font-semibold text-[#1E3A8A]">
             <?php if($_SESSION['role'] == 'admin'): ?>
                     <?= $_SESSION['username'] ?? 'User' ?>
-                <?php else: ?>
+                <?php elseif($_SESSION['role'] == 'hr'): ?>
                     <?= $userData['nama_staff'] ?? 'User' ?>
+                <?php else: ?>
+                    <?= $candidateData['nama_lengkap'] ?? 'User' ?>
                 <?php endif; ?>
-
         </span> 👋</p>
     </div>
     <div class="flex items-center gap-2">
@@ -297,14 +299,21 @@ ob_start();
             </svg>
             <?= date('d M Y') ?>
         </div>
+        <?php if($_SESSION['role'] !== 'candidate'): ?>
         <button class="flex items-center gap-2 bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors duration-200">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             Buat Lowongan
         </button>
+        <?php endif; ?>
     </div>
 </div>
+
+<!-- ====================================== -->
+<!-- DASHBOARD UNTUK HR & ADMIN -->
+<!-- ====================================== -->
+<?php if($_SESSION['role'] !== 'candidate'): ?>
 
 <!-- Stat Cards -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -712,6 +721,274 @@ ob_start();
     buildBarChart('7');
     buildDonutChart();
 </script>
+
+<?php endif; // End of HR/Admin Dashboard ?>
+
+<!-- ====================================== -->
+<!-- DASHBOARD UNTUK CANDIDATE -->
+<!-- ====================================== -->
+<?php if($_SESSION['role'] === 'candidate'): ?>
+
+<!-- Status Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+    <!-- Total Applications -->
+    <div class="stat-card blue">
+        <div class="flex items-start justify-between mb-3">
+            <div class="stat-icon-wrap blue">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <span class="stat-trend-up">↑ 2</span>
+        </div>
+        <p class="text-2xl font-bold text-[#1E293B]">8</p>
+        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Total Lamaran</p>
+    </div>
+
+    <!-- Under Review -->
+    <div class="stat-card amber">
+        <div class="flex items-start justify-between mb-3">
+            <div class="stat-icon-wrap amber">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+            </div>
+        </div>
+        <p class="text-2xl font-bold text-[#1E293B]">3</p>
+        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Sedang Direviu</p>
+    </div>
+
+    <!-- Interviews -->
+    <div class="stat-card blue">
+        <div class="flex items-start justify-between mb-3">
+            <div class="stat-icon-wrap blue">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+        <p class="text-2xl font-bold text-[#1E293B]">2</p>
+        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Interview Dijadwalkan</p>
+    </div>
+
+    <!-- Accepted -->
+    <div class="stat-card green">
+        <div class="flex items-start justify-between mb-3">
+            <div class="stat-icon-wrap green">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+        <p class="text-2xl font-bold text-[#1E293B]">1</p>
+        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Diterima</p>
+    </div>
+
+</div>
+
+<!-- Main Content - 2 Columns -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+
+    <!-- Applied Positions -->
+    <div class="chart-card lg:col-span-2">
+        <div class="mb-4">
+            <p class="chart-card-title">Posisi yang Dilamar</p>
+            <p class="chart-card-subtitle">Riwayat lamaran Anda</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Posisi</th>
+                        <th>Perusahaan</th>
+                        <th>Tanggal Lamar</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="font-medium text-[#1E293B]">Frontend Developer</span></td>
+                        <td class="text-[#64748B]">PT Tech Innovasi</td>
+                        <td class="text-[#94A3B8]">12 Jan 2025</td>
+                        <td><span class="badge badge-interview">Interview</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="font-medium text-[#1E293B]">UI/UX Designer</span></td>
+                        <td class="text-[#64748B]">PT Creative Studio</td>
+                        <td class="text-[#94A3B8]">10 Jan 2025</td>
+                        <td><span class="badge badge-diterima">Diterima</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="font-medium text-[#1E293B]">Backend Developer</span></td>
+                        <td class="text-[#64748B]">PT Digital Solution</td>
+                        <td class="text-[#94A3B8]">08 Jan 2025</td>
+                        <td><span class="badge badge-review">Review</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="font-medium text-[#1E293B]">Data Analyst</span></td>
+                        <td class="text-[#64748B]">PT Analytics Pro</td>
+                        <td class="text-[#94A3B8]">05 Jan 2025</td>
+                        <td><span class="badge badge-interview">Interview</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="font-medium text-[#1E293B]">DevOps Engineer</span></td>
+                        <td class="text-[#64748B]">PT Cloud Systems</td>
+                        <td class="text-[#94A3B8]">03 Jan 2025</td>
+                        <td><span class="badge badge-review">Review</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="flex flex-col gap-4">
+
+        <!-- Profile Status -->
+        <div class="chart-card">
+            <p class="chart-card-title mb-3">Status Profil</p>
+            <div class="flex flex-col gap-3.5">
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">
+                            <span class="text-lg">📄</span> CV
+                        </span>
+                        <span class="text-xs font-bold text-[#059669]">✓ Ada</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width:100%; background:#059669;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">
+                            <span class="text-lg">🖼️</span> Foto Profil
+                        </span>
+                        <span class="text-xs font-bold text-[#059669]">✓ Ada</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width:100%; background:#059669;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">
+                            <span class="text-lg">✍️</span> Deskripsi Bio
+                        </span>
+                        <span class="text-xs font-bold text-[#D97706]">75%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width:75%; background:#D97706;"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="w-full mt-4 bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+                Edit Profil
+            </button>
+        </div>
+
+        <!-- Upcoming Interviews -->
+        <div class="chart-card flex-1">
+            <p class="chart-card-title mb-3">Interview Mendatang</p>
+            <div class="flex flex-col gap-2.5">
+                <div class="p-3 border border-[#E2E8F0] rounded-lg bg-[#F8FAFC]">
+                    <p class="text-xs font-semibold text-[#1E293B]">Frontend Developer</p>
+                    <p class="text-[11px] text-[#64748B] mt-0.5">PT Tech Innovasi</p>
+                    <div class="flex items-center gap-2 text-[10px] text-[#3B82F6] font-semibold mt-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        15 Jan 2025 • 10:00
+                    </div>
+                </div>
+                <div class="p-3 border border-[#E2E8F0] rounded-lg bg-[#F8FAFC]">
+                    <p class="text-xs font-semibold text-[#1E293B]">Data Analyst</p>
+                    <p class="text-[11px] text-[#64748B] mt-0.5">PT Analytics Pro</p>
+                    <div class="flex items-center gap-2 text-[10px] text-[#3B82F6] font-semibold mt-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        18 Jan 2025 • 14:30
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Recommended Positions -->
+<div class="chart-card">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <p class="chart-card-title">Posisi Rekomendasi Untuk Anda</p>
+            <p class="chart-card-subtitle">Berdasarkan profil Anda</p>
+        </div>
+        <a href="/lowongan" class="text-xs font-semibold text-[#3B82F6] hover:text-[#1E3A8A] transition-colors">Lihat semua →</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="border border-[#E2E8F0] rounded-lg p-4 hover:border-[#BFDBFE] hover:shadow-md transition-all">
+            <div class="flex items-start justify-between mb-2">
+                <div>
+                    <p class="text-sm font-semibold text-[#1E293B]">Senior Frontend Developer</p>
+                    <p class="text-xs text-[#64748B] mt-0.5">PT Tech Enterprise</p>
+                </div>
+                <span class="text-xs font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-1 rounded-lg">95% Match</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-[#64748B] mb-3">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                Jakarta, Indonesia
+            </div>
+            <button class="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+                Lihat Detail
+            </button>
+        </div>
+
+        <div class="border border-[#E2E8F0] rounded-lg p-4 hover:border-[#BFDBFE] hover:shadow-md transition-all">
+            <div class="flex items-start justify-between mb-2">
+                <div>
+                    <p class="text-sm font-semibold text-[#1E293B]">Fullstack Developer</p>
+                    <p class="text-xs text-[#64748B] mt-0.5">PT Digital Innovation</p>
+                </div>
+                <span class="text-xs font-bold text-[#059669] bg-[#ECFDF5] px-2 py-1 rounded-lg">88% Match</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-[#64748B] mb-3">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                Bandung, Indonesia
+            </div>
+            <button class="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+                Lihat Detail
+            </button>
+        </div>
+
+        <div class="border border-[#E2E8F0] rounded-lg p-4 hover:border-[#BFDBFE] hover:shadow-md transition-all">
+            <div class="flex items-start justify-between mb-2">
+                <div>
+                    <p class="text-sm font-semibold text-[#1E293B]">Product Designer</p>
+                    <p class="text-xs text-[#64748B] mt-0.5">PT Creative Agency</p>
+                </div>
+                <span class="text-xs font-bold text-[#F59E0B] bg-[#FFFBEB] px-2 py-1 rounded-lg">72% Match</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-[#64748B] mb-3">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                Surabaya, Indonesia
+            </div>
+            <button class="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+                Lihat Detail
+            </button>
+        </div>
+    </div>
+</div>
+
+<?php endif; ?>
 
 <?php
 $content = ob_get_clean();

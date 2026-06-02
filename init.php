@@ -12,10 +12,15 @@ require_once __DIR__ . '/config/koneksi.php';
 
 // 4. CONTROLLER 
 require_once __DIR__ . '/controllers/AuthController.php';
+require_once __DIR__ . '/controllers/CandidateController.php';
 require_once __DIR__ . '/controllers/StaffController.php';
+require_once __DIR__ . '/controllers/ProfileController.php';
+require_once __DIR__ . '/controllers/DisabilityController.php';
 
 // 5. MODEL
 require_once __DIR__ . '/models/User.php';
+require_once __DIR__ . '/models/Candidate.php';
 require_once __DIR__ . '/models/Position.php';
 require_once __DIR__ . '/models/Staff.php';
+require_once __DIR__ . '/models/CandidateDisability.php';
 

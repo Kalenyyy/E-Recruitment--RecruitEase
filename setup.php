@@ -41,17 +41,17 @@ if (mysqli_query($conn, $sqlUsers)) {
     echo 'Error membuat tabel: ' . mysqli_error($conn);
 }
 
-$sqlDivisions = "CREATE TABLE IF NOT EXISTS divisions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+$sqlDivisi = "CREATE TABLE IF NOT EXISTS divisi (
+    id_divisi INT AUTO_INCREMENT PRIMARY KEY,
     nama_divisi VARCHAR(100) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ";
 
-if (mysqli_query($conn, $sqlDivisions)) {
-    echo 'Tabel divisions berhasil dibuat <br>';
+if (mysqli_query($conn, $sqlDivisi)) {
+    echo 'Tabel divisi berhasil dibuat <br>';
 } else {
-    echo 'Error divisions: ' . mysqli_error($conn);
+    echo 'Error divisi: ' . mysqli_error($conn);
 }
 
 $sqlPositions = "CREATE TABLE IF NOT EXISTS positions (
@@ -62,7 +62,7 @@ $sqlPositions = "CREATE TABLE IF NOT EXISTS positions (
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (divisi_id) REFERENCES divisions(id)
+    FOREIGN KEY (divisi_id) REFERENCES divisi(id_divisi)
 );
 ";
 

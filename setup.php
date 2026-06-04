@@ -72,6 +72,20 @@ if (mysqli_query($conn, $sqlPositions)) {
     echo 'Error positions: ' . mysqli_error($conn);
 }
 
+$sqlSkill = "CREATE TABLE IF NOT EXISTS skills (
+    id_skill INT AUTO_INCREMENT PRIMARY KEY,
+    nama_skill VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+";
+
+if (mysqli_query($conn, $sqlSkill)) {
+    echo 'Tabel skills berhasil dibuat <br>';
+} else {
+    echo 'Error membuat tabel skills: ' . mysqli_error($conn);
+}
+
+
 $sqlStaff = "CREATE TABLE IF NOT EXISTS staff (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
@@ -162,3 +176,4 @@ VALUES ('admin', 'admin@gmail.com', '$password', 'admin')
 mysqli_query($conn, $sqlInsert);
 
 echo "Database dan tabel berhasil dibuat!";
+

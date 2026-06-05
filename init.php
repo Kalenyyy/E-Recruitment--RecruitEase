@@ -17,6 +17,7 @@ require_once __DIR__ . '/controllers/StaffController.php'; // Tambahkan controll
 require_once __DIR__ . '/controllers/ProfileController.php'; // Tambahkan controller Profile
 require_once __DIR__ . '/controllers/DisabilityController.php'; // Tambahkan controller Disability
 require_once __DIR__ . '/controllers/DivisiController.php'; // Tambahkan controller Divisi
+require_once __DIR__ . '/controllers/PosisiController.php'; // Tambahkan controller Posisi
 
 // 5. MODEL
 require_once __DIR__ . '/models/User.php'; // Tambahkan model User
@@ -25,4 +26,5 @@ require_once __DIR__ . '/models/Position.php'; // Tambahkan model Position
 require_once __DIR__ . '/models/Staff.php'; // Tambahkan model Staff
 require_once __DIR__ . '/models/CandidateDisability.php'; // Tambahkan model CandidateDisability
 require_once __DIR__ . '/models/Divisi.php'; // Tambahkan model Divisi
+require_once __DIR__ . '/models/Posisi.php'; // Tambahkan model Posisi
 

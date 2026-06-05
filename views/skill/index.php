@@ -29,8 +29,7 @@ ob_start();
 </style>
 
 <?php if (isset($_SESSION['success'])): ?>
-    <div id="alert-success"
-        class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down"
+    <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down"
         style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
 
         <div class="flex items-center gap-3">
@@ -62,11 +61,13 @@ ob_start();
         </p>
     </div>
 
-    <a href="<?= BASE_URL ?>views/skill/create.php"
+    <button onclick="openCreateModal()"
         class="inline-flex items-center gap-2 text-white text-sm font-semibold px-4 py-2 rounded-xl transition"
         style="background:#1E3A8A;">
+
         + Tambah Skill
-    </a>
+
+    </button>
 </div>
 
 <!-- CARD -->
@@ -78,10 +79,16 @@ ob_start();
             Daftar Skill
         </span>
 
-        <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
-            style="background:#EFF6FF;color:#1E3A8A;">
+        <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:#EFF6FF;color:#1E3A8A;">
             <?= $skillCount ?> Skill
         </span>
+
+        <div class="ml-auto">
+
+            <input type="text" id="searchInput" placeholder="Cari skill..."
+                class="px-3 py-2 text-xs rounded-lg outline-none" style="border:1px solid #CBD5E1;">
+
+        </div>
     </div>
 
     <!-- TABLE -->
@@ -104,16 +111,14 @@ ob_start();
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody id="skillTable">
 
                 <?php
                 $no = 1;
                 foreach ($skillList as $skill):
-                ?>
+                    ?>
 
-                    <tr
-                        style="border-bottom:1px solid #F1F5F9;"
-                        onmouseover="this.style.background='#F8FAFC'"
+                    <tr style="border-bottom:1px solid #F1F5F9;" onmouseover="this.style.background='#F8FAFC'"
                         onmouseout="this.style.background='#FFFFFF'">
 
                         <td class="px-6 py-4 font-medium text-slate-600">
@@ -138,20 +143,22 @@ ob_start();
                         <td class="px-6 py-4">
                             <div class="flex justify-end gap-2">
 
-                                <a href="edit.php?id=<?= $skill['id_skill'] ?>"
-                                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition"
-                                    style="background:#EFF6FF;color:#1E3A8A;border:1px solid #BFDBFE;">
-                                    ✏️ Edit
-                                </a>
+                                <button onclick="openEditModal(
+                <?= $skill['id_skill'] ?>,
+                '<?= htmlspecialchars($skill['nama_skill']) ?>'
+            )" class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:#FEF3C7;color:#92400E;">
 
-                                <button
-                                    onclick="openDeleteModal(
-                                    <?= $skill['id_skill'] ?>,
-                                    '<?= htmlspecialchars($skill['nama_skill']) ?>'
-                                )"
-                                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition"
-                                    style="background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;">
+                                    ✏️ Edit
+
+                                </button>
+
+                                <button onclick="openDeleteModal(
+                <?= $skill['id_skill'] ?>,
+                '<?= htmlspecialchars($skill['nama_skill']) ?>'
+            )" class="px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:#FEF2F2;color:#991B1B;">
+
                                     🗑️ Hapus
+
                                 </button>
 
                             </div>
@@ -187,40 +194,192 @@ ob_start();
     </div>
 
 </div>
+<!-- MODAL CREATE -->
+<div id="modalCreate"
+    class="fixed inset-0 hidden items-start justify-center bg-slate-900/50 backdrop-blur-sm z-50 pt-20">
 
-<!-- MODAL DELETE -->
-<div id="modalDelete"
-    class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in-down">
 
-    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-fade-in-down">
+        <div class="px-6 py-5 border-b border-slate-200">
 
-        <div class="p-6 text-center">
+            <div class="flex items-center justify-between">
 
-            <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
-                <span class="text-2xl">⚠️</span>
+                <div class="flex items-center gap-3">
+
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:#DBEAFE;">
+
+                        🛠️
+
+                    </div>
+
+                    <div>
+
+                        <h2 class="text-lg font-bold text-slate-800">
+                            Tambah Skill
+                        </h2>
+
+                        <p class="text-xs text-slate-500">
+                            Tambahkan skill baru
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button onclick="closeCreateModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 transition">
+
+                    ✕
+
+                </button>
+
             </div>
 
-            <h3 class="text-lg font-bold text-slate-800 mb-2">
+        </div>
+
+        <form action="create.php" method="POST">
+
+            <div class="p-6">
+
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+
+                    Nama Skill
+
+                </label>
+
+                <input type="text" name="nama_skill" required placeholder="Contoh : Laravel"
+                    class="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none">
+
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+
+                <button type="button" onclick="closeCreateModal()" class="px-5 py-2.5 rounded-xl font-medium bg-white border border-slate-300 hover:bg-slate-100 transition">
+
+                    Batal
+
+                </button>
+
+                <button type="submit" class="px-5 py-2.5 rounded-xl text-white font-semibold hover:opacity-90 transition" style="background:#1E3A8A;">
+
+                    Simpan Skill
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- MODAL EDIT -->
+<div id="modalEdit" class="fixed inset-0 hidden items-start justify-center bg-slate-900/50 backdrop-blur-sm z-50 pt-20">
+
+    <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+
+        <div class="px-6 py-5 border-b border-slate-200">
+
+            <div class="flex items-center justify-between">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:#FEF3C7;">
+
+                        ✏️
+
+                    </div>
+
+                    <div>
+
+                        <h2 class="text-lg font-bold text-slate-800">
+                            Edit Skill
+                        </h2>
+
+                        <p class="text-xs text-slate-500">
+                            Ubah data Skill
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <form action="edit.php" method="POST">
+
+            <input type="hidden" name="id_skill" id="edit_id_skill">
+
+            <div class="p-6">
+
+                <label class="block text-sm font-semibold mb-2">
+
+                    Nama Skill
+
+                </label>
+
+                <input type="text" name="nama_skill" id="edit_nama_skill" required
+                    class="w-full px-4 py-3 rounded-xl border border-slate-300">
+
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+
+                <button type="button" onclick="closeEditModal()" class="px-5 py-2 rounded-xl bg-slate-200">
+
+                    Batal
+
+                </button>
+
+                <button type="submit" class="px-5 py-2 rounded-xl text-white" style="background:#F59E0B;">
+
+                    Update
+
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+<!-- MODAL DELETE -->
+<div id="modalDelete"
+    class="fixed inset-0 hidden items-start justify-center bg-slate-900/50 backdrop-blur-sm z-50 pt-20">
+
+    <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in-down">
+
+        <div class="p-8 text-center">
+
+            <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4"
+                style="background:#FEE2E2;">
+
+                <span class="text-3xl">
+                    ⚠️
+                </span>
+
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-800 mb-2">
                 Hapus Skill?
             </h3>
 
-            <p class="text-sm text-slate-500 mb-6">
+            <p class="text-sm text-slate-500">
                 Skill
                 <span id="deleteName" class="font-bold text-slate-700"></span>
                 akan dihapus permanen.
             </p>
 
-            <div class="flex gap-3">
+            <div class="flex gap-3 mt-8">
 
-                <button
-                    onclick="closeModal()"
-                    class="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 rounded-xl">
+                <button onclick="closeDeleteModal()" class="flex-1 py-3 rounded-xl bg-slate-200">
                     Batal
                 </button>
 
-                <a id="confirmDeleteBtn"
-                    href="#"
-                    class="flex-1 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl">
+                <a id="confirmDeleteBtn" href="#" class="flex-1 py-3 rounded-xl text-white text-center"
+                    style="background:#DC2626;">
                     Ya, Hapus
                 </a>
 
@@ -233,19 +392,96 @@ ob_start();
 </div>
 
 <script>
+    function openCreateModal() {
+        document
+            .getElementById('modalCreate')
+            .classList.remove('hidden');
+
+        document
+            .getElementById('modalCreate')
+            .classList.add('flex');
+    }
+
+    function closeCreateModal() {
+        document
+            .getElementById('modalCreate')
+            .classList.add('hidden');
+
+        document
+            .getElementById('modalCreate')
+            .classList.remove('flex');
+    }
+
+    function openEditModal(id, nama) {
+        document.getElementById('edit_id_skill').value = id;
+
+        document.getElementById('edit_nama_skill').value = nama;
+
+        document
+            .getElementById('modalEdit')
+            .classList.remove('hidden');
+
+        document
+            .getElementById('modalEdit')
+            .classList.add('flex');
+    }
+
+    function closeEditModal() {
+        document
+            .getElementById('modalEdit')
+            .classList.add('hidden');
+
+        document
+            .getElementById('modalEdit')
+            .classList.remove('flex');
+    }
+
     function openDeleteModal(id, nama) {
         document.getElementById('deleteName').innerText = nama;
+
         document.getElementById('confirmDeleteBtn').href =
-            'delete.php?id=' + id;
+            "delete.php?id=" + id;
 
-        document.getElementById('modalDelete').classList.remove('hidden');
-        document.getElementById('modalDelete').classList.add('flex');
+        document
+            .getElementById('modalDelete')
+            .classList.remove('hidden');
+
+        document
+            .getElementById('modalDelete')
+            .classList.add('flex');
     }
 
-    function closeModal() {
-        document.getElementById('modalDelete').classList.add('hidden');
-        document.getElementById('modalDelete').classList.remove('flex');
+    function closeDeleteModal() {
+        document
+            .getElementById('modalDelete')
+            .classList.add('hidden');
+
+        document
+            .getElementById('modalDelete')
+            .classList.remove('flex');
     }
+
+    document.getElementById("searchInput")
+        .addEventListener("keyup", function () {
+
+            let filter = this.value.toLowerCase();
+
+            let rows =
+                document.querySelectorAll("#skillTable tr");
+
+            rows.forEach(row => {
+
+                let text =
+                    row.innerText.toLowerCase();
+
+                row.style.display =
+                    text.includes(filter)
+                        ? ""
+                        : "none";
+
+            });
+
+        });
 </script>
 
 <?php

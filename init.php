@@ -17,6 +17,7 @@ require_once __DIR__ . '/controllers/StaffController.php';
 require_once __DIR__ . '/controllers/ProfileController.php';
 require_once __DIR__ . '/controllers/DisabilityController.php';
 require_once __DIR__ . '/controllers/SkillController.php';
+require_once __DIR__ . '/controllers/DivisiController.php'; // Tambahkan controller Divisi
 
 // 5. MODEL
 require_once __DIR__ . '/models/User.php';
@@ -25,3 +26,4 @@ require_once __DIR__ . '/models/Position.php';
 require_once __DIR__ . '/models/Staff.php';
 require_once __DIR__ . '/models/CandidateDisability.php';
 require_once __DIR__ . '/models/Skill.php';
+require_once __DIR__ . '/models/Divisi.php'; // Tambahkan model Divisi

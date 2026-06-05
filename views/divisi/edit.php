@@ -6,18 +6,18 @@ AuthController::requireLogin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
-    $id = $_POST['id_skill'];
-    $nama_skill = trim($_POST['nama_skill']);
+    $id = $_POST['id_divisi'];
+    $nama = trim($_POST['nama_divisi']);
 
-    if (SkillController::updateSkill($conn, $id, $nama_skill))
+    if (DivisiController::update($id, $nama))
     {
         $_SESSION['success'] =
-            "Skill berhasil diperbarui";
+            "Divisi berhasil diperbarui";
     }
     else
     {
         $_SESSION['error'] =
-            "Gagal memperbarui skill";
+            "Gagal memperbarui divisi";
     }
 }
 

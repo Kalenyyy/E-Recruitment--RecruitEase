@@ -16,6 +16,7 @@ require_once __DIR__ . '/controllers/CandidateController.php';
 require_once __DIR__ . '/controllers/StaffController.php';
 require_once __DIR__ . '/controllers/ProfileController.php';
 require_once __DIR__ . '/controllers/DisabilityController.php';
+require_once __DIR__ . '/controllers/PengalamanKerjaController.php';
 
 // 5. MODEL
 require_once __DIR__ . '/models/User.php';
@@ -23,4 +24,5 @@ require_once __DIR__ . '/models/Candidate.php';
 require_once __DIR__ . '/models/Position.php';
 require_once __DIR__ . '/models/Staff.php';
 require_once __DIR__ . '/models/CandidateDisability.php';
+require_once __DIR__ . '/models/PengalamanKerja.php';
 

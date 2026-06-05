@@ -5,7 +5,10 @@ AuthController::requireLogin();
 AuthController::isCandidate() or die("Access denied");
 
 $id = $_GET['id'] ?? null;
-if (!$id) header("Location: index.php");
+if (!$id) {
+    header("Location: index.php");
+    exit;
+}
 
 $profile = ProfileController::getCandidateProfile($id);
 
@@ -16,6 +19,7 @@ $candidate = $profile['candidate'];
 $selectedDisabilityTypes = $profile['disabilities'] ?? [];
 // $pendidikanList = $profile['education'] ?? [];
 // $pengalamanList = $profile['experience'] ?? [];
+$pengalamanList = PengalamanKerja::getByCandidateId($conn, $id);
 // $skillList = $profile['skills'] ?? [];
 // $sertifikasiList = $profile['certifications'] ?? [];
 
@@ -308,10 +312,12 @@ ob_start();
     </div>
 
     <!-- ========== PENGALAMAN KERJA ========== -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div
+        id="pengalaman-kerja"
+        class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
             <h2 class="font-bold text-slate-800">Pengalaman Kerja</h2>
-            <a href="pengalaman/create.php?candidate_id=<?= $candidate['id'] ?>"
+            <a href="<?= BASE_URL ?>views/pengalamanKerja/create.php?candidate_id=<?= $candidate['id'] ?>"
                 class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
                 + Tambah
             </a>
@@ -325,24 +331,107 @@ ob_start();
             <?php else: ?>
                 <?php foreach ($pengalamanList as $px): ?>
                     <div class="px-6 py-4 flex items-start justify-between">
+
                         <div class="flex gap-3">
                             <div class="w-2 h-2 rounded-full bg-emerald-600 mt-1.5 flex-shrink-0"></div>
-                            <div>
+
+                            <div class="space-y-1">
+
+                                <!-- POSISI -->
                                 <p class="text-sm font-semibold text-slate-800">
-                                    <?= htmlspecialchars($px['jabatan']) ?>
+                                    <?= htmlspecialchars($px['posisi']) ?>
                                 </p>
-                                <p class="text-xs text-slate-500">
-                                    <?= htmlspecialchars($px['perusahaan']) ?>
-                                    &mdash; <?= $px['tanggal_mulai'] ?> &ndash; <?= $px['tanggal_selesai'] ?? 'sekarang' ?>
+
+                                <!-- PERUSAHAAN -->
+                                <p class="text-xs text-500">
+                                    Perusahaan: <?= htmlspecialchars($px['nama_perusahaan']) ?>
                                 </p>
+
+                                <!-- TANGGAL -->
+                                <p class="text-xs text-500">
+                                    Tanggal mulai: <?= $px['tanggal_mulai'] ?> Tanggal selesai: <?= $px['tanggal_selesai'] ?? 'sekarang' ?>
+                                </p>
+
+                                <!-- DESKRIPSI -->
+                                <?php if (!empty($px['deskripsi_pekerjaan'])): ?>
+                                    <p class="text-xs text-500 leading-relaxed max-w-xl">
+                                        Deskripsi: <?= htmlspecialchars($px['deskripsi_pekerjaan']) ?>
+                                    </p>
+                                <?php endif; ?>
+
                             </div>
                         </div>
+
+                        <!-- ACTION -->
                         <div class="flex gap-3 flex-shrink-0">
-                            <a href="pengalaman/edit.php?id=<?= $px['id'] ?>"
-                                class="text-xs text-slate-400 hover:text-blue-700 transition">✏️ Edit</a>
-                            <a href="pengalaman/delete.php?id=<?= $px['id'] ?>"
-                                onclick="return confirm('Hapus data pengalaman ini?')"
-                                class="text-xs text-slate-400 hover:text-red-600 transition">🗑️ Hapus</a>
+                            <a href="<?= BASE_URL ?>views/pengalamanKerja/edit.php?id=<?= $px['id'] ?>"
+                                class="text-xs text-500 hover:text-blue-700">
+                                ✏️ Edit
+                            </a>
+
+                            <button
+                                type="button"
+                                onclick="openDeleteModal(
+                                    <?= $px['id'] ?>,
+                                    <?= $candidate['id'] ?>,
+                                    '<?= htmlspecialchars($px['posisi'], ENT_QUOTES) ?>'
+                                )"
+                                class="text-xs text-red-500 hover:text-red-700">
+                                🗑️ Hapus
+                            </button>
+                        </div>
+                        <!-- DELETE MODAL -->
+                        <div
+                            id="deleteModal"
+                            class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+
+                            <div
+                                class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+
+                                <div class="flex items-center gap-3 mb-4">
+
+                                    <div
+                                        class="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-600 text-xl">
+                                        ⚠️
+                                    </div>
+
+                                    <div>
+                                        <h3 class="font-bold text-slate-800">
+                                            Konfirmasi Hapus
+                                        </h3>
+
+                                        <p class="text-xs text-slate-500">
+                                            Tindakan ini tidak dapat dibatalkan
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                                <p
+                                    id="deleteMessage"
+                                    class="text-sm text-slate-600 mb-6">
+                                </p>
+
+                                <div class="flex justify-end gap-3">
+
+                                    <button
+                                        type="button"
+                                        onclick="closeDeleteModal()"
+                                        class="px-4 py-2 text-sm rounded-lg border border-slate-300">
+                                        Batal
+                                    </button>
+
+                                    <a
+                                        id="deleteConfirmBtn"
+                                        href="#"
+                                        class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700">
+                                        Ya, Hapus
+                                    </a>
+
+                                </div>
+
+                            </div>
+
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -650,6 +739,26 @@ ob_start();
             showToast('Terjadi kesalahan jaringan.', 'error');
         }
     });
+
+    function openDeleteModal(id, candidateId, posisi) {
+        const modal = document.getElementById('deleteModal');
+
+        document.getElementById('deleteMessage').innerHTML =
+            `Apakah anda yakin ingin menghapus pengalaman kerja <b>${posisi}</b>?`;
+
+        document.getElementById('deleteConfirmBtn').href =
+            `<?= BASE_URL ?>views/pengalamanKerja/delete.php?id=${id}&candidate_id=${candidateId}`;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 </script>
 
 <?php

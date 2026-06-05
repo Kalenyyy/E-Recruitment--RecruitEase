@@ -41,8 +41,8 @@ if (mysqli_query($conn, $sqlUsers)) {
     echo 'Error membuat tabel: ' . mysqli_error($conn);
 }
 
-$sqlDivisi = "CREATE TABLE IF NOT EXISTS divisi (
-    id_divisi INT AUTO_INCREMENT PRIMARY KEY,
+$sqlDivisi = "CREATE TABLE IF NOT EXISTS divisions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nama_divisi VARCHAR(100) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -55,14 +55,14 @@ if (mysqli_query($conn, $sqlDivisi)) {
 }
 
 $sqlPositions = "CREATE TABLE IF NOT EXISTS positions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    idINT AUTO_INCREMENT PRIMARY KEY,
 
     divisi_id INT NOT NULL,
     nama_posisi VARCHAR(100) NOT NULL,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (divisi_id) REFERENCES divisi(id_divisi)
+    FOREIGN KEY (divisi_id) REFERENCES divisions(id)
 );
 ";
 
@@ -161,6 +161,34 @@ if (mysqli_query($conn, $sqlCandidateDisabilities)) {
     echo 'Tabel candidate_disabilities berhasil dibuat <br>';
 } else {
     echo 'Error membuat tabel candidate_disabilities: ' . mysqli_error($conn);
+}
+
+$sqlPengalamanKerja = "
+CREATE TABLE IF NOT EXISTS pengalaman_kerja (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    candidate_id INT NOT NULL,
+
+    nama_perusahaan VARCHAR(255) NOT NULL,
+    posisi VARCHAR(255) NOT NULL,
+
+    tanggal_mulai DATE NOT NULL,
+    tanggal_selesai DATE DEFAULT NULL,
+
+    deskripsi_pekerjaan TEXT DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (candidate_id)
+        REFERENCES candidates(id)
+        ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlPengalamanKerja)) {
+    echo 'Tabel pengalaman_kerja berhasil dibuat <br>';
+} else {
+    echo 'Error pengalaman_kerja: ' . mysqli_error($conn);
 }
 
 /* =========================

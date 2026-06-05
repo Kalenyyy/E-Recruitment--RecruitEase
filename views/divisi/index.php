@@ -145,7 +145,7 @@ ob_start();
 
                         <td class="px-6 py-4">
 
-                            #<?= $divisi['id_divisi'] ?>
+                            #<?= $divisi['id'] ?>
 
                         </td>
 
@@ -161,7 +161,7 @@ ob_start();
 
                                 <button
                                     onclick="openEditModal(
-                                        <?= $divisi['id_divisi'] ?>,
+                                        <?= $divisi['id'] ?>,
                                         '<?= htmlspecialchars($divisi['nama_divisi']) ?>'
                                 )"
                                 class="px-3 py-1.5 rounded-lg text-xs font-semibold"
@@ -173,7 +173,7 @@ ob_start();
 
                                 <button
                                     onclick="openDeleteModal(
-                                        <?= $divisi['id_divisi'] ?>,
+                                        <?= $divisi['id'] ?>,
                                         '<?= htmlspecialchars($divisi['nama_divisi']) ?>'
                                     )"
                                     class="px-3 py-1.5 rounded-lg text-xs font-semibold"

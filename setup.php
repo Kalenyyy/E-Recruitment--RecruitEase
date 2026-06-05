@@ -149,6 +149,34 @@ if (mysqli_query($conn, $sqlCandidateDisabilities)) {
     echo 'Error membuat tabel candidate_disabilities: ' . mysqli_error($conn);
 }
 
+$sqlPengalamanKerja = "
+CREATE TABLE IF NOT EXISTS pengalaman_kerja (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    candidate_id INT NOT NULL,
+
+    nama_perusahaan VARCHAR(255) NOT NULL,
+    posisi VARCHAR(255) NOT NULL,
+
+    tanggal_mulai DATE NOT NULL,
+    tanggal_selesai DATE DEFAULT NULL,
+
+    deskripsi_pekerjaan TEXT DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (candidate_id)
+        REFERENCES candidates(id)
+        ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlPengalamanKerja)) {
+    echo 'Tabel pengalaman_kerja berhasil dibuat <br>';
+} else {
+    echo 'Error pengalaman_kerja: ' . mysqli_error($conn);
+}
+
 /* =========================
    4. INSERT ADMIN DEFAULT
 ========================= */

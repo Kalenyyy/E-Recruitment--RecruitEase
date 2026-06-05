@@ -55,7 +55,7 @@ if (mysqli_query($conn, $sqlDivisi)) {
 }
 
 $sqlPositions = "CREATE TABLE IF NOT EXISTS positions (
-    idINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
 
     divisi_id INT NOT NULL,
     nama_posisi VARCHAR(100) NOT NULL,

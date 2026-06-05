@@ -11,11 +11,13 @@ require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/koneksi.php';
 
 // 4. CONTROLLER 
-require_once __DIR__ . '/controllers/AuthController.php';
-require_once __DIR__ . '/controllers/CandidateController.php';
-require_once __DIR__ . '/controllers/StaffController.php';
-require_once __DIR__ . '/controllers/ProfileController.php';
-require_once __DIR__ . '/controllers/DisabilityController.php';
+require_once __DIR__ . '/controllers/AuthController.php';  // Tambahkan controller Auth
+require_once __DIR__ . '/controllers/CandidateController.php'; // Tambahkan controller Candidate
+require_once __DIR__ . '/controllers/StaffController.php'; // Tambahkan controller Staff
+require_once __DIR__ . '/controllers/ProfileController.php'; // Tambahkan controller Profile
+require_once __DIR__ . '/controllers/DisabilityController.php'; // Tambahkan controller Disability
+require_once __DIR__ . '/controllers/DivisiController.php'; // Tambahkan controller Divisi
+require_once __DIR__ . '/controllers/PosisiController.php'; 
 require_once __DIR__ . '/controllers/PengalamanKerjaController.php';
 
 // 5. MODEL
@@ -25,4 +27,6 @@ require_once __DIR__ . '/models/Position.php';
 require_once __DIR__ . '/models/Staff.php';
 require_once __DIR__ . '/models/CandidateDisability.php';
 require_once __DIR__ . '/models/PengalamanKerja.php';
+require_once __DIR__ . '/models/Divisi.php'; // Tambahkan model Divisi
+require_once __DIR__ . '/models/Posisi.php'; // Tambahkan model Posisi
 

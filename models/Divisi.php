@@ -9,20 +9,21 @@ class Divisi {
         return mysqli_query($conn, $query);
     }
 
-    public static function insert($conn, $nama_divisi) {
+    public static function insert($conn, $nama_divisi)
+    {
 
         $sql = "INSERT INTO divisions (nama_divisi) VALUES (?)";
 
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $nama_divisi);
 
-        return $stmt->execute();        
+        return $stmt->execute();
 
     }
 
-   // KLO BUTUH FUNGSI CARI DIVISI BERDASARKAN ID, BISA PAKE FUNGSI INI
+    // KLO BUTUH FUNGSI CARI DIVISI BERDASARKAN ID, BISA PAKE FUNGSI INI
 
-     public static function find($conn, $id)
+    public static function find($conn, $id)
     {
         $query = "SELECT * FROM divisions WHERE id = ?";
 

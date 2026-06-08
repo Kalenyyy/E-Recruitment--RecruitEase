@@ -22,7 +22,7 @@ $pendidikanList = Pendidikan::getByCandidateId(
     $candidate['id']
 ); // $pengalamanList = $profile['experience'] ?? [];
 $pengalamanList = PengalamanKerja::getByCandidateId($conn, $id);
-// $skillList = $profile['skills'] ?? [];
+$skillList = CandidateSkill::getByCandidateId($conn, $id);
 // $sertifikasiList = $profile['certifications'] ?? [];
 
 // ================= UI HELPERS (boleh di view) =================
@@ -494,32 +494,64 @@ ob_start();
     </div>
 
     <!-- ========== SKILL ========== -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div id="skill-section" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
             <h2 class="font-bold text-slate-800">Skill</h2>
-            <a href="skill/create.php?candidate_id=<?= $candidate['id'] ?>"
+            <a href="<?= BASE_URL ?>views/candidateSkill/create.php?candidate_id=<?= $candidate['id'] ?>"
                 class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
                 + Tambah
             </a>
         </div>
         <div class="p-6">
+
             <?php if (empty($skillList)): ?>
-                <div class="text-center py-4">
-                    <p class="text-2xl mb-2">🛠️</p>
-                    <p class="text-sm text-slate-400 italic">Belum ada skill yang ditambahkan.</p>
+
+                <div class="text-center py-8">
+                    <div
+                        class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center"
+                        style="background:#DBEAFE;color:#1E3A8A;">
+                        🛠️
+                    </div>
+
+                    <p class="text-sm text-slate-400 italic">
+                        Belum ada skill yang ditambahkan.
+                    </p>
                 </div>
+
             <?php else: ?>
-                <div class="flex flex-wrap gap-2">
-                    <?php foreach ($skillList as $s): ?>
-                        <span class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full bg-blue-50 border border-blue-200 text-blue-800">
-                            <?= htmlspecialchars($s['nama_skill']) ?>
-                            <a href="skill/delete.php?id=<?= $s['id'] ?>"
+
+                <div class="flex flex-wrap gap-3">
+
+                    <?php foreach ($skillList as $skill): ?>
+
+                        <div
+                            class="group flex items-center gap-2 px-4 py-2 rounded-full transition"
+                            style="
+                        background:#DBEAFE;
+                        color:#1E3A8A;
+                        border:1px solid #BFDBFE;
+                    ">
+
+                            <span class="text-xs font-semibold">
+                                <?= htmlspecialchars($skill['nama_skill']) ?>
+                            </span>
+
+                            <a
+                                href="<?= BASE_URL ?>views/candidateSkill/delete.php?id=<?= $skill['id'] ?>&candidate_id=<?= $candidate['id'] ?>"
                                 onclick="return confirm('Hapus skill ini?')"
-                                class="text-blue-400 hover:text-red-500 transition leading-none">✕</a>
-                        </span>
+                                class="opacity-60 hover:opacity-100 transition"
+                                style="color:#DC2626;">
+                                ✕
+                            </a>
+
+                        </div>
+
                     <?php endforeach; ?>
+
                 </div>
+
             <?php endif; ?>
+
         </div>
     </div>
 

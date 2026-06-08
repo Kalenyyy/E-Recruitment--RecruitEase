@@ -17,8 +17,10 @@ if (!$profile) die("Data tidak ditemukan");
 // ================= DATA READY =================
 $candidate = $profile['candidate'];
 $selectedDisabilityTypes = $profile['disabilities'] ?? [];
-// $pendidikanList = $profile['education'] ?? [];
-// $pengalamanList = $profile['experience'] ?? [];
+$pendidikanList = Pendidikan::getByCandidateId(
+    $conn,
+    $candidate['id']
+); // $pengalamanList = $profile['experience'] ?? [];
 $pengalamanList = PengalamanKerja::getByCandidateId($conn, $id);
 // $skillList = $profile['skills'] ?? [];
 // $sertifikasiList = $profile['certifications'] ?? [];
@@ -269,10 +271,12 @@ ob_start();
     </div>
 
     <!-- ========== PENDIDIKAN ========== -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div
+        id="pendidikan"
+        class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
             <h2 class="font-bold text-slate-800">Riwayat Pendidikan</h2>
-            <a href="pendidikan/create.php?candidate_id=<?= $candidate['id'] ?>"
+            <a href="<?= BASE_URL ?>views/pendidikan/create.php?candidate_id=<?= $candidate['id'] ?>"
                 class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
                 + Tambah
             </a>
@@ -290,20 +294,70 @@ ob_start();
                             <div class="w-2 h-2 rounded-full bg-blue-800 mt-1.5 flex-shrink-0"></div>
                             <div>
                                 <p class="text-sm font-semibold text-slate-800">
-                                    <?= htmlspecialchars($p['jenjang'] . ' ' . $p['jurusan']) ?>
+                                    <?php
+
+                                    $jenjangTanpaJurusan = [
+                                        'SD',
+                                        'SMP',
+                                        'SMA'
+                                    ];
+
+                                    if (in_array($p['jenjang'], $jenjangTanpaJurusan)) {
+                                        echo htmlspecialchars($p['jenjang']);
+                                    } else {
+                                        echo htmlspecialchars(
+                                            $p['jenjang'] . ' ' . $p['jurusan']
+                                        );
+                                    }
+
+                                    ?>
                                 </p>
                                 <p class="text-xs text-slate-500">
+
                                     <?= htmlspecialchars($p['institusi']) ?>
-                                    &mdash; <?= $p['tahun_masuk'] ?> &ndash; <?= $p['tahun_lulus'] ?? 'sekarang' ?>
+
+                                    &mdash;
+
+                                    <?= $p['tahun_masuk'] ?>
+
+                                    &ndash;
+
+                                    <?= $p['tahun_lulus'] ?? 'sekarang' ?>
+
+                                    <?php if (!empty($p['ipk'])): ?>
+
+                                        •
+
+                                        <?php
+
+                                        $jenjangSekolah = [
+                                            'SD',
+                                            'SMP',
+                                            'SMA'
+                                        ];
+
+                                        echo in_array(
+                                            $p['jenjang'],
+                                            $jenjangSekolah
+                                        )
+                                            ? 'Nilai: ' . $p['ipk']
+                                            : 'IPK: ' . $p['ipk'];
+
+                                        ?>
+
+                                    <?php endif; ?>
+
                                 </p>
                             </div>
                         </div>
                         <div class="flex gap-3 flex-shrink-0">
-                            <a href="pendidikan/edit.php?id=<?= $p['id'] ?>"
-                                class="text-xs text-slate-400 hover:text-blue-700 transition">✏️ Edit</a>
-                            <a href="pendidikan/delete.php?id=<?= $p['id'] ?>"
+                            <a href="<?= BASE_URL ?>views/pendidikan/edit.php?id=<?= $p['id_pendidikan'] ?>"
+                                class="text-xs text-500 hover:text-blue-700">
+                                ✏️ Edit</a>
+                            <a href="<?= BASE_URL ?>views/pendidikan/delete.php?id=<?= $p['id_pendidikan'] ?>"
                                 onclick="return confirm('Hapus data pendidikan ini?')"
-                                class="text-xs text-slate-400 hover:text-red-600 transition">🗑️ Hapus</a>
+                                class="text-xs text-red-500 hover:text-red-700">
+                                🗑️ Hapus</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -549,6 +603,12 @@ ob_start();
     textarea:focus,
     select:focus {
         border-bottom-color: #1E3A8A !important;
+    }
+</style>
+
+<style>
+    html {
+        scroll-behavior: smooth;
     }
 </style>
 

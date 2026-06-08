@@ -20,6 +20,7 @@ require_once __DIR__ . '/controllers/SkillController.php';
 require_once __DIR__ . '/controllers/DivisiController.php'; 
 require_once __DIR__ . '/controllers/PosisiController.php'; 
 require_once __DIR__ . '/controllers/PengalamanKerjaController.php';
+require_once __DIR__ . '/controllers/PendidikanController.php'; // Tambahkan controller Pendidikan
 
 // 5. MODEL
 require_once __DIR__ . '/models/User.php'; 
@@ -30,3 +31,5 @@ require_once __DIR__ . '/models/CandidateDisability.php';
 require_once __DIR__ . '/models/Divisi.php'; 
 require_once __DIR__ . '/models/Skill.php';
 require_once __DIR__ . '/models/PengalamanKerja.php';
+require_once __DIR__ . '/models/Pendidikan.php'; // Tambahkan model Pendidikan
+

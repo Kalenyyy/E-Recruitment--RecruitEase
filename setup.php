@@ -191,13 +191,32 @@ if (mysqli_query($conn, $sqlPengalamanKerja)) {
     echo 'Error pengalaman_kerja: ' . mysqli_error($conn);
 }
 
+$sqlCandidateSkill = "
+CREATE TABLE IF NOT EXISTS candidate_skills (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    candidate_id INT NOT NULL,
+    skill_id INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (candidate_id) REFERENCES candidates(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id_skill) ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlCandidateSkill)) {
+    echo 'Tabel candidate_skills berhasil dibuat <br>';
+} else {
+    echo 'Error candidate_skills: ' . mysqli_error($conn);
+}
+
 /* =========================
    4. INSERT ADMIN DEFAULT
 ========================= */
 $password = password_hash("admin123", PASSWORD_DEFAULT);
 
-$sqlInsert = "
-INSERT INTO users (username, email, password, role)
+$sqlInsert = "INSERT INTO users (username, email, password, role)
 VALUES ('admin', 'admin@gmail.com', '$password', 'admin')
 ";
 

@@ -63,7 +63,7 @@
 
         <a
             href="<?= BASE_URL ?>views/candidate/profile.php?id=<?= $candidate_id ?>"
-            class="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition"
+            class="inline-flex   items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition"
             style="background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;">
             ← Kembali
         </a>

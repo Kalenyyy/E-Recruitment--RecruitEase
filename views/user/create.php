@@ -11,11 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($result['status'] === true) {
         $_SESSION['success'] = "Akun HRD " . htmlspecialchars($_POST['nama_staff']) . " berhasil dibuat!";
-        header("Location: " . BASE_URL . "views/user/index.php");
-        exit;
+        header(
+            "Location: " . BASE_URL .
+                "views/candidate/profile.php?id=" .
+                $_POST['candidate_id'] .
+                "#pendidikan"
+        );
     } else {
-        $errors = $result['errors']; 
+        $errors = $result['errors'];
     }
+    exit;
 }
 
 ob_start();

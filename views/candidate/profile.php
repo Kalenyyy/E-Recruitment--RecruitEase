@@ -12,7 +12,8 @@ if (!$id) {
 
 $profile = ProfileController::getCandidateProfile($id);
 
-if (!$profile) die("Data tidak ditemukan");
+if (!$profile)
+    die("Data tidak ditemukan");
 
 // ================= DATA READY =================
 $candidate = $profile['candidate'];
@@ -21,13 +22,13 @@ $selectedDisabilityTypes = $profile['disabilities'] ?? [];
 // $pengalamanList = $profile['experience'] ?? [];
 $pengalamanList = PengalamanKerja::getByCandidateId($conn, $id);
 // $skillList = $profile['skills'] ?? [];
-// $sertifikasiList = $profile['certifications'] ?? [];
-
+$sertifikasiList = SertifikasiController::getByCandidateId($conn, $candidate['id']);
 // ================= UI HELPERS (boleh di view) =================
 $nama = $candidate['nama_lengkap'];
 $parts = explode(' ', trim($nama));
 $initials = strtoupper(substr($parts[0] ?? '', 0, 1));
-if (isset($parts[1])) $initials .= strtoupper(substr($parts[1], 0, 1));
+if (isset($parts[1]))
+    $initials .= strtoupper(substr($parts[1], 0, 1));
 
 $fotoPathLocal = __DIR__ . "/../../public/uploads/candidate/" . $candidate['foto'];
 $hasFoto = !empty($candidate['foto']) && file_exists($fotoPathLocal);
@@ -35,13 +36,13 @@ $hasFoto = !empty($candidate['foto']) && file_exists($fotoPathLocal);
 $isDisabled = !empty($candidate['is_disabled']);
 
 $jenisDisabilitas = [
-    'fisik'       => ['label' => 'Disabilitas Fisik', 'desc' => 'Gangguan fungsi gerak, anggota tubuh, atau mobilitas'],
-    'netra'       => ['label' => 'Disabilitas Netra', 'desc' => 'Gangguan penglihatan sebagian atau total'],
-    'rungu'       => ['label' => 'Disabilitas Rungu/Wicara', 'desc' => 'Gangguan pendengaran atau kemampuan berbicara'],
+    'fisik' => ['label' => 'Disabilitas Fisik', 'desc' => 'Gangguan fungsi gerak, anggota tubuh, atau mobilitas'],
+    'netra' => ['label' => 'Disabilitas Netra', 'desc' => 'Gangguan penglihatan sebagian atau total'],
+    'rungu' => ['label' => 'Disabilitas Rungu/Wicara', 'desc' => 'Gangguan pendengaran atau kemampuan berbicara'],
     'intelektual' => ['label' => 'Disabilitas Intelektual', 'desc' => 'Hambatan dalam fungsi intelektual dan adaptif'],
-    'mental'      => ['label' => 'Disabilitas Mental', 'desc' => 'Kondisi kesehatan mental yang memengaruhi aktivitas'],
-    'sensorik'    => ['label' => 'Disabilitas Sensorik', 'desc' => 'Gangguan pada indra selain penglihatan dan pendengaran'],
-    'lainnya'     => ['label' => 'Lainnya', 'desc' => 'Jenis disabilitas lain yang tidak tercantum di atas'],
+    'mental' => ['label' => 'Disabilitas Mental', 'desc' => 'Kondisi kesehatan mental yang memengaruhi aktivitas'],
+    'sensorik' => ['label' => 'Disabilitas Sensorik', 'desc' => 'Gangguan pada indra selain penglihatan dan pendengaran'],
+    'lainnya' => ['label' => 'Lainnya', 'desc' => 'Jenis disabilitas lain yang tidak tercantum di atas'],
 ];
 
 ob_start();
@@ -69,7 +70,8 @@ ob_start();
             </button>
         </div>
 
-        <form id="mainForm" action="<?= BASE_URL ?>public/actions/update_profile_candidate.php" method="POST" enctype="multipart/form-data" class="p-6">
+        <form id="mainForm" action="<?= BASE_URL ?>public/actions/update_profile_candidate.php" method="POST"
+            enctype="multipart/form-data" class="p-6">
             <input type="hidden" name="id" value="<?= $candidate['id'] ?>">
 
             <!-- Avatar -->
@@ -77,12 +79,10 @@ ob_start();
                 <div class="relative group">
                     <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-100 flex-shrink-0">
                         <?php if ($hasFoto): ?>
-                            <img id="fotoPreview"
-                                src="<?= BASE_URL ?>public/uploads/candidate/<?= $candidate['foto'] ?>"
+                            <img id="fotoPreview" src="<?= BASE_URL ?>public/uploads/candidate/<?= $candidate['foto'] ?>"
                                 class="w-full h-full object-cover">
                         <?php else: ?>
-                            <div id="fotoInitials"
-                                class="w-full h-full flex items-center justify-center text-xl font-bold"
+                            <div id="fotoInitials" class="w-full h-full flex items-center justify-center text-xl font-bold"
                                 style="background:#DBEAFE;color:#1E3A8A;">
                                 <?= $initials ?>
                             </div>
@@ -91,8 +91,7 @@ ob_start();
                     <label
                         class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition text-white text-[10px] font-semibold">
                         Ganti
-                        <input type="file" name="foto" class="hidden" accept="image/*"
-                            onchange="previewFoto(this)">
+                        <input type="file" name="foto" class="hidden" accept="image/*" onchange="previewFoto(this)">
                     </label>
                 </div>
                 <div>
@@ -105,20 +104,17 @@ ob_start();
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-semibold text-slate-500">Nama Lengkap</label>
-                    <input type="text" name="nama_lengkap"
-                        value="<?= htmlspecialchars($candidate['nama_lengkap']) ?>"
+                    <input type="text" name="nama_lengkap" value="<?= htmlspecialchars($candidate['nama_lengkap']) ?>"
                         class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent">
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-semibold text-slate-500">Email</label>
-                    <input type="email" name="email"
-                        value="<?= htmlspecialchars($candidate['email']) ?>"
+                    <input type="email" name="email" value="<?= htmlspecialchars($candidate['email']) ?>"
                         class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent">
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-semibold text-slate-500">No. HP</label>
-                    <input type="text" name="no_hp"
-                        value="<?= htmlspecialchars($candidate['no_hp']) ?>"
+                    <input type="text" name="no_hp" value="<?= htmlspecialchars($candidate['no_hp']) ?>"
                         class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent">
                 </div>
                 <div class="flex flex-col gap-1">
@@ -132,8 +128,10 @@ ob_start();
                     <select name="jenis_kelamin"
                         class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent cursor-pointer">
                         <option value="">-- Pilih --</option>
-                        <option value="L" <?= ($candidate['jenis_kelamin'] ?? '') === 'L' ? 'selected' : '' ?>>Laki-laki</option>
-                        <option value="P" <?= ($candidate['jenis_kelamin'] ?? '') === 'P' ? 'selected' : '' ?>>Perempuan</option>
+                        <option value="L" <?= ($candidate['jenis_kelamin'] ?? '') === 'L' ? 'selected' : '' ?>>Laki-laki
+                        </option>
+                        <option value="P" <?= ($candidate['jenis_kelamin'] ?? '') === 'P' ? 'selected' : '' ?>>Perempuan
+                        </option>
                     </select>
                 </div>
             </div>
@@ -166,7 +164,8 @@ ob_start();
             </div>
             <div id="cvActions" class="flex gap-2">
                 <?php if (!empty($candidate['cv_file'])): ?>
-                    <a id="cvPreviewBtn" href="<?= BASE_URL ?>public/uploads/cv/<?= $candidate['cv_file'] ?>" target="_blank"
+                    <a id="cvPreviewBtn" href="<?= BASE_URL ?>public/uploads/cv/<?= $candidate['cv_file'] ?>"
+                        target="_blank"
                         class="px-4 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
                         👁️ Preview
                     </a>
@@ -216,8 +215,8 @@ ob_start();
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleDisabilitas" class="sr-only peer"
-                        <?= $isDisabled ? 'checked' : '' ?>
-                        onchange="toggleDisabilitasSection(this.checked)">
+                    <?= $isDisabled ? 'checked' : '' ?>    
+                    onchange="toggleDisabilitasSection(this.checked)">
                     <div class="w-11 h-6 bg-slate-200 rounded-full peer
                         peer-checked:bg-blue-800
                         after:content-[''] after:absolute after:top-0.5 after:left-0.5
@@ -232,7 +231,8 @@ ob_start();
 
                 <!-- Deskripsi tambahan -->
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Deskripsi Tambahan <span class="font-normal">(opsional)</span></label>
+                    <label class="text-xs font-semibold text-slate-500">Deskripsi Tambahan <span
+                            class="font-normal">(opsional)</span></label>
                     <textarea id="disabilityDescription" rows="2"
                         class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent resize-none"><?= htmlspecialchars($candidate['disability_description'] ?? '') ?></textarea>
                 </div>
@@ -242,16 +242,15 @@ ob_start();
                     <p class="text-xs font-semibold text-slate-500 mb-3">Pilih Jenis Disabilitas</p>
                     <div class="flex flex-col gap-2">
                         <?php foreach ($jenisDisabilitas as $key => $info): ?>
-                            <div class="flex items-center justify-between px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 transition">
+                            <div
+                                class="flex items-center justify-between px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 transition">
                                 <div>
                                     <p class="text-sm font-semibold text-slate-800"><?= $info['label'] ?></p>
                                     <p class="text-xs text-slate-500"><?= $info['desc'] ?></p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
-                                    <input type="checkbox"
-                                        class="sr-only peer disability-type-toggle"
-                                        data-type="<?= $key ?>"
-                                        <?= in_array($key, $selectedDisabilityTypes) ? 'checked' : '' ?>>
+                                    <input type="checkbox" class="sr-only peer disability-type-toggle"
+                                        data-type="<?= $key ?>" <?= in_array($key, $selectedDisabilityTypes) ? 'checked' : '' ?>>
                                     <div class="w-10 h-5 bg-slate-200 rounded-full peer
                                     peer-checked:bg-blue-800
                                     after:content-[''] after:absolute after:top-0.5 after:left-0.5
@@ -312,9 +311,7 @@ ob_start();
     </div>
 
     <!-- ========== PENGALAMAN KERJA ========== -->
-    <div
-        id="pengalaman-kerja"
-        class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div id="pengalaman-kerja" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
             <h2 class="font-bold text-slate-800">Pengalaman Kerja</h2>
             <a href="<?= BASE_URL ?>views/pengalamanKerja/create.php?candidate_id=<?= $candidate['id'] ?>"
@@ -349,7 +346,8 @@ ob_start();
 
                                 <!-- TANGGAL -->
                                 <p class="text-xs text-500">
-                                    Tanggal mulai: <?= $px['tanggal_mulai'] ?> Tanggal selesai: <?= $px['tanggal_selesai'] ?? 'sekarang' ?>
+                                    Tanggal mulai: <?= $px['tanggal_mulai'] ?> Tanggal selesai:
+                                    <?= $px['tanggal_selesai'] ?? 'sekarang' ?>
                                 </p>
 
                                 <!-- DESKRIPSI -->
@@ -369,24 +367,18 @@ ob_start();
                                 ✏️ Edit
                             </a>
 
-                            <button
-                                type="button"
-                                onclick="openDeleteModal(
+                            <button type="button" onclick="openDeleteModal(
                                     <?= $px['id'] ?>,
                                     <?= $candidate['id'] ?>,
                                     '<?= htmlspecialchars($px['posisi'], ENT_QUOTES) ?>'
-                                )"
-                                class="text-xs text-red-500 hover:text-red-700">
+                                )" class="text-xs text-red-500 hover:text-red-700">
                                 🗑️ Hapus
                             </button>
                         </div>
                         <!-- DELETE MODAL -->
-                        <div
-                            id="deleteModal"
-                            class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+                        <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
 
-                            <div
-                                class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+                            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
 
                                 <div class="flex items-center gap-3 mb-4">
 
@@ -407,23 +399,17 @@ ob_start();
 
                                 </div>
 
-                                <p
-                                    id="deleteMessage"
-                                    class="text-sm text-slate-600 mb-6">
+                                <p id="deleteMessage" class="text-sm text-slate-600 mb-6">
                                 </p>
 
                                 <div class="flex justify-end gap-3">
 
-                                    <button
-                                        type="button"
-                                        onclick="closeDeleteModal()"
+                                    <button type="button" onclick="closeDeleteModal()"
                                         class="px-4 py-2 text-sm rounded-lg border border-slate-300">
                                         Batal
                                     </button>
 
-                                    <a
-                                        id="deleteConfirmBtn"
-                                        href="#"
+                                    <a id="deleteConfirmBtn" href="#"
                                         class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700">
                                         Ya, Hapus
                                     </a>
@@ -457,10 +443,10 @@ ob_start();
             <?php else: ?>
                 <div class="flex flex-wrap gap-2">
                     <?php foreach ($skillList as $s): ?>
-                        <span class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full bg-blue-50 border border-blue-200 text-blue-800">
+                        <span
+                            class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full bg-blue-50 border border-blue-200 text-blue-800">
                             <?= htmlspecialchars($s['nama_skill']) ?>
-                            <a href="skill/delete.php?id=<?= $s['id'] ?>"
-                                onclick="return confirm('Hapus skill ini?')"
+                            <a href="skill/delete.php?id=<?= $s['id'] ?>" onclick="return confirm('Hapus skill ini?')"
                                 class="text-blue-400 hover:text-red-500 transition leading-none">✕</a>
                         </span>
                     <?php endforeach; ?>
@@ -470,54 +456,209 @@ ob_start();
     </div>
 
     <!-- ========== SERTIFIKASI ========== -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-            <h2 class="font-bold text-slate-800">Sertifikasi</h2>
-            <a href="sertifikasi/create.php?candidate_id=<?= $candidate['id'] ?>"
-                class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
-                + Tambah
-            </a>
-        </div>
-        <div class="divide-y divide-slate-100">
-            <?php if (empty($sertifikasiList)): ?>
-                <div class="p-8 text-center">
-                    <p class="text-2xl mb-2">🏆</p>
-                    <p class="text-sm text-slate-400 italic">Belum ada sertifikasi.</p>
-                </div>
-            <?php else: ?>
-                <?php foreach ($sertifikasiList as $s): ?>
-                    <div class="px-6 py-4 flex items-start justify-between">
-                        <div class="flex gap-3">
-                            <div class="w-2 h-2 rounded-full bg-blue-600 mt-1.5 flex-shrink-0"></div>
-                            <div>
-                                <p class="text-sm font-semibold text-slate-800">
-                                    <?= htmlspecialchars($s['nama_sertifikasi']) ?>
-                                </p>
-                                <p class="text-xs text-slate-500">
-                                    <?= htmlspecialchars($s['penerbit']) ?>
-                                    &mdash; Berlaku s/d <?= $s['tanggal_kadaluarsa'] ?? '&infin;' ?>
-                                </p>
-                                <?php if (!empty($s['file_sertifikat'])): ?>
-                                    <a href="<?= BASE_URL ?>public/uploads/sertifikasi/<?= $s['file_sertifikat'] ?>"
-                                        target="_blank"
-                                        class="text-xs text-blue-600 hover:underline mt-0.5 inline-block">
-                                        📎 Lihat sertifikat
-                                    </a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <div class="flex gap-3 flex-shrink-0">
-                            <a href="sertifikasi/edit.php?id=<?= $s['id'] ?>"
-                                class="text-xs text-slate-400 hover:text-blue-700 transition">✏️ Edit</a>
-                            <a href="sertifikasi/delete.php?id=<?= $s['id'] ?>"
-                                onclick="return confirm('Hapus sertifikasi ini?')"
-                                class="text-xs text-slate-400 hover:text-red-600 transition">🗑️ Hapus</a>
-                        </div>
+        <div id="sertifikasi" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+
+            <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
+                <h2 class="font-bold text-slate-800">Sertifikasi</h2>
+
+                <a href="<?= BASE_URL ?>views/sertifikasi/create.php?candidate_id=<?= $candidate['id'] ?>"
+                    class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
+                    + Tambah
+                </a>
+            </div>
+
+            <div class="p-4">
+
+                <?php if (mysqli_num_rows($sertifikasiList) == 0): ?>
+
+                    <div class="text-center py-8">
+                        <p class="text-3xl mb-2">🏆</p>
+                        <p class="text-sm text-slate-400 italic">
+                            Belum ada sertifikasi.
+                        </p>
                     </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+
+                <?php else: ?>
+
+                    <div class="space-y-4">
+
+                        <?php while ($sertifikasi = mysqli_fetch_assoc($sertifikasiList)): ?>
+
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+
+                                <div class="flex justify-between items-start">
+
+                                    <div>
+
+                                        <h3 class="font-semibold text-slate-800">
+                                            <?= htmlspecialchars($sertifikasi['nama_sertifikasi']) ?>
+                                        </h3>
+
+                                        <p class="text-sm text-slate-500">
+                                            <?= htmlspecialchars($sertifikasi['penyelenggara']) ?>
+                                        </p>
+
+                                        <p class="text-xs text-slate-400 mt-1">
+                                            Terbit:
+                                            <?= date('d M Y', strtotime($sertifikasi['tanggal_terbit'])) ?>
+                                        </p>
+
+                                        <?php if (!empty($sertifikasi['file_sertifikasi'])): ?>
+
+                                            <?php
+                                            $file = $sertifikasi['file_sertifikasi'];
+
+                                            $ext = strtolower(
+                                                pathinfo($file, PATHINFO_EXTENSION)
+                                            );
+
+                                            $fileUrl =
+                                                BASE_URL .
+                                                "uploads/sertifikasi/" .
+                                                $file;
+                                            ?>
+
+                                            <div class="mt-3 flex items-start gap-4 cursor-pointer"
+    onclick="openPreviewSertifikasi(
+        '<?= $fileUrl ?>',
+        '<?= $ext ?>'
+    )">
+
+    <div
+        class="w-[180px] h-[110px] overflow-hidden rounded-xl border border-slate-200 bg-slate-100 flex-shrink-0">
+
+        <?php if (
+            in_array(
+                $ext,
+                ['jpg', 'jpeg', 'png', 'webp']
+            )
+        ): ?>
+
+            <img
+                src="<?= $fileUrl ?>"
+                class="w-full h-full object-cover">
+
+        <?php elseif ($ext === 'pdf'): ?>
+
+            <canvas
+                class="pdf-thumb w-full h-full"
+                data-pdf="<?= $fileUrl ?>">
+            </canvas>
+
+        <?php endif; ?>
+
     </div>
+
+    <div class="min-w-0 flex-1">
+
+        <p class="text-sm font-medium text-slate-700 truncate">
+            <?= htmlspecialchars($file) ?>
+        </p>
+
+        <p class="text-xs text-slate-400 mt-1">
+            Klik untuk melihat dokumen
+        </p>
+
+    </div>
+
+</div>
+                                        <?php endif; ?>
+
+                                    </div>
+
+                                    <div class="flex gap-3 flex-shrink-0">
+
+                                        <a href="<?= BASE_URL ?>views/sertifikasi/edit.php?id=<?= $sertifikasi['id_sertifikasi'] ?>"
+                                            class="text-xs text-slate-400 hover:text-blue-700 transition">
+
+                                            ✏️ Edit
+
+                                        </a>
+
+                                        <button type="button" onclick="openDeleteModalSertifikasi(
+                                            <?= $sertifikasi['id_sertifikasi'] ?>,
+                                            '<?= htmlspecialchars($sertifikasi['nama_sertifikasi'], ENT_QUOTES) ?>'
+                                        )" class="text-xs text-red-500 hover:text-red-700">
+
+                                            🗑️ Hapus
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        <?php endwhile; ?>
+
+                    </div>
+
+                <?php endif; ?>
+
+            </div>
+
+        </div>
+
+        <!-- MODAL DELETE SERTIFIKASI -->
+        <div id="deleteModalSertifikasi" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-600 text-xl">
+                        ⚠️
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800">
+                            Konfirmasi Hapus
+                        </h3>
+
+                        <p class="text-xs text-slate-500">
+                            Tindakan ini tidak dapat dibatalkan
+                        </p>
+                    </div>
+                </div>
+                <p id="deleteMessageSertifikasi" class="text-sm text-slate-600 mb-6">
+                </p>
+
+                <div class="flex justify-end gap-3">
+
+                    <button type="button" onclick="closeDeleteModalSertifikasi()"
+                        class="px-4 py-2 text-sm rounded-lg border border-slate-300">
+                        Batal
+                    </button>
+
+                    <a id="deleteSertifikasiLink" href="#"
+                        class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700">
+                        Ya, Hapus
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+        <div id="previewModalSertifikasi" class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/70">
+
+            <div class="bg-white rounded-2xl w-[95%] h-[90%] overflow-hidden relative">
+
+                <button onclick="closePreviewSertifikasi()"
+                    class="absolute top-4 right-4 z-10 bg-white rounded-full px-3 py-1 shadow">
+
+                    ✕
+                </button>
+
+                <div id="previewContentSertifikasi" class="w-full h-full">
+
+                </div>
+
+            </div>
+
+        </div>
+
 
     <!-- ========== DANGER ZONE ========== -->
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
@@ -527,7 +668,8 @@ ob_start();
         <div class="p-6 flex items-center justify-between">
             <div>
                 <h4 class="text-sm font-semibold text-slate-800">Hapus Akun</h4>
-                <p class="text-xs text-slate-500">Setelah dihapus, semua data tidak dapat dikembalikan. Harap berhati-hati.</p>
+                <p class="text-xs text-slate-500">Setelah dihapus, semua data tidak dapat dikembalikan. Harap
+                    berhati-hati.</p>
             </div>
             <a href="delete.php?id=<?= $candidate['id'] ?>"
                 onclick="return confirm('Yakin ingin menghapus akun ini secara permanen?')"
@@ -551,13 +693,13 @@ ob_start();
         border-bottom-color: #1E3A8A !important;
     }
 </style>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
     // Preview foto sebelum upload
     function previewFoto(input) {
         if (!input.files || !input.files[0]) return;
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             // Kalau ada elemen img, update src-nya
             let img = document.getElementById('fotoPreview');
             const initials = document.getElementById('fotoInitials');
@@ -634,7 +776,7 @@ ob_start();
     }
 
     // ===== AJAX Upload CV =====
-    document.getElementById('cvFileInput').addEventListener('change', async function() {
+    document.getElementById('cvFileInput').addEventListener('change', async function () {
         const file = this.files[0];
         if (!file) return;
 
@@ -701,7 +843,7 @@ ob_start();
     });
 
     // ===== AJAX Submit Main Form =====
-    document.getElementById('mainForm').addEventListener('submit', async function(e) {
+    document.getElementById('mainForm').addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const formData = new FormData(this);
@@ -742,6 +884,179 @@ ob_start();
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
+
+    function openDeleteModalSertifikasi(
+        idSertifikasi,
+        namaSertifikasi
+    ) {
+
+        const modal =
+            document.getElementById(
+                'deleteModalSertifikasi'
+            );
+
+        document.getElementById(
+            'deleteMessageSertifikasi'
+        ).innerHTML =
+            `Apakah anda yakin ingin menghapus sertifikasi <b>${namaSertifikasi}</b>?`;
+
+        document.getElementById(
+            'deleteSertifikasiLink'
+        ).href =
+            "<?= BASE_URL ?>views/sertifikasi/delete.php?id=" +
+            idSertifikasi;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeDeleteModalSertifikasi() {
+
+        const modal =
+            document.getElementById(
+                'deleteModalSertifikasi'
+            );
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function openPreviewSertifikasi(
+        fileUrl,
+        ext
+    ) {
+
+        const modal =
+            document.getElementById(
+                'previewModalSertifikasi'
+            );
+
+        const content =
+            document.getElementById(
+                'previewContentSertifikasi'
+            );
+
+        if (
+            ext === 'jpg' ||
+            ext === 'jpeg' ||
+            ext === 'png' ||
+            ext === 'webp'
+        ) {
+
+            content.innerHTML = `
+            <div class="w-full h-full flex items-center justify-center bg-slate-100">
+                <img
+                    src="${fileUrl}"
+                    class="max-w-full max-h-full object-contain">
+            </div>
+        `;
+
+        } else {
+
+            content.innerHTML = `
+            <iframe
+                src="${fileUrl}"
+                class="w-full h-full"
+                frameborder="0">
+            </iframe>
+        `;
+
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closePreviewSertifikasi() {
+
+        const modal =
+            document.getElementById(
+                'previewModalSertifikasi'
+            );
+
+        const content =
+            document.getElementById(
+                'previewContentSertifikasi'
+            );
+
+        content.innerHTML = '';
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    document
+        .getElementById(
+            'previewModalSertifikasi'
+        )
+        .addEventListener(
+            'click',
+            function (e) {
+
+                if (e.target === this) {
+                    closePreviewSertifikasi();
+                }
+
+            }
+        )
+
+
+</script>
+
+<script>
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        async function () {
+
+            const thumbs =
+                document.querySelectorAll(
+                    '.pdf-thumb'
+                );
+
+            for (const canvas of thumbs) {
+
+                const pdfUrl =
+                    canvas.dataset.pdf;
+
+                try {
+
+                    const pdf =
+                        await pdfjsLib
+                            .getDocument(pdfUrl)
+                            .promise;
+
+                    const page =
+                        await pdf.getPage(1);
+
+                    const viewport =
+                        page.getViewport({
+                            scale: 1
+                        });
+
+                    const ctx =
+                        canvas.getContext('2d');
+
+                    canvas.style.width = "180px";
+canvas.style.height = "110px";
+
+                    await page.render({
+                        canvasContext: ctx,
+                        viewport: viewport
+                    }).promise;
+
+                } catch (err) {
+
+                    console.error(
+                        err
+                    );
+
+                }
+
+            }
+
+        });
+
 </script>
 
 <?php

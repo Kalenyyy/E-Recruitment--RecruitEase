@@ -35,6 +35,20 @@ class JobFormController
         return JobForm::find($conn, $id);
     }
 
+    public static function update($conn, $id, $postData)
+    {
+        $errors = [];
+        if (empty($postData['judul_job'])) $errors['judul_job'] = "Judul wajib diisi";
+        if (empty($postData['posisi_id'])) $errors['posisi_id'] = "Posisi wajib dipilih";
+
+        if (!empty($errors)) {
+            return ['status' => false, 'errors' => $errors];
+        }
+
+        $result = JobForm::update($conn, $id, $postData);
+        return $result ? ['status' => true] : ['status' => false, 'errors' => ['umum' => 'Gagal memperbarui data.']];
+    }
+
     public static function updateStatus($conn, $id, $status)
     {
         return JobForm::updateStatus($conn, $id, $status);

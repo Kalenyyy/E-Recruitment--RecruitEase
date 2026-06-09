@@ -216,14 +216,6 @@ ob_start();
                     </div>
                 </div>
 
-                <!-- CTA -->
-                <div class="mt-6 p-5 rounded-xl text-center" style="background: #1E293B;">
-                    <p class="text-xs font-bold uppercase tracking-widest mb-3" style="color: #64748B;">Siap Memproses Lowongan?</p>
-                    <button class="w-full py-3 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
-                        style="background: #3B82F6;">
-                        PUBLIKASIKAN SEKARANG
-                    </button>
-                </div>
             </div>
 
         </div>

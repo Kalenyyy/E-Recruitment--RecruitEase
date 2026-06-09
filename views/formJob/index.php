@@ -34,6 +34,29 @@ ob_start();
         backdrop-filter: blur(4px);
     }
 </style>
+<?php if (isset($_SESSION['success'])): ?>
+    <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down"
+        style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
+
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full flex-shrink-0"
+                style="width:40px;height:40px;background:#DCFCE7;border:1px solid #86EFAC;">
+                <span style="font-size:20px;">✅</span>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-sm">Berhasil!</h4>
+                <p class="text-xs"><?= $_SESSION['success'] ?></p>
+            </div>
+        </div>
+
+        <button onclick="document.getElementById('alert-success').remove()">
+            <span class="text-xl px-2">×</span>
+        </button>
+    </div>
+
+    <?php unset($_SESSION['success']); ?>
+<?php endif; ?>
 
 <!-- HEADER -->
 <div class="flex items-center justify-between mb-6">

@@ -101,28 +101,35 @@ class JobForm
         $job = $stmt->get_result()->fetch_assoc();
 
         if ($job) {
-            $sqlSkills = "SELECT s.nama_skill 
+            // --- PERBAIKAN DI SINI ---
+            $job['skills'] = [];    // Untuk simpan NAMA (buat view.php)
+            $job['skill_ids'] = []; // Untuk simpan ID (buat edit.php)
+
+            // Kita JOIN ke tabel skills supaya dapet namanya juga
+            $sqlSkills = "SELECT js.skill_id, s.nama_skill 
                       FROM job_skills js 
                       JOIN skills s ON js.skill_id = s.id_skill
                       WHERE js.job_id = ?";
-            $stmtSkills = $conn->prepare($sqlSkills);
-            $stmtSkills->bind_param("i", $id);
-            $stmtSkills->execute();
-            $resSkills = $stmtSkills->get_result();
 
-            $job['skills'] = [];
-            while ($row = $resSkills->fetch_assoc()) {
-                $job['skills'][] = $row['nama_skill'];
+            $stmtS = $conn->prepare($sqlSkills);
+            $stmtS->bind_param("i", $id);
+            $stmtS->execute();
+            $resS = $stmtS->get_result();
+
+            while ($row = $resS->fetch_assoc()) {
+                $job['skills'][] = $row['nama_skill']; // Ini yang dipake di view.php
+                $job['skill_ids'][] = $row['skill_id'];  // Ini yang dipake di edit.php
             }
+            // -------------------------
 
-            $sqlDis = "SELECT disability_type FROM job_disabilitas WHERE job_id = ?";
-            $stmtDis = $conn->prepare($sqlDis);
-            $stmtDis->bind_param("i", $id);
-            $stmtDis->execute();
-            $resDis = $stmtDis->get_result();
-
+            // 3. Ambil Jenis Disabilitas
             $job['disability_types'] = [];
-            while ($row = $resDis->fetch_assoc()) {
+            $sqlDis = "SELECT disability_type FROM job_disabilitas WHERE job_id = ?";
+            $stmtD = $conn->prepare($sqlDis);
+            $stmtD->bind_param("i", $id);
+            $stmtD->execute();
+            $resD = $stmtD->get_result();
+            while ($row = $resD->fetch_assoc()) {
                 $job['disability_types'][] = $row['disability_type'];
             }
         }
@@ -134,6 +141,68 @@ class JobForm
         $stmt = $conn->prepare("UPDATE job_posting SET status = ? WHERE id = ?");
         $stmt->bind_param("si", $status, $id);
         return $stmt->execute();
+    }
+
+    public static function update($conn, $id, $data)
+    {
+        mysqli_begin_transaction($conn);
+        try {
+            // 1. Update Tabel Utama
+            $sqlJob = "UPDATE job_posting SET 
+            posisi_id = ?, judul_job = ?, deskripsi = ?, lokasi = ?, 
+            tipe_pekerjaan = ?, gaji = ?, is_disabilitas = ?, 
+            is_remote_interview = ?, is_remote_work = ?, additional_support = ?
+            WHERE id = ?";
+
+            $stmt = $conn->prepare($sqlJob);
+            $is_disabilitas = isset($data['is_disabilitas']) ? (int)$data['is_disabilitas'] : 0;
+            $is_remote_interview = isset($data['is_remote_interview']) ? (int)$data['is_remote_interview'] : 0;
+            $is_remote_work = isset($data['is_remote_work']) ? (int)$data['is_remote_work'] : 0;
+            $gaji = (!empty($data['gaji'])) ? $data['gaji'] : null;
+            $additional_support = !empty($data['additional_support']) ? $data['additional_support'] : null;
+
+            $stmt->bind_param(
+                "isssssiiisi",
+                $data['posisi_id'],
+                $data['judul_job'],
+                $data['deskripsi'],
+                $data['lokasi'],
+                $data['tipe_pekerjaan'],
+                $gaji,
+                $is_disabilitas,
+                $is_remote_interview,
+                $is_remote_work,
+                $additional_support,
+                $id
+            );
+            $stmt->execute();
+
+            // 2. Update Skills (Hapus yang lama, insert yang baru)
+            $conn->query("DELETE FROM job_skills WHERE job_id = $id");
+            if (!empty($data['skill_ids'])) {
+                $stmtSkill = $conn->prepare("INSERT INTO job_skills (job_id, skill_id, created_at) VALUES (?, ?, NOW())");
+                foreach ($data['skill_ids'] as $sid) {
+                    $stmtSkill->bind_param("ii", $id, $sid);
+                    $stmtSkill->execute();
+                }
+            }
+
+            // 3. Update Jenis Disabilitas (Hapus yang lama, insert yang baru)
+            $conn->query("DELETE FROM job_disabilitas WHERE job_id = $id");
+            if ($is_disabilitas === 1 && !empty($data['disability_types'])) {
+                $stmtDis = $conn->prepare("INSERT INTO job_disabilitas (job_id, disability_type, created_at) VALUES (?, ?, NOW())");
+                foreach ($data['disability_types'] as $type) {
+                    $stmtDis->bind_param("is", $id, $type);
+                    $stmtDis->execute();
+                }
+            }
+
+            mysqli_commit($conn);
+            return true;
+        } catch (Exception $e) {
+            mysqli_rollback($conn);
+            return false;
+        }
     }
 
     // Fungsi delete juga harus menghapus anak-anaknya jika tidak pakai ON DELETE CASCADE di database

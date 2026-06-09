@@ -91,7 +91,7 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 <span class="sidebar-text">Dashboard</span>
             </a>
 
-            <a href="/lowongan"
+            <a href="<?= BASE_URL ?>views/formJob/index.php""
                 class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 text-white/70 hover:bg-white/10 hover:text-white">
                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -164,13 +164,13 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                     Data Master
                 </p>
 
-        <a href="<?= BASE_URL ?>views/divisi/index.php" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 text-white/70 hover:bg-white/10 hover:text-white">
-            <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            <span class="sidebar-text">Divisi</span>
-        </a>
+                <a href="<?= BASE_URL ?>views/divisi/index.php" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 text-white/70 hover:bg-white/10 hover:text-white">
+                    <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <span class="sidebar-text">Divisi</span>
+                </a>
 
                 <a href="<?= BASE_URL ?>views/posisi/index.php"
                     class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 text-white/70 hover:bg-white/10 hover:text-white">
@@ -189,9 +189,11 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 </a>
             <?php endif; ?>
 
-            <p class="px-3 pt-3 text-[9px] font-bold uppercase tracking-widest text-white/30 sidebar-text">
-                Sistem
-            </p>
+            <?php if ($role == 'admin'): ?>
+                <p class="px-3 pt-3 text-[9px] font-bold uppercase tracking-widest text-white/30 sidebar-text">
+                    Sistem
+                </p>
+            <?php endif; ?>
 
             <?php if ($role == 'admin'): ?>
                 <a href="<?= BASE_URL ?>views/user/index.php"
@@ -204,7 +206,8 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 </a>
             <?php endif ?>
 
-        <?php endif; // End Admin & HR ?>
+        <?php endif; // End Admin & HR 
+        ?>
 
         <!-- ====================================== -->
         <!-- SIDEBAR UNTUK CANDIDATE -->
@@ -275,7 +278,8 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 <span class="sidebar-text">Profil Saya</span>
             </a>
 
-        <?php endif; // End Candidate ?>
+        <?php endif; // End Candidate 
+        ?>
 
     </nav>
 

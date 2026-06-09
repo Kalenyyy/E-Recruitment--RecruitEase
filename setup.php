@@ -222,6 +222,32 @@ if (mysqli_query($conn, $sqlPengalamanKerja)) {
     echo 'Error pengalaman_kerja: ' . mysqli_error($conn);
 }
 
+$sqlSertifikasi = "
+CREATE TABLE IF NOT EXISTS sertifikasi (
+    id_sertifikasi INT AUTO_INCREMENT PRIMARY KEY,
+
+    candidate_id INT NOT NULL,
+
+    nama_sertifikasi VARCHAR(255) NOT NULL,
+    penyelenggara VARCHAR(255) NOT NULL,
+    tanggal_terbit DATE NOT NULL,
+
+    file_sertifikasi VARCHAR(255) DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (candidate_id)
+        REFERENCES candidates(id)
+        ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlSertifikasi)) {
+    echo 'Tabel sertifikasi berhasil dibuat <br>';
+} else {
+    echo 'Error sertifikasi: ' . mysqli_error($conn);
+}
+
 $sqlCandidateSkill = "
 CREATE TABLE IF NOT EXISTS candidate_skills (
     id INT AUTO_INCREMENT PRIMARY KEY,

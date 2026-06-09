@@ -211,7 +211,7 @@ CREATE TABLE IF NOT EXISTS pendidikan (
 ";
 
 if (mysqli_query($conn, $sqlPendidikan)) {
-    echo 'Tabel pendidikan berhasil dibuat <br>'; 
+    echo 'Tabel pendidikan berhasil dibuat <br>';
 } else {
     echo 'Error pendidikan: ' . mysqli_error($conn);
 }
@@ -268,6 +268,93 @@ if (mysqli_query($conn, $sqlCandidateSkill)) {
     echo 'Error candidate_skills: ' . mysqli_error($conn);
 }
 
+// JOB POSTING
+$sqlJobPosting = "
+CREATE TABLE IF NOT EXISTS job_posting (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    posisi_id INT NOT NULL,
+    staff_id INT NOT NULL,
+
+    judul_job VARCHAR(255) NOT NULL,
+    deskripsi TEXT NOT NULL,
+    lokasi VARCHAR(255) NOT NULL,
+
+    tipe_pekerjaan ENUM('Full Time', 'Part Time', 'Contract', 'Internship', 'Freelance') NOT NULL,
+
+    gaji DECIMAL(15,2) DEFAULT NULL,
+
+    status ENUM('open', 'closed', 'draft') DEFAULT 'draft',
+
+    is_disabilitas BOOLEAN DEFAULT FALSE,
+    is_remote_interview BOOLEAN DEFAULT FALSE,
+    is_remote_work BOOLEAN DEFAULT FALSE,
+
+    additional_support TEXT DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (posisi_id) REFERENCES positions(id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlJobPosting)) {
+    echo 'Tabel job_posting berhasil dibuat <br>';
+} else {
+    echo 'Error job_posting: ' . mysqli_error($conn);
+}
+
+
+// JOB DISABILITAS
+$sqlJobDisabilitas = "
+CREATE TABLE IF NOT EXISTS job_disabilitas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    job_id INT NOT NULL,
+    disability_type VARCHAR(100) NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (job_id)
+        REFERENCES job_posting(id)
+        ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlJobDisabilitas)) {
+    echo 'Tabel job_disabilitas berhasil dibuat <br>';
+} else {
+    echo 'Error job_disabilitas: ' . mysqli_error($conn);
+}
+
+
+// JOB SKILLS
+$sqlJobSkills = "
+CREATE TABLE IF NOT EXISTS job_skills (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    job_id INT NOT NULL,
+    skill_id INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (job_id)
+        REFERENCES job_posting(id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (skill_id)
+        REFERENCES skills(id_skill)
+        ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlJobSkills)) {
+    echo 'Tabel job_skills berhasil dibuat <br>';
+} else {
+    echo 'Error job_skills: ' . mysqli_error($conn);
+}
+
 /* =========================
    4. INSERT ADMIN DEFAULT
 ========================= */
@@ -280,4 +367,3 @@ VALUES ('admin', 'admin@gmail.com', '$password', 'admin')
 mysqli_query($conn, $sqlInsert);
 
 echo "Database dan tabel berhasil dibuat!";
-?>

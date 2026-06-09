@@ -128,23 +128,6 @@ ob_start();
         </div>
     </div>
 
-    <!-- SECTION 3: SECURITY -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="px-6 py-4 border-b border-slate-50">
-            <h2 class="font-bold text-slate-800">Security</h2>
-        </div>
-        <div class="p-6 flex items-center justify-between">
-            <div>
-                <h4 class="text-sm font-semibold text-slate-800">Change Password</h4>
-                <p class="text-xs text-slate-500">Perbarui kata sandi Anda secara berkala untuk menjaga keamanan akun.</p>
-            </div>
-            <a href="change_password.php?id=<?= $hrd['id'] ?>"
-                class="px-4 py-2 text-xs font-semibold rounded-xl border border-slate-200 hover:bg-slate-50 transition flex items-center gap-2">
-                🔒 Change Password
-            </a>
-        </div>
-    </div>
-
     <!-- SECTION 4: DANGER ZONE -->
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 border-b border-slate-50">

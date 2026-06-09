@@ -41,17 +41,17 @@ if (mysqli_query($conn, $sqlUsers)) {
     echo 'Error membuat tabel: ' . mysqli_error($conn);
 }
 
-$sqlDivisions = "CREATE TABLE IF NOT EXISTS divisions (
+$sqlDivisi = "CREATE TABLE IF NOT EXISTS divisions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nama_divisi VARCHAR(100) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ";
 
-if (mysqli_query($conn, $sqlDivisions)) {
-    echo 'Tabel divisions berhasil dibuat <br>';
+if (mysqli_query($conn, $sqlDivisi)) {
+    echo 'Tabel divisi berhasil dibuat <br>';
 } else {
-    echo 'Error divisions: ' . mysqli_error($conn);
+    echo 'Error divisi: ' . mysqli_error($conn);
 }
 
 $sqlPositions = "CREATE TABLE IF NOT EXISTS positions (
@@ -71,6 +71,20 @@ if (mysqli_query($conn, $sqlPositions)) {
 } else {
     echo 'Error positions: ' . mysqli_error($conn);
 }
+
+$sqlSkill = "CREATE TABLE IF NOT EXISTS skills (
+    id_skill INT AUTO_INCREMENT PRIMARY KEY,
+    nama_skill VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+";
+
+if (mysqli_query($conn, $sqlSkill)) {
+    echo 'Tabel skills berhasil dibuat <br>';
+} else {
+    echo 'Error membuat tabel skills: ' . mysqli_error($conn);
+}
+
 
 $sqlStaff = "CREATE TABLE IF NOT EXISTS staff (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -149,16 +163,121 @@ if (mysqli_query($conn, $sqlCandidateDisabilities)) {
     echo 'Error membuat tabel candidate_disabilities: ' . mysqli_error($conn);
 }
 
+//PENGALAMAN KERJA
+$sqlPengalamanKerja = "
+CREATE TABLE IF NOT EXISTS pengalaman_kerja (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    candidate_id INT NOT NULL,
+
+    nama_perusahaan VARCHAR(255) NOT NULL,
+    posisi VARCHAR(255) NOT NULL,
+
+    tanggal_mulai DATE NOT NULL,
+    tanggal_selesai DATE DEFAULT NULL,
+
+    deskripsi_pekerjaan TEXT DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (candidate_id)
+        REFERENCES candidates(id)
+        ON DELETE CASCADE
+);
+";
+
+//PENIDIKAN
+$sqlPendidikan = "
+CREATE TABLE IF NOT EXISTS pendidikan (
+    id_pendidikan INT AUTO_INCREMENT PRIMARY KEY,
+
+    candidate_id INT NOT NULL,
+
+    institusi VARCHAR(255) NOT NULL,
+    jenjang ENUM('SD', 'SMP', 'SMA', 'SMK', 'D1', 'D2', 'D3', 'D4', 'S1', 'S2', 'S3') NOT NULL,
+    jurusan VARCHAR(255) DEFAULT NULL,
+
+    tahun_masuk YEAR NOT NULL,
+    tahun_lulus YEAR DEFAULT NULL,
+
+    ipk DECIMAL(3,2) DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (candidate_id)
+        REFERENCES candidates(id)
+        ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlPendidikan)) {
+    echo 'Tabel pendidikan berhasil dibuat <br>'; 
+} else {
+    echo 'Error pendidikan: ' . mysqli_error($conn);
+}
+
+if (mysqli_query($conn, $sqlPengalamanKerja)) {
+    echo 'Tabel pengalaman_kerja berhasil dibuat <br>';
+} else {
+    echo 'Error pengalaman_kerja: ' . mysqli_error($conn);
+}
+
+$sqlSertifikasi = "
+CREATE TABLE IF NOT EXISTS sertifikasi (
+    id_sertifikasi INT AUTO_INCREMENT PRIMARY KEY,
+
+    candidate_id INT NOT NULL,
+
+    nama_sertifikasi VARCHAR(255) NOT NULL,
+    penyelenggara VARCHAR(255) NOT NULL,
+    tanggal_terbit DATE NOT NULL,
+
+    file_sertifikasi VARCHAR(255) DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (candidate_id)
+        REFERENCES candidates(id)
+        ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlSertifikasi)) {
+    echo 'Tabel sertifikasi berhasil dibuat <br>';
+} else {
+    echo 'Error sertifikasi: ' . mysqli_error($conn);
+}
+
+$sqlCandidateSkill = "
+CREATE TABLE IF NOT EXISTS candidate_skills (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    candidate_id INT NOT NULL,
+    skill_id INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (candidate_id) REFERENCES candidates(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id_skill) ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlCandidateSkill)) {
+    echo 'Tabel candidate_skills berhasil dibuat <br>';
+} else {
+    echo 'Error candidate_skills: ' . mysqli_error($conn);
+}
+
 /* =========================
    4. INSERT ADMIN DEFAULT
 ========================= */
 $password = password_hash("admin123", PASSWORD_DEFAULT);
 
-$sqlInsert = "
-INSERT INTO users (username, email, password, role)
+$sqlInsert = "INSERT INTO users (username, email, password, role)
 VALUES ('admin', 'admin@gmail.com', '$password', 'admin')
 ";
 
 mysqli_query($conn, $sqlInsert);
 
 echo "Database dan tabel berhasil dibuat!";
+?>

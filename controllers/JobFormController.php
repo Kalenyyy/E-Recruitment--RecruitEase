@@ -1,8 +1,6 @@
 <?php
 class JobFormController
 {
-
-
     public static function getAllJobs($conn)
     {
         return JobForm::getAllJobs($conn);

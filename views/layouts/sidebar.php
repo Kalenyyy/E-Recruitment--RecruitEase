@@ -228,7 +228,7 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 <span class="sidebar-text">Dashboard</span>
             </a>
 
-            <a href="/lowongan"
+            <a href="<?= BASE_URL ?>views/lowonganPekerjaan/index.php"
                 class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 text-white/70 hover:bg-white/10 hover:text-white">
                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"

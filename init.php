@@ -24,6 +24,7 @@ require_once __DIR__ . '/controllers/PengalamanKerjaController.php';
 require_once __DIR__ . '/controllers/SertifikasiController.php';
 require_once __DIR__ . '/controllers/PendidikanController.php'; // Tambahkan controller Pendidikan
 require_once __DIR__ . '/controllers/JobFormController.php'; 
+require_once __DIR__ . '/controllers/LowonganPekerjaanController.php'; 
 
 // 5. MODEL
 require_once __DIR__ . '/models/User.php'; 
@@ -38,4 +39,5 @@ require_once __DIR__ . '/models/PengalamanKerja.php';
 require_once __DIR__ . '/models/Sertifikasi.php';
 require_once __DIR__ . '/models/Pendidikan.php'; // Tambahkan model Pendidikan
 require_once __DIR__ . '/models/JobForm.php';
+require_once __DIR__ . '/models/LowonganPekerjaan.php';
 

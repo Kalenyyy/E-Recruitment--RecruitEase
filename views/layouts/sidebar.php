@@ -14,7 +14,7 @@ function isActive($path)
 }
 
 $role = $_SESSION['role'] ?? 'guest';
-$userData = StaffController::show($conn, $_SESSION['user_id'] ?? null);
+$userData = StaffController::getStaffByUserId($conn, $_SESSION['user_id'] ?? null);
 $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] ?? null);
 ?>
 
@@ -81,7 +81,8 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 <span class="sidebar-text">Lowongan</span>
             </a>
 
-            <a href="/pelamar" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('pelamar') ?>">
+            <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php"
+                class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('pelamarPekerjaan') ?>">
                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -101,6 +102,16 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 </svg>
                 <span class="sidebar-text">Jadwal Interview</span>
             </a>
+
+            <?php if ($role === 'hr'): ?>
+                <p class="px-3 pt-3 text-[9px] font-bold uppercase tracking-widest text-white/30 sidebar-text">Profil</p>
+                <a href="<?= BASE_URL ?>views/staff/profile.php?id=<?= $userData['id']; ?>" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('profile.php') ?>">
+                    <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span class="sidebar-text">Profil Saya</span>
+                </a>
+            <?php endif; ?>
 
             <?php if ($role === 'admin'): ?>
                 <p class="px-3 pt-3 text-[9px] font-bold uppercase tracking-widest text-white/30 sidebar-text">Data Master</p>
@@ -128,6 +139,7 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                     </svg>
                     <span class="sidebar-text">Pengguna</span>
                 </a>
+
             <?php endif; ?>
 
         <?php endif; ?>
@@ -141,19 +153,27 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 </svg>
                 <span class="sidebar-text">Dashboard</span>
             </a>
-            <a href="<?= BASE_URL ?>views/lowonganPekerjaan/index.php" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('lowonganPekerjaan') ?>">
+
+
+
+            <a href="<?= BASE_URL ?>views/lowonganPekerjaan/index.php"
+                class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 text-white/70 hover:bg-white/10 hover:text-white">
                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" />
                 </svg>
                 <span class="sidebar-text">Jelajahi Lowongan</span>
             </a>
-            <a href="/lamaran-saya" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('lamaran-saya') ?>">
+
+            <a href="<?= rtrim(BASE_URL, '/') ?>/views/lamaran/index.php"
+                class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 text-white/70 hover:bg-white/10 hover:text-white">
                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <span class="sidebar-text">Lamaran Saya</span>
             </a>
-            <a href="/interview-saya" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('interview-saya') ?>">
+
+            <a href="<?= rtrim(BASE_URL, '/') ?>/views/interview/index.php"
+                class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 text-white/70 hover:bg-white/10 hover:text-white">
                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>

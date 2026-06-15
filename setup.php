@@ -355,6 +355,29 @@ if (mysqli_query($conn, $sqlJobSkills)) {
     echo 'Error job_skills: ' . mysqli_error($conn);
 }
 
+$sqlTransaksiLamaran = "
+CREATE TABLE IF NOT EXISTS candidate_apply_job (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_kandidat INT NOT NULL,
+    id_lowongan INT NOT NULL,
+    catatan TEXT DEFAULT NULL, 
+    expert_bidang VARCHAR(50) NOT NULL,
+    pengalaman_bidang VARCHAR(50) NOT NULL,
+    status_lamaran ENUM('ADMINISTRASI', 'INTERVIEW', 'DITOLAK', 'DITERIMA') DEFAULT 'ADMINISTRASI', 
+    tanggal_melamar DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_kandidat) REFERENCES candidates(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_lowongan) REFERENCES job_posting(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_apply (id_kandidat, id_lowongan)
+);
+";
+
+if (mysqli_query($conn, $sqlTransaksiLamaran)) {
+    echo 'Tabel candidate_apply_job berhasil dibuat <br>';
+} else {
+    echo 'Error membuat tabel candidate_apply_job: ' . mysqli_error($conn) . '<br>';
+}
+
 /* =========================
    4. INSERT ADMIN DEFAULT
 ========================= */

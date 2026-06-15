@@ -87,4 +87,34 @@ class LowonganPekerjaan
         return $conn->query("SELECT DISTINCT lokasi FROM job_posting WHERE status='open'")->fetch_all(MYSQLI_ASSOC);
     }
 
+    public static function getJobById($conn, $id)
+    {
+        $sql = "SELECT jp.*, 
+                GROUP_CONCAT(DISTINCT s.nama_skill SEPARATOR ', ') as skills
+                FROM job_posting jp
+                LEFT JOIN job_skills js ON jp.id = js.job_id
+                LEFT JOIN skills s ON js.skill_id = s.id_skill
+                WHERE jp.id = ? AND jp.status = 'open'
+                GROUP BY jp.id";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        return $result->fetch_assoc() ?: null;
+    }
+
+    public static function getDisabilityTypesByJobId($conn, $jobId)
+    {
+        $sql = "SELECT disability_type FROM job_disabilitas WHERE job_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $jobId);
+        $stmt->execute();
+
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        // Sederhanakan format array agar mudah dibaca di View: ['visual', 'hearing']
+        return array_column($result, 'disability_type');
+    }
 }

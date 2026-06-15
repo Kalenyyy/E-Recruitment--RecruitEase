@@ -11,7 +11,7 @@ $errors = [];
 // Pastikan parameter $conn disertakan jika controller memerlukannya
 $posisiList   = PosisiController::read($conn);
 $skillList    = SkillController::getAllSkill($conn);
-$userData = StaffController::show($conn, $_SESSION['user_id'] ?? null);
+$userData = StaffController::getStaffByUserId($conn, $_SESSION['user_id'] ?? null);
 
 // 2. Proses Form saat tombol Publish ditekan
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

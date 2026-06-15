@@ -279,7 +279,7 @@ ob_start();
 </style>
 
 <!-- Page Header -->
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-4">
     <div>
         <h1 class="text-xl font-bold text-[#1E293B] tracking-tight">Dashboard</h1>
         <p class="text-sm text-[#64748B] mt-0.5">Selamat datang kembali, <span class="font-semibold text-[#1E3A8A]">
@@ -442,161 +442,6 @@ ob_start();
 
     </div>
 
-    <!-- Bottom Row: Table + Activity -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        <!-- Recent Applicants Table -->
-        <div class="chart-card lg:col-span-2">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <p class="chart-card-title">Pelamar Terbaru</p>
-                    <p class="chart-card-subtitle">5 pelamar paling baru</p>
-                </div>
-                <a href="/pelamar" class="text-xs font-semibold text-[#3B82F6] hover:text-[#1E3A8A] transition-colors">Lihat semua →</a>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Nama</th>
-                            <th>Posisi</th>
-                            <th>Tanggal</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">AR</div>
-                                    <span class="font-medium text-[#1E293B]">Andi Rahmawan</span>
-                                </div>
-                            </td>
-                            <td class="text-[#64748B]">Frontend Developer</td>
-                            <td class="text-[#94A3B8]">12 Jan 2025</td>
-                            <td><span class="badge badge-interview">Interview</span></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold flex-shrink-0">SP</div>
-                                    <span class="font-medium text-[#1E293B]">Siti Permata</span>
-                                </div>
-                            </td>
-                            <td class="text-[#64748B]">HR Manager</td>
-                            <td class="text-[#94A3B8]">11 Jan 2025</td>
-                            <td><span class="badge badge-diterima">Diterima</span></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold flex-shrink-0">BP</div>
-                                    <span class="font-medium text-[#1E293B]">Budi Pratama</span>
-                                </div>
-                            </td>
-                            <td class="text-[#64748B]">Backend Developer</td>
-                            <td class="text-[#94A3B8]">10 Jan 2025</td>
-                            <td><span class="badge badge-review">Review</span></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-bold flex-shrink-0">DK</div>
-                                    <span class="font-medium text-[#1E293B]">Dewi Kartika</span>
-                                </div>
-                            </td>
-                            <td class="text-[#64748B]">UI/UX Designer</td>
-                            <td class="text-[#94A3B8]">10 Jan 2025</td>
-                            <td><span class="badge badge-ditolak">Ditolak</span></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-7 h-7 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center text-xs font-bold flex-shrink-0">MF</div>
-                                    <span class="font-medium text-[#1E293B]">Muhammad Farhan</span>
-                                </div>
-                            </td>
-                            <td class="text-[#64748B]">Data Analyst</td>
-                            <td class="text-[#94A3B8]">09 Jan 2025</td>
-                            <td><span class="badge badge-review">Review</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Right Column -->
-        <div class="flex flex-col gap-4">
-
-            <!-- Top Positions -->
-            <div class="chart-card">
-                <p class="chart-card-title mb-1">Posisi Paling Diminati</p>
-                <p class="chart-card-subtitle mb-4">Berdasarkan jumlah pelamar</p>
-                <div class="flex flex-col gap-3">
-                    <?php
-                    $positions = [
-                        ['name' => 'Frontend Developer', 'count' => 87, 'pct' => 87],
-                        ['name' => 'Backend Developer', 'count' => 65, 'pct' => 65],
-                        ['name' => 'UI/UX Designer', 'count' => 52, 'pct' => 52],
-                        ['name' => 'Data Analyst', 'count' => 38, 'pct' => 38],
-                    ];
-                    $barColors = ['#3B82F6', '#6366F1', '#10B981', '#F59E0B'];
-                    foreach ($positions as $i => $pos): ?>
-                        <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-xs font-medium text-[#475569]"><?= $pos['name'] ?></span>
-                                <span class="text-xs font-bold text-[#1E293B]"><?= $pos['count'] ?></span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" style="width:<?= $pos['pct'] ?>%; background:<?= $barColors[$i] ?>;"></div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-
-            <!-- Activity Feed -->
-            <div class="chart-card flex-1">
-                <p class="chart-card-title mb-4">Aktivitas Terbaru</p>
-                <div class="flex flex-col">
-                    <div class="activity-item">
-                        <div class="activity-dot bg-[#3B82F6]"></div>
-                        <div>
-                            <p class="text-xs font-semibold text-[#1E293B]">Pelamar baru masuk</p>
-                            <p class="text-[11px] text-[#94A3B8] mt-0.5">Andi Rahmawan – Frontend Dev</p>
-                            <p class="text-[10px] text-[#CBD5E1] mt-0.5">2 menit lalu</p>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot bg-[#10B981]"></div>
-                        <div>
-                            <p class="text-xs font-semibold text-[#1E293B]">Pelamar diterima</p>
-                            <p class="text-[11px] text-[#94A3B8] mt-0.5">Siti Permata – HR Manager</p>
-                            <p class="text-[10px] text-[#CBD5E1] mt-0.5">1 jam lalu</p>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot bg-[#F59E0B]"></div>
-                        <div>
-                            <p class="text-xs font-semibold text-[#1E293B]">Jadwal interview dibuat</p>
-                            <p class="text-[11px] text-[#94A3B8] mt-0.5">3 kandidat – 15 Jan 2025</p>
-                            <p class="text-[10px] text-[#CBD5E1] mt-0.5">3 jam lalu</p>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot bg-[#F43F5E]"></div>
-                        <div>
-                            <p class="text-xs font-semibold text-[#1E293B]">Lowongan dibuka</p>
-                            <p class="text-[11px] text-[#94A3B8] mt-0.5">Data Analyst – Dept. IT</p>
-                            <p class="text-[10px] text-[#CBD5E1] mt-0.5">5 jam lalu</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
     <!-- Chart.js Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -724,7 +569,7 @@ ob_start();
         buildDonutChart();
     </script>
 
-<?php endif; // End of HR/Admin Dashboard 
+<?php endif; 
 ?>
 
 <!-- ====================================== -->

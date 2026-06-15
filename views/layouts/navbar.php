@@ -3,7 +3,7 @@ require_once __DIR__ . "/../../init.php";
 
 
 $role = $_SESSION['role'] ?? 'guest';
-$userData = StaffController::show($conn, $_SESSION['user_id'] ?? null);
+$userData = StaffController::getStaffByUserId($conn, $_SESSION['user_id'] ?? null);
 $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] ?? null);
 ?>
 
@@ -78,9 +78,9 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 class="flex items-center gap-2.5 rounded-xl px-3 py-1.5 transition hover:bg-slate-100">
 
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-900 to-blue-500 text-sm font-bold text-white">
-                    <?php if($_SESSION['role'] == 'admin'): ?>
+                    <?php if ($_SESSION['role'] == 'admin'): ?>
                         <?= strtoupper(substr($_SESSION['username'] ?? 'U', 0, 2)) ?>
-                    <?php elseif($_SESSION['role'] == 'hr'): ?>
+                    <?php elseif ($_SESSION['role'] == 'hr'): ?>
                         <?= strtoupper(substr($userData['nama_staff'] ?? 'U', 0, 2)) ?>
                     <?php else: ?>
                         <?= strtoupper(substr($candidateData['nama_lengkap'] ?? 'U', 0, 2)) ?>
@@ -89,9 +89,9 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
 
                 <div class="hidden flex-col text-left leading-tight md:flex">
                     <span class="text-sm font-semibold text-slate-800">
-                        <?php if($_SESSION['role'] == 'admin'): ?>
+                        <?php if ($_SESSION['role'] == 'admin'): ?>
                             <?= $_SESSION['username'] ?? 'User' ?>
-                        <?php elseif($_SESSION['role'] == 'hr'): ?>
+                        <?php elseif ($_SESSION['role'] == 'hr'): ?>
                             <?= $userData['nama_staff'] ?? 'User' ?>
                         <?php else: ?>
                             <?= $candidateData['nama_lengkap'] ?? 'User' ?>
@@ -119,9 +119,9 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 <div class="border-b border-blue-100 bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-3">
                     <p class="mb-0.5 text-xs text-slate-500">Masuk sebagai</p>
                     <p class="truncate text-sm font-semibold text-blue-900">
-                        <?php if($_SESSION['role'] == 'admin'): ?>
+                        <?php if ($_SESSION['role'] == 'admin'): ?>
                             <?= $_SESSION['username'] ?? 'User' ?>
-                        <?php elseif($_SESSION['role'] == 'hr'): ?>
+                        <?php elseif ($_SESSION['role'] == 'hr'): ?>
                             <?= $userData['nama_staff'] ?? 'User' ?>
                         <?php else: ?>
                             <?= $candidateData['nama_lengkap'] ?? 'User' ?>
@@ -132,22 +132,22 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 <?php if ($_SESSION['role'] == 'hr' || $_SESSION['role'] == 'candidate'): ?>
                     <ul class="py-1.5 text-sm">
                         <li>
-                            <?php if($_SESSION['role'] == 'hr'): ?>
-                            <a href="<?= BASE_URL ?>views/staff/profile.php?id=<?= $userData['id']; ?>"
-                                class="flex items-center gap-3 px-4 py-2.5 text-slate-600 transition hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 hover:text-blue-900">
-                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                Profil Saya
-                            </a>
+                            <?php if ($_SESSION['role'] == 'hr'): ?>
+                                <a href="<?= BASE_URL ?>views/staff/profile.php?id=<?= $userData['id']; ?>"
+                                    class="flex items-center gap-3 px-4 py-2.5 text-slate-600 transition hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 hover:text-blue-900">
+                                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    Profil Saya
+                                </a>
                             <?php else: ?>
-                            <a href="<?= BASE_URL ?>views/candidate/profile.php?id=<?= $candidateData['id']; ?>"
-                                class="flex items-center gap-3 px-4 py-2.5 text-slate-600 transition hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 hover:text-blue-900">
-                                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                Profil Saya
-                            </a>
+                                <a href="<?= BASE_URL ?>views/candidate/profile.php?id=<?= $candidateData['id']; ?>"
+                                    class="flex items-center gap-3 px-4 py-2.5 text-slate-600 transition hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 hover:text-blue-900">
+                                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    Profil Saya
+                                </a>
                             <?php endif; ?>
                         </li>
                     </ul>

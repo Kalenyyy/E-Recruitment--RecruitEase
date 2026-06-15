@@ -10,6 +10,17 @@ class DivisiController
         return Divisi::read($conn);
     }
 
+     public static function getTotalCount($conn, $search = '')
+    {
+        return Divisi::count($conn, $search);
+    }
+
+    public static function getPaginated($conn, $page, $perPage, $search = '')
+    {
+        $offset = ($page - 1) * $perPage;
+        return Divisi::readPaginated($conn, $offset, $perPage, $search);
+    }
+
     // KLO BUTUH FUNGSI CARI DIVISI BERDASARKAN ID, BISA PAKE FUNGSI INI
 
     public static function find($id)

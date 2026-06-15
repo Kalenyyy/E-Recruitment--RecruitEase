@@ -1,217 +1,158 @@
 <?php
-
 require_once __DIR__ . '/../../init.php';
 
 AuthController::requireLogin();
 AuthController::isAdmin() or die("Access denied");
 
-$divisiList = DivisiController::read();
-$divisiCount = mysqli_num_rows($divisiList);
+// --- LOGIKA SEARCH & PAGINATION ---
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+
+$perPage = 7; // Jumlah data per halaman
+// Nanti kita buat fungsi getTotalCount & getPaginated di DivisiController
+$totalData = DivisiController::getTotalCount($conn, $search);
+$totalPages = ($totalData > 0) ? ceil($totalData / $perPage) : 1;
+
+$divisiList = DivisiController::getPaginated($conn, $page, $perPage, $search);
+$divisiCountInPage = mysqli_num_rows($divisiList);
 
 ob_start();
-
 ?>
 
+<style>
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-down {
+        animation: fadeInDown 0.4s ease-out;
+    }
+</style>
+
+<!-- ALERT NOTIFIKASI -->
 <?php if (isset($_SESSION['success'])): ?>
-    <div id="alert-success"
-        class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down"
-        style="background:#F0FDF4; border:1px solid #BBF7D0; color:#166534;">
-
+    <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down"
+        style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
         <div class="flex items-center gap-3">
-
-            <div
-                class="flex items-center justify-center rounded-full flex-shrink-0"
-                style="width:40px;height:40px;background:#DCFCE7;border:1px solid #86EFAC;">
-
-                ✅
-
+            <div class="flex items-center justify-center rounded-full flex-shrink-0" style="width:40px;height:40px;background:#DCFCE7;border:1px solid #86EFAC;">
+                <span style="font-size:20px;">✅</span>
             </div>
-
             <div>
-                <h4 class="font-bold text-sm">
-                    Berhasil!
-                </h4>
-
-                <p class="text-xs">
-                    <?= $_SESSION['success'] ?>
-                </p>
+                <h4 class="font-bold text-sm">Berhasil!</h4>
+                <p class="text-xs"><?= $_SESSION['success'] ?></p>
             </div>
-
         </div>
-
-        <button onclick="document.getElementById('alert-success').remove()">
-            ×
-        </button>
-
+        <button onclick="document.getElementById('alert-success').remove()"><span class="text-xl px-2">×</span></button>
     </div>
-
     <?php unset($_SESSION['success']); ?>
-
 <?php endif; ?>
 
-<div class="flex items-center justify-between mb-6">
-
+<!-- HEADER -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
     <div>
-
-        <h1 class="text-xl font-bold text-slate-800">
-            Manajemen Divisi
-        </h1>
-
-        <p class="text-sm text-slate-500">
-            Kelola data divisi perusahaan
-        </p>
-
+        <h1 class="text-xl font-bold text-slate-800">Manajemen Divisi</h1>
+        <p class="text-sm text-slate-500">Kelola data divisi perusahaan</p>
     </div>
 
-    <button
-            onclick="openCreateModal()"
-            class="px-4 py-2 rounded-xl text-white font-semibold"
-            style="background:#1E3A8A;">
+    <div class="flex flex-wrap items-center gap-3">
+        <!-- SEARCH FORM (Server Side) -->
+        <form method="GET" action="" class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+            <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari divisi..."
+                class="pl-8 pr-10 py-2 text-xs rounded-xl outline-none w-64 border border-slate-300 focus:ring-2 focus:ring-blue-100">
+            <?php if (!empty($search)): ?>
+                <a href="index.php" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-lg">×</a>
+            <?php endif; ?>
+        </form>
 
+        <button onclick="openCreateModal()" class="px-4 py-2 rounded-xl text-white font-semibold text-sm" style="background:#1E3A8A;">
             + Tambah Divisi
-
-    </button>
-
+        </button>
+    </div>
 </div>
 
-<div
-    class="rounded-2xl overflow-hidden"
-    style="background:#FFFFFF;border:1px solid #E2E8F0;">
-
-    <div
-        class="flex items-center gap-3 px-6 py-4"
-        style="border-bottom:1px solid #E2E8F0;">
-
-        <span
-            class="text-sm font-semibold text-slate-800">
-
-            Daftar Divisi
-
+<!-- TABLE CARD -->
+<div class="rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm">
+    <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-200">
+        <span class="text-sm font-semibold text-slate-800">
+            <?= empty($search) ? 'Daftar Divisi' : 'Hasil Pencarian: "' . htmlspecialchars($search) . '"' ?>
         </span>
-
-        <span
-            class="text-xs font-semibold px-2 py-1 rounded-full"
-            style="background:#EFF6FF;color:#1E3A8A;">
-
-            <?= $divisiCount ?> Divisi
-
+        <span class="text-xs font-semibold px-2 py-1 rounded-full" style="background:#EFF6FF;color:#1E3A8A;">
+            <?= $totalData ?> Total
         </span>
-
-        <div class="ml-auto">
-
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Cari divisi..."
-                class="px-3 py-2 text-xs rounded-lg outline-none"
-                style="border:1px solid #CBD5E1;">
-
-        </div>
-
     </div>
 
     <div class="overflow-x-auto">
-
-        <table class="w-full text-sm">
-
-            <thead style="background:#F8FAFC;">
-
+        <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-400 uppercase text-xs font-bold">
                 <tr>
-
-                    <th class="px-6 py-3 text-left">
-                        ID
-                    </th>
-
-                    <th class="px-6 py-3 text-left">
-                        Nama Divisi
-                    </th>
-
-                    <th class="px-6 py-3 text-right">
-                        Aksi
-                    </th>
-
+                    <th class="px-6 py-4">No</th>
+                    <th class="px-6 py-4">Nama Divisi</th>
+                    <th class="px-6 py-4 text-right">Aksi</th>
                 </tr>
-
             </thead>
-
-            <tbody id="tableDivisi">
-
-                <?php while ($divisi = mysqli_fetch_assoc($divisiList)): ?>
-
-                    <tr
-                        style="border-bottom:1px solid #F1F5F9;"
-                        onmouseover="this.style.background='#F8FAFC'"
-                        onmouseout="this.style.background='#FFFFFF'">
-
-                        <td class="px-6 py-4">
-
-                            #<?= $divisi['id'] ?>
-
-                        </td>
-
-                        <td class="px-6 py-4 font-semibold text-slate-800">
-
-                            <?= htmlspecialchars($divisi['nama_divisi']) ?>
-
-                        </td>
-
-                        <td class="px-6 py-4 text-right">
-
-                            <div class="flex justify-end gap-2">
-
-                                <button
-                                    onclick="openEditModal(
-                                        <?= $divisi['id'] ?>,
-                                        '<?= htmlspecialchars($divisi['nama_divisi']) ?>'
-                                )"
-                                class="px-3 py-1.5 rounded-lg text-xs font-semibold"
-                                style="background:#FEF3C7;color:#92400E;">
-
-                                ✏️ Edit
-
-                                </button>
-
-                                <button
-                                    onclick="openDeleteModal(
-                                        <?= $divisi['id'] ?>,
-                                        '<?= htmlspecialchars($divisi['nama_divisi']) ?>'
-                                    )"
-                                    class="px-3 py-1.5 rounded-lg text-xs font-semibold"
-                                    style="background:#FEF2F2;color:#991B1B;">
-
-                                    🗑️ Hapus
-
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                <?php endwhile; ?>
-
-                <?php if ($divisiCount == 0): ?>
-
+            <tbody>
+                <?php
+                $no = (($page - 1) * $perPage) + 1;
+                if ($divisiCountInPage > 0):
+                    while ($divisi = mysqli_fetch_assoc($divisiList)):
+                ?>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                            <td class="px-6 py-4 text-slate-500"><?= $no++ ?></td>
+                            <td class="px-6 py-4 font-bold text-slate-800"><?= htmlspecialchars($divisi['nama_divisi']) ?></td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex justify-end gap-2">
+                                    <button onclick="openEditModal(<?= $divisi['id'] ?>, '<?= htmlspecialchars(addslashes($divisi['nama_divisi'])) ?>')"
+                                        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-100 text-amber-700">✏️ Edit</button>
+                                    <button onclick="openDeleteModal(<?= $divisi['id'] ?>, '<?= htmlspecialchars(addslashes($divisi['nama_divisi'])) ?>')"
+                                        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-100 text-red-700">🗑️ Hapus</button>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endwhile;
+                else: ?>
                     <tr>
-
-                        <td colspan="3"
-                            class="text-center py-10 text-slate-400">
-
-                            Belum ada data divisi
-
-                        </td>
-
+                        <td colspan="3" class="text-center py-12 text-slate-400">Data tidak ditemukan</td>
                     </tr>
-
                 <?php endif; ?>
-
             </tbody>
-
         </table>
-
     </div>
 
+    <!-- PAGINATION FOOTER -->
+    <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200">
+        <span class="text-xs text-slate-500">
+            Menampilkan <?= ($divisiCountInPage > 0) ? (($page - 1) * $perPage) + 1 : 0 ?> - <?= ($page - 1) * $perPage + $divisiCountInPage ?> dari <?= $totalData ?> data
+        </span>
+
+        <div class="flex gap-1">
+            <?php $searchQuery = !empty($search) ? "&search=" . urlencode($search) : ""; ?>
+
+            <?php if ($page > 1): ?>
+                <a href="?page=<?= $page - 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">‹</a>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <a href="?page=<?= $i ?><?= $searchQuery ?>"
+                    class="px-3 py-1 text-xs rounded-lg font-semibold <?= $i == $page ? 'bg-blue-900 text-white' : 'border border-slate-200 hover:bg-slate-50' ?>">
+                    <?= $i ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $totalPages): ?>
+                <a href="?page=<?= $page + 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">›</a>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <!-- modal delete -->
@@ -484,129 +425,118 @@ ob_start();
 </div>
 
 <script>
+    function openDeleteModal(id, nama) {
+        document.getElementById('deleteName').innerText = nama;
 
-function openDeleteModal(id, nama)
-{
-    document.getElementById('deleteName').innerText = nama;
+        document.getElementById('deleteBtn').href =
+            'delete.php?id=' + id;
 
-    document.getElementById('deleteBtn').href =
-        'delete.php?id=' + id;
+        document.getElementById('modalDelete')
+            .classList.remove('hidden');
 
-    document.getElementById('modalDelete')
-        .classList.remove('hidden');
+        document.getElementById('modalDelete')
+            .classList.add('flex');
+    }
 
-    document.getElementById('modalDelete')
-        .classList.add('flex');
-}
+    function closeModal() {
+        document.getElementById('modalDelete')
+            .classList.add('hidden');
 
-function closeModal()
-{
-    document.getElementById('modalDelete')
-        .classList.add('hidden');
+        document.getElementById('modalDelete')
+            .classList.remove('flex');
+    }
 
-    document.getElementById('modalDelete')
-        .classList.remove('flex');
-}
+    document.getElementById("searchInput")
+        .addEventListener("keyup", function() {
 
-document.getElementById("searchInput")
-.addEventListener("keyup", function() {
+            let filter = this.value.toLowerCase();
 
-    let filter = this.value.toLowerCase();
+            let rows =
+                document.querySelectorAll("#tableDivisi tr");
 
-    let rows =
-        document.querySelectorAll("#tableDivisi tr");
+            rows.forEach(row => {
 
-    rows.forEach(row => {
+                let text =
+                    row.innerText.toLowerCase();
 
-        let text =
-            row.innerText.toLowerCase();
+                row.style.display =
+                    text.includes(filter) ?
+                    "" :
+                    "none";
 
-        row.style.display =
-            text.includes(filter)
-            ? ""
-            : "none";
+            });
 
-    });
-
-});
+        });
 
 
-function openCreateModal()
-{
-    document
-        .getElementById('modalCreate')
-        .classList.remove('hidden');
+    function openCreateModal() {
+        document
+            .getElementById('modalCreate')
+            .classList.remove('hidden');
 
-    document
-        .getElementById('modalCreate')
-        .classList.add('flex');
-}
+        document
+            .getElementById('modalCreate')
+            .classList.add('flex');
+    }
 
-function closeCreateModal()
-{
-    document
-        .getElementById('modalCreate')
-        .classList.add('hidden');
+    function closeCreateModal() {
+        document
+            .getElementById('modalCreate')
+            .classList.add('hidden');
 
-    document
-        .getElementById('modalCreate')
-        .classList.remove('flex');
-}
+        document
+            .getElementById('modalCreate')
+            .classList.remove('flex');
+    }
 
-function openEditModal(id, nama)
-{
-    document.getElementById('edit_id_divisi').value = id;
+    function openEditModal(id, nama) {
+        document.getElementById('edit_id_divisi').value = id;
 
-    document.getElementById('edit_nama_divisi').value = nama;
+        document.getElementById('edit_nama_divisi').value = nama;
 
-    document
-        .getElementById('modalEdit')
-        .classList.remove('hidden');
+        document
+            .getElementById('modalEdit')
+            .classList.remove('hidden');
 
-    document
-        .getElementById('modalEdit')
-        .classList.add('flex');
-}
+        document
+            .getElementById('modalEdit')
+            .classList.add('flex');
+    }
 
-function closeEditModal()
-{
-    document
-        .getElementById('modalEdit')
-        .classList.add('hidden');
+    function closeEditModal() {
+        document
+            .getElementById('modalEdit')
+            .classList.add('hidden');
 
-    document
-        .getElementById('modalEdit')
-        .classList.remove('flex');
-}
+        document
+            .getElementById('modalEdit')
+            .classList.remove('flex');
+    }
 
-function openDeleteModal(id, nama)
-{
-    document.getElementById('deleteName').innerText = nama;
+    function openDeleteModal(id, nama) {
+        document.getElementById('deleteName').innerText = nama;
 
-    document.getElementById('deleteBtn').href =
-        "delete.php?id=" + id;
+        document.getElementById('deleteBtn').href =
+            "delete.php?id=" + id;
 
-    document
-        .getElementById('modalDelete')
-        .classList.remove('hidden');
+        document
+            .getElementById('modalDelete')
+            .classList.remove('hidden');
 
-    document
-        .getElementById('modalDelete')
-        .classList.add('flex');
-}
+        document
+            .getElementById('modalDelete')
+            .classList.add('flex');
+    }
 
-function closeDeleteModal()
-{
-    document
-        .getElementById('modalDelete')
-        .classList.add('hidden');
+    function closeDeleteModal() {
+        document
+            .getElementById('modalDelete')
+            .classList.add('hidden');
 
-    document
-        .getElementById('modalDelete')
-        .classList.remove('flex');
-}
-
-
+        document
+            .getElementById('modalDelete')
+            .classList.remove('flex');
+    }
 </script>
 
 <?php

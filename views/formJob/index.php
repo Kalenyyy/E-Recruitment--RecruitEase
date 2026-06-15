@@ -4,12 +4,20 @@ require_once __DIR__ . '/../../init.php';
 AuthController::requireLogin();
 AuthController::isHRD() or AuthController::isAdmin() or die("Access denied");
 
-$jobList = JobFormController::getAllJobs($conn);
-$jobCount = mysqli_num_rows($jobList);
+// --- LOGIKA SEARCH & PAGINATION ---
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+
+$perPage = 7; // Jumlah data per halaman
+$totalData = JobFormController::getTotalCount($conn, $search);
+$totalPages = ($totalData > 0) ? ceil($totalData / $perPage) : 1;
+
+$jobList = JobFormController::getPaginated($conn, $page, $perPage, $search);
+$jobCountInPage = mysqli_num_rows($jobList);
 
 ob_start();
 ?>
-
 <style>
     /* Animasi Slide Down dari Atas */
     @keyframes slideDown {
@@ -71,7 +79,7 @@ ob_start();
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Tambah Job
+        Buat Lowongan
     </a>
 </div>
 
@@ -81,7 +89,7 @@ ob_start();
     <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-200">
         <span class="text-sm font-bold text-slate-800">Daftar Lowongan</span>
         <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-            <?= $jobCount ?> Total
+            <?= $jobCountInPage ?> Total
         </span>
     </div>
 
@@ -94,7 +102,7 @@ ob_start();
                     <th class="px-6 py-4 font-bold">Lokasi & Tipe</th>
                     <th class="px-6 py-4 font-bold">Fitur</th>
                     <th class="px-6 py-4 font-bold">Status</th>
-                    <th class="px-6 py-4 font-bold">Tanggal</th>
+                    <th class="px-6 py-4 font-bold">Tanggal Pembuatan</th>
                     <th class="text-right px-6 py-4 font-bold">Aksi</th>
                 </tr>
             </thead>
@@ -167,6 +175,29 @@ ob_start();
                 <?php endforeach; ?>
             </tbody>
         </table>
+    </div>
+    <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200">
+        <span class="text-xs text-slate-500">
+            Menampilkan <?= ($jobCountInPage > 0) ? (($page - 1) * $perPage) + 1 : 0 ?> - <?= ($page - 1) * $perPage + $jobCountInPage ?> dari <?= $totalData ?> data
+        </span>
+
+        <div class="flex gap-1">
+            <?php $searchQuery = !empty($search) ? "&search=" . urlencode($search) : ""; ?>
+            <?php if ($page > 1): ?>
+                <a href="?page=<?= $page - 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">‹</a>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <a href="?page=<?= $i ?><?= $searchQuery ?>"
+                    class="px-3 py-1 text-xs rounded-lg font-semibold <?= $i == $page ? 'bg-blue-900 text-white' : 'border border-slate-200 hover:bg-slate-50' ?>">
+                    <?= $i ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $totalPages): ?>
+                <a href="?page=<?= $page + 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">›</a>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 

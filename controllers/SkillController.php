@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . "/../init.php";
 
 class SkillController
@@ -9,9 +8,19 @@ class SkillController
         return Skill::getAll($conn);
     }
 
+    public static function getTotalCount($conn, $search = '')
+    {
+        return Skill::getTotalCount($conn, $search);
+    }
+
+    public static function getPaginatedSkill($conn, $page, $perPage, $search = '')
+    {
+        return Skill::getPaginated($conn, $page, $perPage, $search);
+    }
+
     public static function getSkillById($conn, $id)
     {
-        return Skill::findById($conn, $id);
+        return Skill::getById($conn, $id);
     }
 
     public static function createSkill($conn, $nama_skill)

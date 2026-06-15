@@ -7,7 +7,39 @@ AuthController::requireLogin();
 $role = $_SESSION['role'];
 $userData = StaffController::show($conn, $_SESSION['user_id'] ?? null);
 $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] ?? null);
+
+$candidate = null;
+$isProfileComplete = true;
+$missing = [];
+
+if ($role === 'candidate') {
+
+    $candidate = CandidateController::getCandidateByUserId($_SESSION['user_id']);
+
+    if ($candidate && isset($candidate['id'])) {
+
+        $isProfileComplete = ProfileHelper::isComplete($conn, $candidate['id']);
+        $missing = ProfileHelper::getMissingFields($conn, $candidate['id']);
+    }
+}
+
 ob_start();
+
+// $isProfileComplete = true;
+
+// if ($_SESSION['role'] === 'candidate') {
+
+//     $candidate = CandidateController::getCandidateByUserId(
+//         $_SESSION['user_id']
+//     );
+
+//     $isProfileComplete =
+//         ProfileHelper::isComplete(
+//             $conn,
+//             $candidate['id']
+//         );
+// }
+
 ?>
 
 <style>
@@ -281,6 +313,65 @@ ob_start();
 <!-- Page Header -->
 <div class="flex items-center justify-between mb-6">
     <div>
+        <?php if ($role === 'candidate' && !$isProfileComplete): ?>
+
+            <div id="profileAlert"
+                 class="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 flex justify-between items-start">
+
+                <div>
+
+                    <h3 class="font-semibold text-amber-800">
+                        Profil Belum Lengkap
+                    </h3>
+
+                    <p class="text-sm text-amber-700 mt-1">
+                        Lengkapi data berikut sebelum melamar pekerjaan:
+                    </p>
+
+                    <!-- DETAIL MISSING -->
+                    <div class="mt-2 text-sm text-amber-800 space-y-1">
+
+                        <?php if (!empty($missing)): ?>
+
+                            <?php foreach ($missing as $section => $items): ?>
+                                <div>
+                                    <span class="font-bold">
+                                        <?= ucfirst($section) ?>:
+                                    </span>
+
+                                    <ul class="list-disc ml-5">
+                                        <?php foreach ($items as $item): ?>
+                                            <li><?= htmlspecialchars($item) ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endforeach; ?>
+
+                        <?php else: ?>
+                            <p class="text-amber-700">
+                                Data tidak lengkap, tapi detail tidak tersedia.
+                            </p>
+                        <?php endif; ?>
+
+                    </div>
+
+                    <a
+                        href="<?= BASE_URL ?>views/candidate/profile.php?id=<?= $candidateData['id'] ?>"
+                        class="inline-block mt-3 text-sm font-semibold text-blue-700">
+                        Lengkapi Sekarang →
+                    </a>
+
+                </div>
+
+                <button
+                    onclick="document.getElementById('profileAlert').remove()"
+                    class="text-amber-700 font-bold">
+                    ✕
+                </button>
+
+            </div>
+
+        <?php endif; ?>
         <h1 class="text-xl font-bold text-[#1E293B] tracking-tight">Dashboard</h1>
         <p class="text-sm text-[#64748B] mt-0.5">Selamat datang kembali, <span class="font-semibold text-[#1E3A8A]">
                 <?php if ($_SESSION['role'] == 'admin'): ?>

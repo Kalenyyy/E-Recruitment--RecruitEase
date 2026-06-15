@@ -69,25 +69,49 @@ class PengalamanKerja
         return $stmt->get_result()->fetch_assoc();
     }
 
+    // public static function getByCandidateId($conn, $candidate_id)
+    // {
+    //     $stmt = $conn->prepare(
+    //         "
+    //         SELECT *
+    //         FROM pengalaman_kerja
+    //         WHERE candidate_id = ?
+    //         ORDER BY tanggal_mulai DESC
+    //         "
+    //     );
+
+    //     $stmt->bind_param(
+    //         "i",
+    //         $candidate_id
+    //     );
+
+    //     $stmt->execute();
+
+    //     return $stmt->get_result();
+    // }
+
     public static function getByCandidateId($conn, $candidate_id)
     {
-        $stmt = $conn->prepare(
-            "
-            SELECT *
-            FROM pengalaman_kerja
-            WHERE candidate_id = ?
-            ORDER BY tanggal_mulai DESC
-            "
+        $stmt = mysqli_prepare(
+            $conn,
+            "SELECT *
+             FROM pengalaman_kerja
+             WHERE candidate_id = ?
+             ORDER BY tanggal_mulai DESC"
         );
 
-        $stmt->bind_param(
-            "i",
-            $candidate_id
-        );
+        mysqli_stmt_bind_param($stmt, "i", $candidate_id);
+        mysqli_stmt_execute($stmt);
 
-        $stmt->execute();
+        $result = mysqli_stmt_get_result($stmt);
 
-        return $stmt->get_result();
+        $data = [];
+
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+
+        return $data;
     }
 
     public static function update(

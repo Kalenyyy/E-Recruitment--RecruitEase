@@ -7,6 +7,30 @@ AuthController::isCandidate() or die("Access denied");
 $lowonganData = LowonganPekerjaanController::jelajahiLowongan($conn);
 extract($lowonganData);
 
+$candidate = CandidateController::getCandidateByUserId($_SESSION['user_id']);
+$appliedJobs = [];
+
+if ($candidate) {
+    $appliedJobs = LamaranController::getAppliedJobIds(
+        $conn,
+        $candidate['id']
+    );
+}
+
+if (!$candidate) {
+    $_SESSION['error'] = 'Profil belum dibuat.';
+    header('Location: ' . BASE_URL . 'views/dashboard.php');
+    exit;
+}
+
+$isProfileComplete = ProfileHelper::isComplete($conn, $candidate['id']);
+
+if (!$isProfileComplete) {
+    $_SESSION['error'] = 'Lengkapi profil terlebih dahulu sebelum mengakses lowongan.';
+    header('Location: ' . BASE_URL . 'views/dashboard.php');
+    exit;
+}
+
 ob_start();
 ?>
 
@@ -14,34 +38,23 @@ ob_start();
     /* ── Design tokens ───────────────────────────────────── */
     :root {
         --ink: #1A1D2E;
-        /* near-black for headings    */
         --ink-muted: #5A607A;
-        /* body / secondary text      */
         --ink-faint: #9299B0;
-        /* placeholder / meta         */
         --surface: #F4F6FB;
-        /* page background            */
         --card: #FFFFFF;
         --border: #E4E8F3;
 
         --brand: #4F46E5;
-        /* indigo-600 — primary       */
         --brand-dark: #3730A3;
-        /* indigo-800                 */
         --brand-pale: #EEF0FF;
-        /* indigo-50                  */
         --brand-mid: #C7D2FE;
-        /* indigo-200                 */
 
         --teal: #0D9488;
-        /* teal-600 — inklusif badge  */
         --teal-pale: #CCFBF1;
         --emerald: #059669;
-        /* emerald — remote badge     */
         --emerald-pale: #D1FAE5;
 
         --amber: #B45309;
-        /* amber-700 — salary         */
         --amber-pale: #FEF3C7;
 
         --radius-sm: 8px;
@@ -63,6 +76,83 @@ ob_start();
         background: var(--surface);
         min-height: 100vh;
         padding: 0 0 80px;
+    }
+
+    /* ── Alert Notification Styles ────────────────────────── */
+    .jl-alert-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 28px 0;
+    }
+
+    .jl-alert {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        border-radius: var(--radius-md);
+        border: 1px solid transparent;
+        box-shadow: var(--shadow-card);
+        margin-bottom: 8px;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    .jl-alert-success {
+        background-color: #F0FDF4;
+        border-color: #BBF7D0;
+        color: #166534;
+    }
+
+    .jl-alert-error {
+        background-color: #FEF2F2;
+        border-color: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .jl-alert-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .jl-alert-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .jl-alert-desc {
+        font-size: 0.8rem;
+        margin: 2px 0 0;
+        opacity: 0.85;
+    }
+
+    .jl-alert-close {
+        background: transparent;
+        border: none;
+        font-size: 1.1rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+        padding: 4px 8px;
+    }
+
+    .jl-alert-close:hover {
+        opacity: 1;
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     /* ── Header ──────────────────────────────────────────── */
@@ -530,6 +620,33 @@ ob_start();
         white-space: nowrap;
     }
 
+    .jl-btn-applied {
+        font-size: .85rem;
+        font-weight: 800;
+        color: #64748B;
+        text-decoration: none;
+        background: #E2E8F0;
+        padding: 9px 24px;
+        border-radius: var(--radius-md);
+        white-space: nowrap;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        cursor: not-allowed;
+        box-shadow: none;
+        border: none;
+    }
+
+    .jl-btn-applied:hover {
+        background: #E2E8F0;
+    }
+
+    .jl-btn-applied:active {
+        transform: none;
+    }
+
     .jl-btn-apply:hover {
         background: var(--brand-dark);
     }
@@ -661,6 +778,36 @@ ob_start();
 
 <div class="jl-wrap">
 
+    <!-- CONTAINER ALERT REKRUTMEN -->
+    <div id="alert-placement-container" class="jl-alert-container">
+        <!-- Render fallback via PHP server side untuk user tanpa JS -->
+        <?php if (isset($_GET['applied']) && $_GET['applied'] === 'success'): ?>
+            <div id="php-alert-success" class="jl-alert jl-alert-success">
+                <div class="jl-alert-content">
+                    <span style="font-size: 1.3rem;">🎉</span>
+                    <div>
+                        <p class="jl-alert-title">Lamaran Berhasil Dikirim!</p>
+                        <p class="jl-alert-desc">Data screening kualifikasi dan kompetensi Anda telah terekam di sistem rekrutmen.</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('php-alert-success').remove()" class="jl-alert-close">✕</button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['error']) && $_GET['error'] === 'already_applied'): ?>
+            <div id="php-alert-error" class="jl-alert jl-alert-error">
+                <div class="jl-alert-content">
+                    <span style="font-size: 1.3rem;">⚠️</span>
+                    <div>
+                        <p class="jl-alert-title">Gagal Mengirim Lamaran</p>
+                        <p class="jl-alert-desc">Anda sudah pernah melamar di posisi pekerjaan ini sebelumnya.</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('php-alert-error').remove()" class="jl-alert-close">✕</button>
+            </div>
+        <?php endif; ?>
+    </div>
+
     <!-- ═══ HEADER ═══ -->
     <header class="jl-header">
         <div>
@@ -694,7 +841,7 @@ ob_start();
         <aside class="jl-sidebar">
             <div class="jl-sidebar-head">
                 <span>Filter</span>
-                <a href="?">Reset semua</a>
+                <a href="?">Reset</a>
             </div>
 
             <form id="sidebarForm">
@@ -706,7 +853,7 @@ ob_start();
                             <?= empty($filters['tipe_pekerjaan']) ? 'checked' : '' ?>>
                         <span>Semua tipe</span>
                     </label>
-                    <?php foreach (['Full Time', 'Part Time', 'Contract', 'Internship'] as $t): ?>
+                    <?php foreach (['Full Time', 'Part Time', 'Contract', 'Internship','Freelance'] as $t): ?>
                         <label class="jl-radio-row">
                             <input type="radio" name="tipe_pekerjaan" value="<?= $t ?>"
                                 <?= ($filters['tipe_pekerjaan'] ?? '') === $t ? 'checked' : '' ?>>
@@ -744,6 +891,7 @@ ob_start();
                 </div>
             <?php else: ?>
                 <?php foreach ($jobs as $job):
+                    $isApplied = in_array($job['id'], $appliedJobs);
                     $skills = $job['skills'] ? explode(', ', $job['skills']) : [];
                 ?>
                     <div class="jl-card">
@@ -791,8 +939,21 @@ ob_start();
                                     </div>
                                 </div>
                                 <div class="jl-card-actions">
-                                    <a href="/candidate/lowongan/detail?id=<?= $job['id'] ?>" class="jl-btn-detail">Lihat Detail</a>
-                                    <a href="/candidate/lamaran/buat?job_id=<?= $job['id'] ?>" class="jl-btn-apply">Lamar Sekarang</a>
+                                    <a href="<?= BASE_URL ?>views/lowonganPekerjaan/detailById.php?id=<?= $job['id'] ?>" class="jl-btn-detail">Lihat Detail</a>
+                                    <!-- <a href="<?= BASE_URL ?>views/lamaran/create.php?job_id=<?= $job['id'] ?>" class="jl-btn-apply">Lamar Sekarang</a> -->
+                                    <?php if ($isApplied): ?>
+                                        <button
+                                            disabled
+                                            class="jl-btn-applied">
+                                            ✓ Sudah Dilamar
+                                        </button>
+                                    <?php else: ?>
+                                        <a
+                                            href="<?= BASE_URL ?>views/lamaran/create.php?job_id=<?= $job['id'] ?>"
+                                            class="jl-btn-apply">
+                                            Lamar Sekarang
+                                        </a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -826,7 +987,41 @@ ob_start();
         const jobWrapper = document.getElementById('job-wrapper');
         const paginationWrapper = document.getElementById('pagination-wrapper');
         const totalCountLabel = document.getElementById('total-count');
+        const alertContainer = document.getElementById('alert-placement-container');
         const BASE_URL = '<?= BASE_URL ?>';
+
+        // ── ROUTER UTILITY: Tangkap state parameter URL bawaan redirect Lamaran Form
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('applied') || urlParams.has('error')) {
+            // Bersihkan manual isi fallback PHP untuk digantikan component dynamic render
+            alertContainer.innerHTML = '';
+
+            if (urlParams.get('applied') === 'success') {
+                createUiAlert('success', '🎉', 'Lamaran Berhasil Dikirim!', 'Data screening kualifikasi dan kompetensi Anda telah terekam di sistem rekrutmen.');
+            } else if (urlParams.get('error') === 'already_applied') {
+                createUiAlert('error', '⚠️', 'Gagal Mengirim Lamaran', 'Anda sudah pernah melamar di posisi pekerjaan ini sebelumnya.');
+            }
+        }
+
+        function createUiAlert(type, emoji, title, desc) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `jl-alert jl-alert-${type}`;
+            alertDiv.innerHTML = `
+                <div class="jl-alert-content">
+                    <span style="font-size: 1.3rem;">${emoji}</span>
+                    <div>
+                        <p class="jl-alert-title">${title}</p>
+                        <p class="jl-alert-desc">${desc}</p>
+                    </div>
+                </div>
+                <button class="jl-alert-close">✕</button>
+            `;
+
+            alertDiv.querySelector('.jl-alert-close').addEventListener('click', () => {
+                alertDiv.remove();
+            });
+            alertContainer.appendChild(alertDiv);
+        }
 
         const formatIDR = v => v ?
             new Intl.NumberFormat('id-ID', {
@@ -851,6 +1046,8 @@ ob_start();
                     renderJobs(data.jobs);
                     renderPagination(data.page, data.total_pages);
                     totalCountLabel.textContent = Number(data.total).toLocaleString('id-ID');
+
+                    // Bersihkan parameter applied/error dari URL address bar saat filter/pencarian dijalankan
                     window.history.pushState({}, '', '?' + params);
                 }
             } catch (e) {
@@ -896,8 +1093,8 @@ ob_start();
             <div class="jl-badges">${bInklusif}${bRemote}</div>
           </div>
           <div class="jl-card-actions">
-            <a href="/candidate/lowongan/detail?id=${job.id}" class="jl-btn-detail">Lihat Detail</a>
-            <a href="/candidate/lamaran/buat?job_id=${job.id}" class="jl-btn-apply">Lamar Sekarang</a>
+            <a href="${BASE_URL}views/lowonganPekerjaan/detailById.php?id=${job.id}" class="jl-btn-detail">Lihat Detail</a>
+            <a href="${BASE_URL}views/lamaran/create.php?job_id=${job.id}" class="jl-btn-apply">Lamar Sekarang</a>
           </div>
         </div>
       </div>

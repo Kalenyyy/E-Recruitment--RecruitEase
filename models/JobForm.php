@@ -89,6 +89,47 @@ class JobForm
         return mysqli_query($conn, $query);
     }
 
+    // --- FUNGSI BARU UNTUK PAGINATION & SEARCH (BY NAME) ---
+    public static function count($conn, $search = '')
+    {
+        $query = "SELECT COUNT(*) as total FROM job_posting";
+
+        if ($search != '') {
+            $query .= " WHERE judul_job LIKE ?";
+            $stmt = $conn->prepare($query);
+            $searchParam = "%$search%";
+            $stmt->bind_param("s", $searchParam);
+            $stmt->execute();
+            $result = $stmt->get_result();
+        } else {
+            $result = mysqli_query($conn, $query);
+        }
+
+        $row = $result->fetch_assoc();
+        return $row['total'];
+    }
+
+    public static function readPaginated($conn, $offset, $perPage, $search = '')
+    {
+        $query = "SELECT jp.*, p.nama_posisi 
+                  FROM job_posting jp 
+                  LEFT JOIN positions p ON jp.posisi_id = p.id";
+
+        if ($search != '') {
+            $query .= " WHERE jp.judul_job LIKE ? ORDER BY jp.id DESC LIMIT ?, ?";
+            $stmt = $conn->prepare($query);
+            $searchParam = "%$search%";
+            $stmt->bind_param("sii", $searchParam, $offset, $perPage);
+        } else {
+            $query .= " ORDER BY jp.id DESC LIMIT ?, ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("ii", $offset, $perPage);
+        }
+
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
     public static function find($conn, $id)
     {
         // 1. Ambil data utama job

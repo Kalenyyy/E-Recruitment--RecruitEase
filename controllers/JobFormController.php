@@ -6,6 +6,17 @@ class JobFormController
         return JobForm::getAllJobs($conn);
     }
 
+    public static function getTotalCount($conn, $search = '')
+    {
+        return JobForm::count($conn, $search);
+    }
+
+    public static function getPaginated($conn, $page, $perPage, $search = '')
+    {
+        $offset = ($page - 1) * $perPage;
+        return JobForm::readPaginated($conn, $offset, $perPage, $search);
+    }
+
     public static function store($conn, $postData, $staff_id)
     {
         $errors = [];

@@ -534,7 +534,7 @@ ob_start();
                     <?php endif; ?>
                 </div>
 
-                <div class="jld-card" id="form-lamaran-container">
+                <!-- <div class="jld-card" id="form-lamaran-container">
                     <div class="jld-section">
                         <h3>Form Pengajuan Lamaran</h3>
                         <p class="jld-info-tip" style="margin-bottom: 20px;">Isi berkas tambahan jika diperlukan untuk posisi <strong><?= htmlspecialchars($job['judul_job']) ?></strong>.</p>
@@ -559,7 +559,7 @@ ob_start();
                             </div>
                         </form>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <aside class="jld-sidebar">
@@ -579,9 +579,11 @@ ob_start();
                             Lamaran Sudah Terkirim
                         </button>
                     <?php else: ?>
-                        <button type="button" id="btn-trigger-lamar" class="jld-btn-apply">
-                            Lamar Pekerjaan Ini
-                        </button>
+                        <a
+                            href="<?= BASE_URL ?>views/lamaran/create.php?job_id=<?= $job['id'] ?>"
+                            class="jld-btn-apply">
+                            Lamar Sekarang
+                        </a>
                     <?php endif; ?>
 
                     <p class="jld-info-tip">Pastikan profil dan CV Anda sudah diperbarui sebelum melamar.</p>

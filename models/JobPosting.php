@@ -64,21 +64,62 @@ class JobPostingModel
 
     // Ambil data transaksi lamaran spesifik berdasarkan ID Transaksi
     public static function getApplicationById($conn, $id_transaksi)
-    {
-        $query = "SELECT tl.*, c.nama_lengkap, c.email, jp.judul_job 
-              FROM candidate_apply_job tl
-              JOIN candidates c ON tl.id_kandidat = c.id
-              JOIN job_posting jp ON tl.id_lowongan = jp.id
-              WHERE tl.id = ?";
+{
+    $query = "
+    SELECT
+        tl.*,
 
-        $stmt = $conn->prepare($query);
-        if ($stmt) {
-            $stmt->bind_param('i', $id_transaksi);
-            $stmt->execute();
-            return $stmt->get_result()->fetch_assoc();
-        }
-        return null;
-    }
+        c.nama_lengkap,
+        c.email,
+        c.no_hp,
+        c.alamat,
+        c.tanggal_lahir,
+        c.jenis_kelamin,
+
+        c.is_disabled,
+        c.disability_description,
+
+        c.foto,
+        c.cv_file,
+
+        jp.judul_job,
+        
+        GROUP_CONCAT(DISTINCT s.nama_skill ORDER BY s.nama_skill SEPARATOR ', ') as skills,
+        GROUP_CONCAT(DISTINCT CONCAT_WS(' | ', pk.nama_perusahaan, pk.posisi, pk.tanggal_mulai, pk.tanggal_selesai, pk.deskripsi_pekerjaan) ORDER BY pk.tanggal_mulai DESC SEPARATOR ' | ') as experiences,
+        GROUP_CONCAT(DISTINCT CONCAT_WS(' - ', ser.nama_sertifikasi, ser.penyelenggara, DATE_FORMAT(ser.tanggal_terbit, '%d-%m-%Y')) ORDER BY ser.tanggal_terbit DESC SEPARATOR ' | ') as achievements
+
+    FROM candidate_apply_job tl
+
+    JOIN candidates c
+        ON tl.id_kandidat = c.id
+
+    JOIN job_posting jp
+        ON tl.id_lowongan = jp.id
+    
+    LEFT JOIN candidate_skills cs
+        ON c.id = cs.candidate_id
+    
+    LEFT JOIN skills s
+        ON cs.skill_id = s.id_skill
+    
+    LEFT JOIN pengalaman_kerja pk
+        ON c.id = pk.candidate_id
+    
+    LEFT JOIN sertifikasi ser
+        ON c.id = ser.candidate_id
+
+    WHERE tl.id = ?
+    GROUP BY tl.id
+    ";
+
+    $stmt = $conn->prepare($query);
+
+    $stmt->bind_param("i", $id_transaksi);
+
+    $stmt->execute();
+
+    return $stmt->get_result()->fetch_assoc();
+}
 
     // Update status lamaran kerja kandidat
     public static function updateApplicationStatus($conn, $id_transaksi, $status_baru)

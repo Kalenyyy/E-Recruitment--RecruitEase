@@ -188,52 +188,36 @@ ob_start();
         </div>
 
         <!-- ===== CARD 2: SKILLS ===== -->
-        <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0;">
-            <div class="px-6 py-4 flex items-center justify-between" style="border-bottom: 1px solid #F1F5F9;">
-                <div class="flex items-center gap-2">
-                    <span style="font-size:16px;">🧠</span>
-                    <h2 class="font-bold text-sm" style="color: #1E293B;">Skill yang Dibutuhkan</h2>
-                </div>
-                <!-- Live Search Input -->
-                <div class="relative w-64">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs" style="color:#94A3B8;">🔍</span>
-                    <input type="text" id="skillSearch" placeholder="Cari skill..."
-                        class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg outline-none transition"
-                        style="border: 1px solid #E2E8F0; background: #F8FAFC;">
-                </div>
-            </div>
+        <div class="bg-white border border-slate-200 rounded-[16px] overflow-hidden shadow-sm mb-6">
             <div class="p-6">
-                <p class="text-xs mb-4" style="color:#64748B;">Pilih satu atau lebih skill yang relevan. Skill yang dipilih akan tetap muncul di atas.</p>
-
-                <!-- Container dengan Scrollbar jika data banyak -->
-                <div class="overflow-y-auto pr-2" style="max-height: 200px;" id="skillWrapper">
-                    <div class="flex flex-wrap gap-2" id="skillContainer">
-                        <?php
-                        $selectedSkills = $_POST['skill_ids'] ?? [];
-                        foreach ($skillList as $skill):
-                            $isSelected = in_array($skill['id_skill'], $selectedSkills);
-                        ?>
-                            <label class="flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer text-xs font-semibold transition skill-tag"
-                                data-nama="<?= strtolower(htmlspecialchars($skill['nama_skill'])) ?>"
-                                style="border: 1px solid <?= $isSelected ? '#1E3A8A' : '#CBD5E1' ?>;
-                                   background: <?= $isSelected ? '#EFF6FF' : '#F8FAFC' ?>;
-                                   color: <?= $isSelected ? '#1E3A8A' : '#475569' ?>;">
-                                <input type="checkbox" name="skill_ids[]" value="<?= $skill['id_skill'] ?>"
-                                    class="hidden" <?= $isSelected ? 'checked' : '' ?>>
-                                <?= htmlspecialchars($skill['nama_skill']) ?>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
-
-                    <!-- Pesan jika skill tidak ditemukan -->
-                    <div id="noSkillMsg" class="hidden py-4 text-center text-xs text-slate-400">
-                        Skill tidak ditemukan...
-                    </div>
+                <div class="flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase text-slate-400 mb-3.5 after:content-[''] after:flex-1 after:h-[0.5px] after:bg-slate-200">
+                    Cari & Pilih Skill yang Dibutuhkan
                 </div>
 
-                <?php if (isset($errors['skills'])): ?>
-                    <p class="text-[10px] font-bold mt-2" style="color:#EF4444;"><?= $errors['skills'] ?></p>
-                <?php endif; ?>
+                <!-- Input Pencarian -->
+                <div class="relative mb-2.5">
+                    <span class="absolute left-[11px] top-1/2 -translate-y-1/2 text-[15px] text-slate-400 pointer-events-none">🔍</span>
+                    <input
+                        type="text"
+                        id="skillSearch"
+                        class="w-full pl-[34px] pr-3 py-[9px] text-[13px] border border-slate-300 rounded-[10px] bg-slate-50 text-slate-800 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400"
+                        placeholder="Ketik nama skill (misal: PHP, Project Management)..."
+                        autocomplete="off">
+                </div>
+
+                <!-- Dropdown Hasil Pencarian (Hidden by default) -->
+                <div id="skillDropdown" class="hidden border border-slate-200 rounded-[10px] bg-white overflow-hidden mb-3.5 shadow-lg max-h-[300px] overflow-y-auto"></div>
+
+                <!-- Tempat Chips Skill Muncul -->
+                <div class="flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase text-slate-400 mb-3.5 mt-5 after:content-[''] after:flex-1 after:h-[0.5px] after:bg-slate-200">
+                    Skill Terpilih
+                </div>
+                <div id="selectedSkills" class="flex flex-wrap gap-2 min-h-[36px]">
+                    <span id="emptyNote" class="text-[13px] text-slate-400 py-1">Belum ada skill dipilih</span>
+                </div>
+
+                <!-- Counter Kecil -->
+                <p class="mt-3 text-[12px] text-slate-500">Total dipilih: <span id="countLabel" class="font-bold text-slate-800">0</span></p>
             </div>
         </div>
 
@@ -372,59 +356,101 @@ ob_start();
 </form>
 
 <script>
+    /* === JAVASCRIPT DISABILITAS (KODE LAMA TETAP ADA) === */
     function toggleDisabilitasSection(isChecked) {
         const section = document.getElementById('disabilitasSection');
-        section.classList.toggle('hidden', !isChecked);
+        if (isChecked) {
+            section.classList.remove('hidden');
+        } else {
+            section.classList.add('hidden');
+        }
     }
 
-    document.querySelectorAll('.skill-tag').forEach(tag => {
-        tag.addEventListener('click', function() {
-            const checkbox = this.querySelector('input[type="checkbox"]');
-            const isSelected = checkbox.checked;
-            this.style.borderColor = isSelected ? '#1E3A8A' : '#CBD5E1';
-            this.style.background = isSelected ? '#EFF6FF' : '#F8FAFC';
-            this.style.color = isSelected ? '#1E3A8A' : '#475569';
-        });
-    });
+    /* === JAVASCRIPT SKILL DINAMIS (KODE BARU) === */
+    const searchInput = document.getElementById('skillSearch');
+    const dropdown = document.getElementById('skillDropdown');
+    const chipsWrap = document.getElementById('selectedSkills');
+    const emptyNote = document.getElementById('emptyNote');
+    const selected = new Map();
 
-    // ── Fitur Live Search Skill ──────────────────────────────────
-    const skillSearch = document.getElementById('skillSearch');
-    const skillTags = document.querySelectorAll('.skill-tag');
-    const noSkillMsg = document.getElementById('noSkillMsg');
+    function updateUI() {
+        emptyNote.style.display = selected.size === 0 ? '' : 'none';
+    }
 
-    skillSearch.addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase().trim();
-        let hasResults = false;
+    function addChip(id, name) {
+        id = Number(id);
+        if (selected.has(id)) return;
+        selected.set(id, name);
 
-        skillTags.forEach(tag => {
-            const skillName = tag.getAttribute('data-nama');
-            const isChecked = tag.querySelector('input').checked;
+        const chip = document.createElement('div');
+        chip.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold bg-blue-100 text-blue-900 border border-blue-200';
+        chip.dataset.skillId = id;
+        chip.innerHTML = `${name} <span class="cursor-pointer text-blue-500 hover:text-blue-700 ml-1 remove-skill-btn" data-id="${id}">✕</span><input type="hidden" name="skill_ids[]" value="${id}">`;
 
-            // Jika sedang mencari, tampilkan yang cocok
-            // Jika input kosong, tampilkan semua
-            if (skillName.includes(searchTerm)) {
-                tag.style.display = 'flex';
-                hasResults = true;
+        chipsWrap.appendChild(chip);
+        updateUI();
+    }
+
+    function removeChip(id) {
+        id = Number(id);
+        selected.delete(id);
+        const chip = chipsWrap.querySelector(`[data-skill-id="${id}"]`);
+        if (chip) chip.remove();
+        updateUI();
+        loadSkills(searchInput.value.trim()); // Refresh list
+    }
+
+    function renderDropdown(skills) {
+        if (!skills.length) {
+            dropdown.innerHTML = `<div class="p-3.5 text-[13px] text-slate-400">Skill tidak ditemukan</div>`;
+            dropdown.classList.remove('hidden');
+            return;
+        }
+
+        let html = '';
+        skills.forEach(skill => {
+            const isSelected = selected.has(Number(skill.id_skill));
+            if (isSelected) {
+                html += `<div class="px-3.5 py-2.5 text-[13px] flex items-center justify-between text-slate-400 bg-white border-b border-slate-50 cursor-not-allowed"><span>${skill.nama_skill}</span><span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">✓ Terpilih</span></div>`;
             } else {
-                // Skill yang sudah dicentang tetap tampilkan saja atau sembunyikan? 
-                // Biasanya lebih baik sembunyi agar pencarian akurat
-                tag.style.display = 'none';
+                html += `<div class="cs-skill-opt px-3.5 py-2.5 text-[13px] cursor-pointer flex items-center justify-between text-slate-800 border-b border-slate-50 hover:bg-blue-50 transition-colors" data-id="${skill.id_skill}" data-name="${skill.nama_skill}"><span>${skill.nama_skill}</span><span class="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">+ Tambah</span></div>`;
             }
         });
+        dropdown.innerHTML = html;
+        dropdown.classList.remove('hidden');
+    }
 
-        // Tampilkan pesan jika tidak ada yang cocok
-        noSkillMsg.classList.toggle('hidden', hasResults);
+    async function loadSkills(keyword = '') {
+        try {
+            const response = await fetch('<?= BASE_URL ?>public/actions/search_skill.php?q=' + encodeURIComponent(keyword));
+            const data = await response.json();
+            renderDropdown(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    let debounceTimer;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => loadSkills(this.value.trim()), 300);
     });
 
-    // Perbarui style tag saat diklik (Event Listener ini sudah ada di kode sebelumnya, pastikan tetap ada)
-    document.querySelectorAll('.skill-tag').forEach(tag => {
-        tag.addEventListener('change', function() {
-            const checkbox = this.querySelector('input[type="checkbox"]');
-            const isSelected = checkbox.checked;
-            this.style.borderColor = isSelected ? '#1E3A8A' : '#CBD5E1';
-            this.style.background = isSelected ? '#EFF6FF' : '#F8FAFC';
-            this.style.color = isSelected ? '#1E3A8A' : '#475569';
-        });
+    searchInput.addEventListener('focus', () => loadSkills(searchInput.value.trim()));
+
+    dropdown.addEventListener('click', function(e) {
+        const option = e.target.closest('.cs-skill-opt');
+        if (!option) return;
+        addChip(option.dataset.id, option.dataset.name);
+        loadSkills(searchInput.value.trim()); // Biar dropdown tetap update statusnya
+    });
+
+    chipsWrap.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-skill-btn')) removeChip(e.target.dataset.id);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add('hidden');
     });
 </script>
 

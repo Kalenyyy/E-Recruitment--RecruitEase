@@ -40,7 +40,7 @@ ob_start();
                             <th class="px-4 py-3">Judul Pekerjaan / Posisi</th>
                             <th class="px-4 py-3">Tipe / Lokasi</th>
                             <th class="px-4 py-3 text-center">Jumlah Pelamar</th>
-                            <th class="px-4 py-3 text-right">Aksi</th>
+                            <th class="px-4 py-3 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-sm" style="color: #1E293B;">

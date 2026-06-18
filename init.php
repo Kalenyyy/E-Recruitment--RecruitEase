@@ -26,7 +26,7 @@ require_once __DIR__ . '/controllers/PendidikanController.php'; // Tambahkan con
 require_once __DIR__ . '/controllers/JobFormController.php'; 
 require_once __DIR__ . '/controllers/LowonganPekerjaanController.php'; 
 require_once __DIR__ . '/controllers/LamaranController.php'; 
-
+require_once __DIR__ . '/controllers/DashboardController.php';
 // 5. MODEL
 require_once __DIR__ . '/models/User.php'; 
 require_once __DIR__ . '/models/Candidate.php'; 
@@ -42,6 +42,7 @@ require_once __DIR__ . '/models/Pendidikan.php'; // Tambahkan model Pendidikan
 require_once __DIR__ . '/models/JobForm.php';
 require_once __DIR__ . '/models/LowonganPekerjaan.php';
 require_once __DIR__ . '/models/Lamaran.php';
+require_once __DIR__ . '/models/Dashboard.php';
 
 //helper
 require_once __DIR__ . '/views/helpers/ProfileHelper.php';

@@ -9,7 +9,7 @@ $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['searc
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 
-$perPage = 7; // Jumlah data per halaman
+$perPage = 7;
 $totalData = PosisiController::getTotalCount($conn, $search);
 $totalPages = ($totalData > 0) ? ceil($totalData / $perPage) : 1;
 
@@ -35,22 +35,28 @@ ob_start();
     .animate-fade-in-down {
         animation: fadeInDown 0.4s ease-out;
     }
+
+    .search-input:focus+.search-icon {
+        color: #1E3A8A;
+    }
 </style>
 
-<!-- Tampilkan Notifikasi Jika Ada -->
+<!-- ALERT NOTIFIKASI -->
 <?php if (isset($_SESSION['success'])): ?>
-    <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down"
+    <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down shadow-sm"
         style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
         <div class="flex items-center gap-3">
             <div class="flex items-center justify-center rounded-full flex-shrink-0" style="width:40px;height:40px;background:#DCFCE7;border:1px solid #86EFAC;">
-                <span style="font-size:20px;">✅</span>
+                <i class="fas fa-check-circle text-lg"></i>
             </div>
             <div>
                 <h4 class="font-bold text-sm">Berhasil!</h4>
                 <p class="text-xs"><?= $_SESSION['success'] ?></p>
             </div>
         </div>
-        <button onclick="document.getElementById('alert-success').remove()"><span class="text-xl px-2">×</span></button>
+        <button onclick="document.getElementById('alert-success').remove()" class="hover:opacity-70 transition">
+            <i class="fas fa-times px-2"></i>
+        </button>
     </div>
     <?php unset($_SESSION['success']); ?>
 <?php endif; ?>
@@ -58,75 +64,97 @@ ob_start();
 <!-- HEADER -->
 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
     <div>
-        <h1 class="text-xl font-bold text-slate-800">Manajemen Posisi</h1>
-        <p class="text-sm text-slate-500">Kelola data posisi dan jabatan perusahaan</p>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-800">Manajemen Posisi</h1>
+        <p class="text-sm text-slate-500">Kelola jabatan dan penempatan divisi karyawan</p>
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
-        <!-- Search Form -->
-        <form method="GET" action="" class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+        <!-- SEARCH FORM -->
+        <form method="GET" action="" class="relative group">
+            <i class="fas fa-search search-icon absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs transition-colors"></i>
             <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari posisi atau divisi..."
-                class="pl-8 pr-10 py-2 text-xs rounded-xl outline-none w-64 border border-slate-300 focus:ring-2 focus:ring-blue-100">
+                class="search-input pl-9 pr-10 py-2.5 text-sm rounded-xl outline-none w-64 border border-slate-300 focus:ring-2 focus:ring-blue-100 transition-all">
             <?php if (!empty($search)): ?>
-                <a href="index.php" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-lg">×</a>
+                <a href="index.php" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 transition">
+                    <i class="fas fa-times-circle"></i>
+                </a>
             <?php endif; ?>
         </form>
 
-        <button onclick="openCreateModal()" class="px-4 py-2 rounded-xl text-white font-semibold text-sm" style="background:#1E3A8A;">
-            + Tambah Posisi
+        <button onclick="openCreateModal()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white font-semibold text-sm transition hover:opacity-90 shadow-md shadow-blue-900/20" style="background:#1E3A8A;">
+            <i class="fas fa-plus text-xs"></i> Tambah Posisi
         </button>
     </div>
 </div>
 
 <!-- TABLE CARD -->
-<div class="rounded-2xl overflow-hidden bg-white border border-slate-200">
-    <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-200">
-        <span class="text-sm font-semibold text-slate-800">
-            <?= empty($search) ? 'Daftar Posisi' : 'Hasil Pencarian: "' . htmlspecialchars($search) . '"' ?>
-        </span>
-        <span class="text-xs font-semibold px-2 py-1 rounded-full" style="background:#EFF6FF;color:#1E3A8A;">
-            <?= $totalData ?> Total
-        </span>
+<div class="rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-bold text-slate-800">
+                <?= empty($search) ? 'Daftar Posisi Jabatan' : 'Hasil Pencarian: "' . htmlspecialchars($search) . '"' ?>
+            </span>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style="background:#EFF6FF;color:#1E3A8A;">
+                <?= $totalData ?> Total
+            </span>
+        </div>
     </div>
 
     <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-slate-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase">No</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase">Nama Posisi</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase">Divisi</th>
-                    <th class="px-6 py-3 text-right text-xs font-bold text-slate-400 uppercase">Aksi</th>
+        <table class="w-full text-sm text-left">
+            <thead>
+                <tr class="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold tracking-widest">
+                    <th class="px-6 py-4 w-20">No</th>
+                    <th class="px-6 py-4">Nama Posisi</th>
+                    <th class="px-6 py-4">Divisi Terkait</th>
+                    <th class="px-6 py-4 text-right">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-slate-100">
                 <?php
                 $no = (($page - 1) * $perPage) + 1;
                 if ($posisiCountInPage > 0):
                     while ($posisi = mysqli_fetch_assoc($posisiList)):
                 ?>
-                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                            <td class="px-6 py-4 text-slate-500 font-medium"><?= $no++ ?></td>
-                            <td class="px-6 py-4 font-bold text-slate-800"><?= htmlspecialchars($posisi['nama_posisi']) ?></td>
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="px-6 py-4 text-slate-400 font-medium"><?= str_pad($no++, 2, '0', STR_PAD_LEFT) ?></td>
                             <td class="px-6 py-4">
-                                <span class="px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
-                                    <?= htmlspecialchars($posisi['nama_divisi']) ?>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                        <i class="fas fa-briefcase text-[10px]"></i>
+                                    </div>
+                                    <span class="font-bold text-slate-700"><?= htmlspecialchars($posisi['nama_posisi']) ?></span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 uppercase tracking-tight">
+                                    <i class="fas fa-layer-group text-[9px]"></i> <?= htmlspecialchars($posisi['nama_divisi']) ?>
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">
                                     <button onclick="openEditModal(<?= $posisi['id'] ?>, '<?= htmlspecialchars(addslashes($posisi['nama_posisi'])) ?>', <?= $posisi['divisi_id'] ?>)"
-                                        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-100 text-amber-700">✏️ Edit</button>
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 transition shadow-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
                                     <button onclick="openDeleteModal(<?= $posisi['id'] ?>, '<?= htmlspecialchars(addslashes($posisi['nama_posisi'])) ?>')"
-                                        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-100 text-red-700">🗑️ Hapus</button>
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition shadow-sm">
+                                        <i class="far fa-trash-alt"></i> Hapus
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     <?php endwhile;
                 else: ?>
                     <tr>
-                        <td colspan="4" class="text-center py-12 text-slate-400">Data tidak ditemukan</td>
+                        <td colspan="4" class="text-center py-16">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-search text-slate-300 text-2xl"></i>
+                                </div>
+                                <span class="text-slate-400 font-medium">Data posisi tidak ditemukan</span>
+                            </div>
+                        </td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -134,396 +162,189 @@ ob_start();
     </div>
 
     <!-- PAGINATION FOOTER -->
-    <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200">
-        <span class="text-xs text-slate-500">
-            Menampilkan <?= ($posisiCountInPage > 0) ? (($page - 1) * $perPage) + 1 : 0 ?> - <?= ($page - 1) * $perPage + $posisiCountInPage ?> dari <?= $totalData ?> data
+    <div class="flex items-center justify-between px-6 py-4 bg-slate-50/50 border-t border-slate-200">
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">
+            Halaman <?= $page ?> dari <?= $totalPages ?>
         </span>
 
         <div class="flex gap-1">
             <?php $searchQuery = !empty($search) ? "&search=" . urlencode($search) : ""; ?>
 
             <?php if ($page > 1): ?>
-                <a href="?page=<?= $page - 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">‹</a>
+                <a href="?page=<?= $page - 1 ?><?= $searchQuery ?>" class="w-8 h-8 flex items-center justify-center text-xs rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
             <?php endif; ?>
 
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <a href="?page=<?= $i ?><?= $searchQuery ?>"
-                    class="px-3 py-1 text-xs rounded-lg font-semibold <?= $i == $page ? 'bg-blue-900 text-white' : 'border border-slate-200 hover:bg-slate-50' ?>">
+                    class="w-8 h-8 flex items-center justify-center text-xs rounded-lg font-bold transition <?= $i == $page ? 'bg-blue-900 text-white shadow-md' : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600' ?>">
                     <?= $i ?>
                 </a>
             <?php endfor; ?>
 
             <?php if ($page < $totalPages): ?>
-                <a href="?page=<?= $page + 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">›</a>
+                <a href="?page=<?= $page + 1 ?><?= $searchQuery ?>" class="w-8 h-8 flex items-center justify-center text-xs rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
             <?php endif; ?>
         </div>
     </div>
 </div>
-<!-- TEMPATKAN MODAL CREATE -->
-<div
-    id="modalCreate"
-    class="fixed inset-0 hidden items-start justify-center bg-slate-900/50 backdrop-blur-sm z-50 pt-20">
 
-    <div
-        class="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl">
-
-        <div class="px-6 py-5 border-b">
-
-            <h2 class="text-lg font-bold text-slate-800">
-                Tambah Posisi
-            </h2>
-
-            <p class="text-sm text-slate-500">
-                Tambahkan posisi baru
-            </p>
-
+<!-- MODAL CREATE -->
+<div id="modalCreate" class="fixed inset-0 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm z-50 p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in-down">
+        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 leading-none">Tambah Posisi</h2>
+                    <p class="text-[11px] text-slate-500 mt-1 uppercase tracking-wider font-semibold">Manajemen Jabatan</p>
+                </div>
+            </div>
+            <button onclick="closeCreateModal()" class="text-slate-400 hover:text-slate-600 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
         </div>
-
         <form action="create.php" method="POST">
-
-            <div class="p-6">
-
-                <div class="mb-4">
-
-                    <label class="block text-sm font-medium mb-2">
-                        Nama Posisi
-                    </label>
-
-                    <input
-                        type="text"
-                        name="nama_posisi"
-                        required
-                        class="w-full px-4 py-3 border rounded-xl">
-
+            <div class="p-8">
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Nama Posisi</label>
+                    <div class="relative">
+                        <i class="fas fa-tag absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" name="nama_posisi" required placeholder="Contoh: Senior Developer"
+                            class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition outline-none text-sm font-medium">
+                    </div>
                 </div>
 
                 <div>
-
-                    <label class="block text-sm font-medium mb-2">
-                        Divisi
-                    </label>
-
-                    <select
-                        name="divisi_id"
-                        required
-                        class="w-full px-4 py-3 border rounded-xl">
-
-                        <option value="">
-                            Pilih Divisi
-                        </option>
-
-                        <?php
-                        $divisiList = DivisiController::read();
-
-                        while ($divisi = mysqli_fetch_assoc($divisiList)):
-                        ?>
-
-                            <option value="<?= $divisi['id'] ?>">
-                                <?= $divisi['nama_divisi'] ?>
-                            </option>
-
-                        <?php endwhile; ?>
-
-                    </select>
-
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Pilih Divisi</label>
+                    <div class="relative">
+                        <i class="fas fa-layer-group absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <select name="divisi_id" required class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition outline-none text-sm font-medium appearance-none">
+                            <option value="">-- Pilih Divisi --</option>
+                            <?php
+                            $divisiListForSelect = DivisiController::read();
+                            while ($div = mysqli_fetch_assoc($divisiListForSelect)):
+                            ?>
+                                <option value="<?= $div['id'] ?>"><?= $div['nama_divisi'] ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    </div>
                 </div>
-
             </div>
-
-            <div class="px-6 py-4 bg-slate-50 flex justify-end gap-3">
-
-                <button
-                    type="button"
-                    onclick="closeCreateModal()"
-                    class="px-5 py-2 rounded-xl bg-slate-200">
-
-                    Batal
-
-                </button>
-
-                <button
-                    type="submit"
-                    class="px-5 py-2 rounded-xl text-white"
-                    style="background:#1E3A8A;">
-
-                    Simpan
-
-                </button>
-
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button type="button" onclick="closeCreateModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-200 transition">Batal</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl text-white text-sm font-bold transition hover:opacity-90 shadow-lg shadow-blue-900/20" style="background:#1E3A8A;">Simpan Posisi</button>
             </div>
-
         </form>
-
     </div>
-
 </div>
 
-<!-- TEMPATKAN MODAL EDIT -->
-<div
-    id="modalEdit"
-    class="fixed inset-0 hidden items-start justify-center bg-slate-900/50 backdrop-blur-sm z-50 pt-20">
-
-    <div
-        class="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl">
-
-        <div class="px-6 py-5 border-b">
-
-            <h2 class="text-lg font-bold text-slate-800">
-                Edit Posisi
-            </h2>
-
-            <p class="text-sm text-slate-500">
-                Ubah data posisi
-            </p>
-
+<!-- MODAL EDIT -->
+<div id="modalEdit" class="fixed inset-0 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm z-50 p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-fade-in-down">
+        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                    <i class="fas fa-pen-to-square"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 leading-none">Edit Posisi</h2>
+                    <p class="text-[11px] text-slate-500 mt-1 uppercase tracking-wider font-semibold">Perbarui Jabatan</p>
+                </div>
+            </div>
+            <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
         </div>
-
         <form action="edit.php" method="POST">
-
-            <input
-                type="hidden"
-                name="id"
-                id="edit_id">
-
-            <div class="p-6">
-
-                <div class="mb-4">
-
-                    <label class="block text-sm font-medium mb-2">
-                        Nama Posisi
-                    </label>
-
-                    <input
-                        type="text"
-                        name="nama_posisi"
-                        id="edit_nama_posisi"
-                        required
-                        class="w-full px-4 py-3 border rounded-xl">
-
+            <input type="hidden" name="id" id="edit_id">
+            <div class="p-8">
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Nama Posisi</label>
+                    <div class="relative">
+                        <i class="fas fa-tag absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" name="nama_posisi" id="edit_nama_posisi" required
+                            class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-4 focus:ring-amber-50 transition outline-none text-sm font-medium">
+                    </div>
                 </div>
 
                 <div>
-
-                    <label class="block text-sm font-medium mb-2">
-                        Divisi
-                    </label>
-
-                    <select
-                        name="divisi_id"
-                        id="edit_divisi"
-                        required
-                        class="w-full px-4 py-3 border rounded-xl">
-
-                        <?php
-                        $divisiList = DivisiController::read();
-
-                        while ($divisi = mysqli_fetch_assoc($divisiList)):
-                        ?>
-
-                            <option value="<?= $divisi['id'] ?>">
-                                <?= $divisi['nama_divisi'] ?>
-                            </option>
-
-                        <?php endwhile; ?>
-
-                    </select>
-
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Divisi</label>
+                    <div class="relative">
+                        <i class="fas fa-layer-group absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <select name="divisi_id" id="edit_divisi" required class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-4 focus:ring-amber-50 transition outline-none text-sm font-medium appearance-none">
+                            <?php
+                            $divisiListEdit = DivisiController::read();
+                            while ($div = mysqli_fetch_assoc($divisiListEdit)):
+                            ?>
+                                <option value="<?= $div['id'] ?>"><?= $div['nama_divisi'] ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    </div>
                 </div>
-
             </div>
-
-            <div class="px-6 py-4 bg-slate-50 flex justify-end gap-3">
-
-                <button
-                    type="button"
-                    onclick="closeEditModal()"
-                    class="px-5 py-2 rounded-xl bg-slate-200">
-
-                    Batal
-
-                </button>
-
-                <button
-                    type="submit"
-                    class="px-5 py-2 rounded-xl text-white bg-amber-500">
-
-                    Update
-
-                </button>
-
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-200 transition">Batal</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl text-white text-sm font-bold transition hover:opacity-90 shadow-lg shadow-amber-600/20" style="background:#D97706;">Perbarui Data</button>
             </div>
-
         </form>
-
     </div>
-
 </div>
 
-<script>
-    function openEditModal(id, nama, idDivisi) {
-        document.getElementById("edit_id").value = id;
-
-        document.getElementById("edit_nama_posisi").value = nama;
-
-        document.getElementById("edit_divisi").value = idDivisi;
-
-        document
-            .getElementById("modalEdit")
-            .classList.remove("hidden");
-
-        document
-            .getElementById("modalEdit")
-            .classList.add("flex");
-    }
-</script>
-
-<!-- TEMPATKAN MODAL DELETE -->
-<div
-    id="modalDelete"
-    class="fixed inset-0 hidden items-start justify-center bg-slate-900/50 backdrop-blur-sm z-50 pt-20">
-
-    <div
-        class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
-
-        <div class="p-8 text-center">
-
-            <div
-                class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-red-100">
-
-                <span class="text-3xl">
-                    ⚠️
-                </span>
-
-            </div>
-
-            <h3 class="text-xl font-bold text-slate-800">
-                Hapus Posisi?
-            </h3>
-
-            <p class="text-sm text-slate-500 mt-3">
-
-                Posisi
-
-                <span
-                    id="deleteName"
-                    class="font-semibold text-slate-700">
-                </span>
-
-                akan dihapus permanen.
-
-            </p>
-
-            <div class="flex gap-3 mt-8">
-
-                <button
-                    onclick="closeDeleteModal()"
-                    class="flex-1 py-3 rounded-xl bg-slate-200">
-
-                    Batal
-
-                </button>
-
-                <a
-                    id="deleteBtn"
-                    href="#"
-                    class="flex-1 py-3 rounded-xl bg-red-600 text-white text-center">
-
-                    Hapus
-
-                </a>
-
-            </div>
-
+<!-- MODAL DELETE -->
+<div id="modalDelete" class="fixed inset-0 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm z-50 p-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-fade-in-down p-8 text-center">
+        <div class="w-20 h-20 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-rose-100">
+            <i class="fas fa-exclamation-triangle text-3xl"></i>
         </div>
-
+        <h3 class="text-xl font-bold text-slate-800 mb-2">Hapus Posisi?</h3>
+        <p class="text-sm text-slate-500 mb-8 leading-relaxed">Posisi <span id="deleteName" class="font-bold text-slate-700"></span> akan dihapus permanen. Hal ini mungkin berdampak pada data karyawan.</p>
+        <div class="flex gap-3">
+            <button onclick="closeDeleteModal()" class="flex-1 py-3 text-sm font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Batal</button>
+            <a id="deleteBtn" href="#" class="flex-1 py-3 text-sm font-bold text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition shadow-lg shadow-rose-600/20 text-center">Hapus Data</a>
+        </div>
     </div>
-
 </div>
 
 <script>
-    function openDeleteModal(id, nama) {
-        document.getElementById("deleteName").innerText = nama;
-
-        document.getElementById("deleteBtn").href =
-            "delete.php?id=" + id;
-
-        document
-            .getElementById("modalDelete")
-            .classList.remove("hidden");
-
-        document
-            .getElementById("modalDelete")
-            .classList.add("flex");
-    }
-</script>
-
-<script>
-    document.getElementById("searchInput")
-        .addEventListener("keyup", function() {
-
-            let filter = this.value.toLowerCase();
-
-            let rows =
-                document.querySelectorAll("#tablePosisi tr");
-
-            rows.forEach(row => {
-
-                let text =
-                    row.innerText.toLowerCase();
-
-                row.style.display =
-                    text.includes(filter) ?
-                    "" :
-                    "none";
-
-            });
-
-        });
-
     function openCreateModal() {
-        document
-            .getElementById("modalCreate")
-            .classList.remove("hidden");
-
-        document
-            .getElementById("modalCreate")
-            .classList.add("flex");
+        document.getElementById("modalCreate").classList.replace("hidden", "flex");
     }
 
     function closeCreateModal() {
-        document
-            .getElementById("modalCreate")
-            .classList.add("hidden");
+        document.getElementById("modalCreate").classList.replace("flex", "hidden");
+    }
 
-        document
-            .getElementById("modalCreate")
-            .classList.remove("flex");
+    function openEditModal(id, nama, idDivisi) {
+        document.getElementById("edit_id").value = id;
+        document.getElementById("edit_nama_posisi").value = nama;
+        document.getElementById("edit_divisi").value = idDivisi;
+        document.getElementById("modalEdit").classList.replace("hidden", "flex");
     }
 
     function closeEditModal() {
-        document
-            .getElementById("modalEdit")
-            .classList.add("hidden");
+        document.getElementById("modalEdit").classList.replace("flex", "hidden");
+    }
 
-        document
-            .getElementById("modalEdit")
-            .classList.remove("flex");
+    function openDeleteModal(id, nama) {
+        document.getElementById("deleteName").innerText = nama;
+        document.getElementById("deleteBtn").href = "delete.php?id=" + id;
+        document.getElementById("modalDelete").classList.replace("hidden", "flex");
     }
 
     function closeDeleteModal() {
-        document
-            .getElementById("modalDelete")
-            .classList.add("hidden");
-
-        document
-            .getElementById("modalDelete")
-            .classList.remove("flex");
+        document.getElementById("modalDelete").classList.replace("flex", "hidden");
     }
 </script>
 
 <?php
-
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/app.php';
-
 ?>

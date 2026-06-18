@@ -14,6 +14,11 @@
     .animate-fade-in-down {
         animation: fadeInDown 0.4s ease-out;
     }
+
+    /* Memperhalus tampilan form search */
+    .search-input:focus+.search-icon {
+        color: #1E3A8A;
+    }
 </style>
 
 <?php
@@ -21,7 +26,6 @@ require_once __DIR__ . '/../../init.php';
 AuthController::requireLogin();
 AuthController::isAdmin() or die("Access denied");
 
-// --- LOGIKA SEARCH & PAGINATION ---
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
@@ -38,89 +42,105 @@ ob_start();
 
 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
     <div>
-        <h1 class="text-xl font-bold" style="color: #1E293B;">Manajemen HRD</h1>
-        <p class="text-sm" style="color: #64748B;">Kelola akun HRD dalam sistem</p>
+        <h1 class="text-2xl font-bold tracking-tight" style="color: #1E293B;">Manajemen HRD</h1>
+        <p class="text-sm" style="color: #64748B;">Kelola dan pantau akses akun HRD dalam sistem</p>
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
         <!-- SEARCH FORM -->
-        <form method="GET" action="" class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+        <form method="GET" action="" class="relative group">
+            <i class="fas fa-search search-icon absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs transition-colors"></i>
             <input
                 type="text"
                 name="search"
                 value="<?= htmlspecialchars($search) ?>"
                 placeholder="Cari nama atau email..."
-                class="pl-8 pr-3 py-2 text-xs rounded-xl outline-none w-64 transition focus:ring-2 focus:ring-blue-100"
-                style="border: 1px solid #CBD5E1; background: #FFFFFF; color: #1E293B;" />
+                class="search-input pl-9 pr-8 py-2 text-sm rounded-xl outline-none w-64 transition focus:ring-2 focus:ring-blue-100 border border-slate-300"
+                style="background: #FFFFFF; color: #1E293B;" />
             <?php if (!empty($search)): ?>
-                <a href="index.php" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 text-lg">×</a>
+                <a href="index.php" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 transition">
+                    <i class="fas fa-times-circle"></i>
+                </a>
             <?php endif; ?>
         </form>
 
         <a href="<?= BASE_URL ?>views/user/create.php"
-            class="inline-flex items-center gap-2 text-white text-sm font-semibold px-4 py-2 rounded-xl transition hover:opacity-90"
+            class="inline-flex items-center gap-2 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition hover:opacity-90 shadow-sm"
             style="background: #1E3A8A;">
-            + Tambah HRD
+            <i class="fas fa-plus text-xs"></i> Tambah HRD
         </a>
     </div>
 </div>
 
 <!-- TABLE CARD -->
-<div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0;">
-    <div class="px-6 py-4" style="border-bottom: 1px solid #E2E8F0;">
-        <span class="text-sm font-semibold" style="color: #1E293B;">
-            <?= empty($search) ? 'Daftar HRD' : 'Hasil Pencarian: "' . htmlspecialchars($search) . '"' ?>
-        </span>
-        <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full" style="background: #EFF6FF; color: #1E3A8A;">
-            <?= $totalData ?> akun
-        </span>
+<div class="rounded-2xl overflow-hidden shadow-sm" style="background: #FFFFFF; border: 1px solid #E2E8F0;">
+    <div class="px-6 py-4 flex items-center justify-between" style="border-bottom: 1px solid #E2E8F0;">
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-bold" style="color: #1E293B;">
+                <?= empty($search) ? 'Daftar Akun HRD' : 'Hasil Pencarian: "' . htmlspecialchars($search) . '"' ?>
+            </span>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full" style="background: #EFF6FF; color: #1E3A8A;">
+                <?= $totalData ?> Total
+            </span>
+        </div>
     </div>
 
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
-            <thead style="background: #F8FAFC;">
-                <tr>
-                    <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: #94A3B8;">Nama</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: #94A3B8;">Email</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: #94A3B8;">Status</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: #94A3B8;">Dibuat</th>
-                    <th class="text-right px-6 py-3 text-xs font-semibold uppercase tracking-wide" style="color: #94A3B8;">Aksi</th>
+            <thead>
+                <tr style="background: #F8FAFC;">
+                    <th class="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Nama Lengkap</th>
+                    <th class="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Email</th>
+                    <th class="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
+                    <th class="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Tgl Bergabung</th>
+                    <th class="text-right px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-slate-100">
                 <?php if ($hrdCountInPage > 0): ?>
-                    <?php foreach ($hrdList as $hrd):
-                        $nama = $hrd['nama_staff'];
-                        $nameParts = explode(' ', trim($nama));
-                        $initials = strtoupper(substr($nameParts[0], 0, 1));
-                        if (isset($nameParts[1])) $initials .= strtoupper(substr($nameParts[1], 0, 1));
-                    ?>
-                        <tr style="border-bottom: 1px solid #F1F5F9;" class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-semibold"><?= htmlspecialchars($nama) ?></td>
-                            <td class="px-6 py-4 text-slate-500"><?= htmlspecialchars($hrd['email']) ?></td>
+                    <?php foreach ($hrdList as $hrd): ?>
+                        <tr class="hover:bg-slate-50/50 transition">
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full"
-                                    style="<?= $hrd['status'] === 'active' ? 'background: #DCFCE7; color: #166534;' : 'background: #FEE2E2; color: #991B1B;' ?>">
-                                    <?= ucfirst($hrd['status']) ?>
-                                </span>
+                                <div class="font-semibold text-slate-800"><?= htmlspecialchars($hrd['nama_staff']) ?></div>
                             </td>
-                            <td class="px-6 py-4 text-slate-500"><?= date('d M Y', strtotime($hrd['created_at'])) ?></td>
+                            <td class="px-6 py-4 text-slate-500 italic"><?= htmlspecialchars($hrd['email']) ?></td>
+                            <td class="px-6 py-4">
+                                <?php if ($hrd['status'] === 'active'): ?>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-700 uppercase">
+                                        <i class="fas fa-check-circle text-[10px]"></i> Active
+                                    </span>
+                                <?php else: ?>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full bg-rose-100 text-rose-700 uppercase">
+                                        <i class="fas fa-times-circle text-[10px]"></i> Inactive
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 text-slate-500">
+                                <i class="far fa-calendar-alt mr-1 text-slate-400"></i> <?= date('d M Y', strtotime($hrd['created_at'])) ?>
+                            </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex justify-end gap-2">
-                                    <button onclick="openStatusModal(<?= $hrd['user_id'] ?>, '<?= addslashes($hrd['nama_staff']) ?>', '<?= $hrd['status'] ?>')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100">🔄 Status</button>
-                                    <button onclick="openDeleteModal(<?= $hrd['user_id'] ?>, '<?= addslashes($hrd['nama_staff']) ?>')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-100">🗑️ Hapus</button>
+                                    <button onclick="openStatusModal(<?= $hrd['user_id'] ?>, '<?= addslashes($hrd['nama_staff']) ?>', '<?= $hrd['status'] ?>')"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition shadow-sm">
+                                        <i class="fas fa-sync-alt"></i> Status
+                                    </button>
+                                    <button onclick="openDeleteModal(<?= $hrd['user_id'] ?>, '<?= addslashes($hrd['nama_staff']) ?>')"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition shadow-sm">
+                                        <i class="far fa-trash-alt"></i> Hapus
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" class="text-center py-12">
-                            <div class="flex flex-col items-center gap-2">
-                                <span class="text-3xl">🔍</span>
-                                <span class="text-sm text-slate-400">Tidak menemukan hasil untuk "<?= htmlspecialchars($search) ?>"</span>
-                                <a href="index.php" class="text-xs text-blue-600 font-bold hover:underline">Reset Pencarian</a>
+                        <td colspan="5" class="text-center py-16">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-search text-slate-300 text-2xl"></i>
+                                </div>
+                                <div class="text-slate-500 font-medium">Data tidak ditemukan untuk "<?= htmlspecialchars($search) ?>"</div>
+                                <a href="index.php" class="text-sm text-blue-600 font-bold hover:underline">Tampilkan Semua Data</a>
                             </div>
                         </td>
                     </tr>
@@ -129,70 +149,74 @@ ob_start();
         </table>
     </div>
 
-    <!-- PAGINATION DENGAN SEARCH PARAMETER -->
-    <div class="flex items-center justify-between px-6 py-4" style="border-top: 1px solid #E2E8F0;">
-        <span class="text-xs text-slate-500">
-            Menampilkan <?= ($hrdCountInPage > 0) ? (($page - 1) * $perPage) + 1 : 0 ?> - <?= ($page - 1) * $perPage + $hrdCountInPage ?> dari <?= $totalData ?> data
+    <!-- PAGINATION -->
+    <div class="flex items-center justify-between px-6 py-4 bg-slate-50/50">
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">
+            Halaman <?= $page ?> dari <?= $totalPages ?: 1 ?>
         </span>
 
         <div class="flex gap-1">
-            <?php
-            // Fungsi pembantu agar URL pagination tetap membawa kata kunci search
-            $searchQuery = !empty($search) ? "&search=" . urlencode($search) : "";
-            ?>
+            <?php $searchQuery = !empty($search) ? "&search=" . urlencode($search) : ""; ?>
 
-            <!-- Prev -->
             <?php if ($page > 1): ?>
-                <a href="?page=<?= $page - 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">‹</a>
+                <a href="?page=<?= $page - 1 ?><?= $searchQuery ?>" class="w-8 h-8 flex items-center justify-center text-xs rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
             <?php endif; ?>
 
-            <!-- Numbers -->
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <a href="?page=<?= $i ?><?= $searchQuery ?>"
-                    class="px-3 py-1 text-xs rounded-lg font-semibold <?= $i == $page ? 'bg-blue-900 text-white' : 'border border-slate-200 hover:bg-slate-50' ?>">
+                    class="w-8 h-8 flex items-center justify-center text-xs rounded-lg font-bold transition <?= $i == $page ? 'bg-blue-900 text-white shadow-md' : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600' ?>">
                     <?= $i ?>
                 </a>
             <?php endfor; ?>
 
-            <!-- Next -->
             <?php if ($page < $totalPages): ?>
-                <a href="?page=<?= $page + 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">›</a>
+                <a href="?page=<?= $page + 1 ?><?= $searchQuery ?>" class="w-8 h-8 flex items-center justify-center text-xs rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
             <?php endif; ?>
         </div>
     </div>
 </div>
 
 
-<!-- MODAL STATUS & DELETE -->
-<div id="modalStatus" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-fade-in-down p-6 text-center">
-        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100"><span class="text-2xl">🔄</span></div>
-        <h3 class="text-lg font-bold text-slate-800 mb-2">Ubah Status?</h3>
-        <p class="text-sm text-slate-500 mb-6">Ubah status <span id="statusName" class="font-bold"></span> menjadi <span id="nextStatus" class="font-bold"></span>?</p>
+<!-- MODAL STATUS -->
+<div id="modalStatus" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-fade-in-down p-8 text-center">
+        <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-blue-100">
+            <i class="fas fa-user-shield text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-2">Update Status Akun</h3>
+        <p class="text-sm text-slate-500 mb-8 leading-relaxed">Anda akan mengubah status <span id="statusName" class="font-bold text-slate-700"></span> menjadi <span id="nextStatus" class="font-bold px-2 py-0.5 rounded bg-slate-100 uppercase text-[10px]"></span></p>
         <div class="flex gap-3">
-            <button onclick="closeModal('modalStatus')" class="flex-1 py-2.5 text-sm font-semibold bg-slate-100 rounded-xl">Batal</button>
-            <a id="confirmStatusBtn" href="#" class="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-900 rounded-xl">Ya, Ubah</a>
+            <button onclick="closeModal('modalStatus')" class="flex-1 py-3 text-sm font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Batal</button>
+            <a id="confirmStatusBtn" href="#" class="flex-1 py-3 text-sm font-bold text-white bg-blue-900 rounded-xl hover:bg-blue-800 transition shadow-lg shadow-blue-900/20">Konfirmasi</a>
         </div>
     </div>
 </div>
 
-<div id="modalDelete" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-fade-in-down p-6 text-center">
-        <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100"><span class="text-2xl">⚠️</span></div>
-        <h3 class="text-lg font-bold text-slate-800 mb-2">Hapus Data?</h3>
-        <p class="text-sm text-slate-500 mb-6">Hapus <span id="deleteName" class="font-bold"></span> permanen?</p>
+<!-- MODAL DELETE -->
+<div id="modalDelete" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-fade-in-down p-8 text-center">
+        <div class="w-20 h-20 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-rose-100">
+            <i class="fas fa-exclamation-triangle text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-2">Hapus Akun HRD?</h3>
+        <p class="text-sm text-slate-500 mb-8 leading-relaxed">Tindakan ini tidak dapat dibatalkan. Akun <span id="deleteName" class="font-bold text-slate-700"></span> akan dihapus permanen.</p>
         <div class="flex gap-3">
-            <button onclick="closeModal('modalDelete')" class="flex-1 py-2.5 text-sm font-semibold bg-slate-100 rounded-xl">Batal</button>
-            <a id="confirmDeleteBtn" href="#" class="flex-1 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl">Ya, Hapus</a>
+            <button onclick="closeModal('modalDelete')" class="flex-1 py-3 text-sm font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Batal</button>
+            <a id="confirmDeleteBtn" href="#" class="flex-1 py-3 text-sm font-bold text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition shadow-lg shadow-rose-600/20">Ya, Hapus Data</a>
         </div>
     </div>
 </div>
 
 <script>
     function openStatusModal(id, name, currentStatus) {
+        const nextStatus = (currentStatus === 'active' ? 'Inactive' : 'Active');
         document.getElementById('statusName').innerText = name;
-        document.getElementById('nextStatus').innerText = (currentStatus === 'active' ? 'Inactive' : 'Active');
-        document.getElementById('confirmStatusBtn').href = 'edit.php?id=' + id; 
+        document.getElementById('nextStatus').innerText = nextStatus;
+        document.getElementById('confirmStatusBtn').href = 'edit.php?id=' + id;
         document.getElementById('modalStatus').classList.replace('hidden', 'flex');
     }
 

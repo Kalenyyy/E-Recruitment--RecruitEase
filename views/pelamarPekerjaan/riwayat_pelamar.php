@@ -1,4 +1,4 @@
-    <?php
+<?php
 require_once __DIR__ . '/../../init.php';
 require_once __DIR__ . '/../../controllers/PelamarPekerjaanController.php';
 
@@ -93,15 +93,14 @@ ob_start();
             <div class="text-center">
 
                 <?php if(!empty($appDetails['foto'])): ?>
-
+                    <!-- PROFILE IMAGE -->
                     <img
-                        src="<?= BASE_URL ?>public/uploads/candidates/<?= $appDetails['foto'] ?>"
-                        class="w-28 h-28 rounded-full mx-auto object-cover border">
-
+                         src="<?= BASE_URL ?>public/uploads/candidate/<?= $appDetails['foto'] ?>"
+                         class="w-28 h-28 rounded-full mx-auto object-cover border">
                 <?php else: ?>
 
-                    <div class="w-28 h-28 rounded-full mx-auto bg-slate-100 flex items-center justify-center text-5xl">
-                        👤
+                    <div class="w-28 h-28 rounded-full mx-auto bg-slate-100 flex items-center justify-center text-slate-400">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     </div>
 
                 <?php endif; ?>
@@ -144,9 +143,10 @@ ob_start();
                 <a
                     href="<?= BASE_URL ?>public/uploads/cv/<?= $appDetails['cv_file'] ?>"
                     target="_blank"
-                    class="mt-6 block text-center bg-[#1E3A8A] text-white rounded-xl py-2 font-semibold">
+                    class="mt-6 flex items-center justify-center gap-2 text-center bg-[#1E3A8A] text-white rounded-xl py-2 font-semibold">
 
-                    📄 Download CV
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download CV
 
                 </a>
 
@@ -163,8 +163,9 @@ ob_start();
         <div class="bg-blue-50 rounded-2xl shadow-sm border border-blue-100">
 
             <div class="p-5 border-b border-blue-100 bg-blue-100">
-                <h2 class="font-bold text-blue-800">
-                    💼 Informasi Lamaran
+                <h2 class="font-bold text-blue-800 flex items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    Informasi Lamaran
                 </h2>
             </div>
 
@@ -208,8 +209,9 @@ ob_start();
         <div class="bg-blue-50 rounded-2xl shadow-sm border border-blue-100">
 
             <div class="p-5 border-b border-blue-100 bg-blue-100">
-                <h2 class="font-bold text-slate-800">
-                    👤 Data Pribadi
+                <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Data Pribadi
                 </h2>
             </div>
 
@@ -235,8 +237,9 @@ ob_start();
         <div class="bg-blue-50 rounded-2xl shadow-sm border border-blue-100">
 
             <div class="p-5 border-b border-blue-100 bg-blue-100">
-                <h2 class="font-bold text-slate-800">
-                    ♿ Informasi Disabilitas
+                <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.5"></circle><path d="M9 9h6l-1 4 4 2v6"></path><path d="M7 21h10"></path><path d="M9 13a4 4 0 0 0 4 6"></path></svg>
+                    Informasi Disabilitas
                 </h2>
             </div>
 
@@ -275,8 +278,9 @@ ob_start();
         <div class="bg-blue-50 rounded-2xl shadow-sm border border-blue-100">
 
             <div class="p-5 border-b border-blue-100 bg-blue-100">
-                <h2 class="font-bold text-slate-800">
-                    🛠️ Skill
+                <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 9-5-9-5-9 5 9 5Z"></path><path d="m22 9-10 5L2 9"></path><path d="M6 11.5v4.5a6 3 0 0 0 12 0v-4.5"></path></svg>
+                    Skill
                 </h2>
             </div>
 
@@ -302,8 +306,9 @@ ob_start();
         <div class="bg-blue-50 rounded-2xl shadow-sm border border-blue-100">
 
     <div class="p-5 border-b border-blue-100 bg-blue-100">
-        <h2 class="font-bold text-slate-800">
-            🏆 Sertifikasi & Prestasi
+        <h2 class="font-bold text-slate-800 flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path><circle cx="12" cy="8" r="6"></circle></svg>
+            Sertifikasi &amp; Prestasi
         </h2>
     </div>
 
@@ -325,23 +330,26 @@ ob_start();
                                     <?= htmlspecialchars($sertifikat['nama_sertifikasi']) ?>
                                 </h3>
 
-                                <p class="text-blue-700 font-medium text-sm mt-1">
-                                    🏢 <?= htmlspecialchars($sertifikat['penyelenggara']) ?>
+                                <p class="text-blue-700 font-medium text-sm mt-1 flex items-center gap-1.5">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path><path d="M9 9v.01"></path><path d="M9 12v.01"></path><path d="M9 15v.01"></path><path d="M9 18v.01"></path></svg>
+                                    <?= htmlspecialchars($sertifikat['penyelenggara']) ?>
                                 </p>
 
                             </div>
 
-                            <div class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
-                                🏅 Sertifikasi
+                            <div class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
+                                Sertifikasi
                             </div>
 
                         </div>
 
                         <div class="mt-4 flex items-center justify-between">
 
-                            <div class="text-sm text-slate-500">
+                            <div class="text-sm text-slate-500 flex items-center gap-1.5">
 
-                                📅 Diterbitkan:
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                Diterbitkan:
                                 <span class="font-medium text-slate-700">
                                     <?= date('d F Y', strtotime($sertifikat['tanggal_terbit'])) ?>
                                 </span>
@@ -353,9 +361,10 @@ ob_start();
                                 <a
                                     href="<?= BASE_URL ?>uploads/sertifikasi/<?= $sertifikat['file_sertifikasi'] ?>"
                                     target="_blank"
-                                    class="px-4 py-2 bg-[#1E3A8A] hover:bg-blue-800 text-white rounded-lg text-sm font-semibold transition">
+                                    class="px-4 py-2 bg-[#1E3A8A] hover:bg-blue-800 text-white rounded-lg text-sm font-semibold transition flex items-center gap-1.5">
 
-                                    📄 Lihat Sertifikat
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                    Lihat Sertifikat
 
                                 </a>
 
@@ -373,8 +382,8 @@ ob_start();
 
             <div class="bg-white rounded-xl border border-dashed border-slate-300 p-8 text-center">
 
-                <div class="text-5xl mb-3">
-                    🏆
+                <div class="flex items-center justify-center mb-3 text-slate-300">
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path><circle cx="12" cy="8" r="6"></circle></svg>
                 </div>
 
                 <h3 class="font-semibold text-slate-700">
@@ -397,8 +406,9 @@ ob_start();
         <div class="bg-blue-50 rounded-2xl shadow-sm border border-blue-100">
 
     <div class="p-5 border-b border-blue-100 bg-blue-100">
-        <h2 class="font-bold text-slate-800">
-            💼 Riwayat Pengalaman
+        <h2 class="font-bold text-slate-800 flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            Riwayat Pengalaman
         </h2>
     </div>
 
@@ -461,8 +471,8 @@ ob_start();
 
             <div class="bg-white rounded-xl p-6 text-center border border-dashed border-slate-300">
 
-                <div class="text-4xl mb-2">
-                    💼
+                <div class="flex items-center justify-center mb-2 text-slate-300">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                 </div>
 
                 <p class="text-slate-500">
@@ -492,6 +502,4 @@ ob_start();
 <?php
 $content = ob_get_clean();
 include __DIR__ . '/../layouts/app.php';
-?>  
-
-
+?>

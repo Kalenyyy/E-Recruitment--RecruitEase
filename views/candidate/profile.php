@@ -51,11 +51,11 @@ ob_start();
 ?>
 
 <!-- BREADCRUMB & TITLE -->
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-8">
     <div>
         <h1 class="text-2xl font-bold" style="color:#1E293B;">User Profile</h1>
-        <div class="flex items-center gap-2 text-xs" style="color:#64748B;">
-            <span>Home</span> <span>›</span> <span style="color:#1E3A8A;">User Profile</span>
+        <div class="flex items-center gap-2 text-sm mt-1" style="color:#64748B;">
+            <span>Home</span> <span style="color:#CBD5E1;">/</span> <span style="color:#1E3A8A;font-weight:600;">User Profile</span>
         </div>
     </div>
 </div>
@@ -63,24 +63,7 @@ ob_start();
 <div class="flex flex-col gap-6 mb-10">
 
     <!-- ========== MY PROFILE ========== -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-            <h2 class="font-bold text-slate-800">My Profile</h2>
-            <button type="submit" form="mainForm"
-                class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                💾 Simpan
-            </button>
-        </div>
-
-        <form id="mainForm" action="<?= BASE_URL ?>public/actions/update_profile_candidate.php" method="POST"
-            enctype="multipart/form-data" class="p-6">
-            <input type="hidden" name="id" value="<?= $candidate['id'] ?>">
-
-            <!-- Avatar -->
-            <div class="flex items-center gap-5 mb-8">
-                <div class="relative group">
-                    <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-100 flex-shrink-0">
-                        <?php if ($hasFoto): ?>
+      <?php if ($hasFoto): ?>
                             <img id="fotoPreview" src="<?= BASE_URL ?>public/uploads/candidate/<?= $candidate['foto'] ?>"
                                 class="w-full h-full object-cover">
                         <?php else: ?>
@@ -91,44 +74,44 @@ ob_start();
                         <?php endif; ?>
                     </div>
                     <label
-                        class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition text-white text-[10px] font-semibold">
+                        class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition text-white text-xs font-semibold">
                         Ganti
                         <input type="file" name="foto" class="hidden" accept="image/*" onchange="previewFoto(this)">
                     </label>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold text-slate-800"><?= htmlspecialchars($nama) ?></h3>
-                    <p class="text-sm text-slate-500">Candidate</p>
+                    <p class="text-sm text-slate-500 mt-0.5">Candidate</p>
                 </div>
             </div>
 
             <!-- Fields -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Nama Lengkap</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Nama Lengkap</label>
                     <input type="text" name="nama_lengkap" value="<?= htmlspecialchars($candidate['nama_lengkap']) ?>"
-                        class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent">
+                        class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Email</label>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Email</label>
                     <input type="email" name="email" value="<?= htmlspecialchars($candidate['email']) ?>"
-                        class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent">
+                        class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">No. HP</label>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">No. HP</label>
                     <input type="text" name="no_hp" value="<?= htmlspecialchars($candidate['no_hp']) ?>"
-                        class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent">
+                        class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Tanggal Lahir</label>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Tanggal Lahir</label>
                     <input type="date" name="tanggal_lahir"
                         value="<?= htmlspecialchars($candidate['tanggal_lahir'] ?? '') ?>"
-                        class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent">
+                        class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Jenis Kelamin</label>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Jenis Kelamin</label>
                     <select name="jenis_kelamin"
-                        class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent cursor-pointer">
+                        class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent cursor-pointer transition-colors">
                         <option value="">-- Pilih --</option>
                         <option value="L" <?= ($candidate['jenis_kelamin'] ?? '') === 'L' ? 'selected' : '' ?>>Laki-laki
                         </option>
@@ -143,22 +126,25 @@ ob_start();
     <!-- ========== CV / RESUME ========== -->
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-            <h2 class="font-bold text-slate-800">CV / Resume</h2>
+            <h2 class="font-bold text-base text-slate-800">CV / Resume</h2>
             <label id="cvUploadLabel"
-                class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 cursor-pointer transition">
-                📎 Upload CV
+                class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 cursor-pointer transition">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                Upload CV
                 <input type="file" id="cvFileInput" class="hidden" accept=".pdf,.doc,.docx">
             </label>
         </div>
         <div class="p-6 flex items-center justify-between">
             <div id="cvInfo" class="flex items-center gap-3">
                 <?php if (!empty($candidate['cv_file'])): ?>
-                    <span class="text-2xl">📄</span>
+                    <span class="inline-flex items-center justify-center flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:#EFF6FF;color:#1E3A8A;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </span>
                     <div>
                         <p id="cvFileName" class="text-sm font-semibold text-slate-800">
                             <?= htmlspecialchars($candidate['cv_file']) ?>
                         </p>
-                        <p class="text-xs text-slate-500">File CV tersedia</p>
+                        <p class="text-xs text-slate-500 mt-0.5">File CV tersedia</p>
                     </div>
                 <?php else: ?>
                     <p id="cvEmpty" class="text-sm text-slate-400 italic">Belum ada CV yang diupload.</p>
@@ -168,12 +154,14 @@ ob_start();
                 <?php if (!empty($candidate['cv_file'])): ?>
                     <a id="cvPreviewBtn" href="<?= BASE_URL ?>public/uploads/cv/<?= $candidate['cv_file'] ?>"
                         target="_blank"
-                        class="px-4 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                        👁️ Preview
+                        class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        Preview
                     </a>
                     <a id="cvDownloadBtn" href="<?= BASE_URL ?>public/uploads/cv/<?= $candidate['cv_file'] ?>" download
-                        class="px-4 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                        ⬇️ Unduh
+                        class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Unduh
                     </a>
                 <?php endif; ?>
             </div>
@@ -183,17 +171,18 @@ ob_start();
     <!-- ========== ALAMAT ========== -->
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-            <h2 class="font-bold text-slate-800">Alamat</h2>
+            <h2 class="font-bold text-base text-slate-800">Alamat</h2>
             <button type="submit" form="mainForm"
-                class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                💾 Simpan
+                class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Simpan
             </button>
         </div>
         <div class="p-6">
-            <div class="flex flex-col gap-1">
-                <label class="text-xs font-semibold text-slate-500">Alamat Lengkap</label>
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Alamat Lengkap</label>
                 <textarea form="mainForm" name="alamat" rows="2"
-                    class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent resize-none"><?= htmlspecialchars($candidate['alamat'] ?? '') ?></textarea>
+                    class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent resize-none transition-colors"><?= htmlspecialchars($candidate['alamat'] ?? '') ?></textarea>
             </div>
         </div>
     </div>
@@ -201,19 +190,20 @@ ob_start();
     <!-- ========== DISABILITAS ========== -->
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-            <h2 class="font-bold text-slate-800">Informasi Disabilitas</h2>
+            <h2 class="font-bold text-base text-slate-800">Informasi Disabilitas</h2>
             <button type="button" onclick="saveDisabilitas()"
-                class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                💾 Simpan
+                class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Simpan
             </button>
         </div>
-        <div class="p-6 flex flex-col gap-4">
+        <div class="p-6 flex flex-col gap-5">
 
             <!-- Toggle utama -->
             <div class="flex items-center justify-between py-1">
                 <div>
                     <p class="text-sm font-semibold text-slate-800">Saya memiliki disabilitas</p>
-                    <p class="text-xs text-slate-500">Aktifkan jika Anda memiliki kondisi disabilitas</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Aktifkan jika Anda memiliki kondisi disabilitas</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleDisabilitas" class="sr-only peer"
@@ -232,23 +222,23 @@ ob_start();
             <div id="disabilitasSection" class="flex flex-col gap-4 <?= $isDisabled ? '' : 'hidden' ?>">
 
                 <!-- Deskripsi tambahan -->
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Deskripsi Tambahan <span
-                            class="font-normal">(opsional)</span></label>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Deskripsi Tambahan <span
+                            class="normal-case font-normal" style="color:#CBD5E1;">(opsional)</span></label>
                     <textarea id="disabilityDescription" rows="2"
-                        class="px-0 py-1 text-sm font-semibold text-slate-800 border-b border-slate-200 focus:border-blue-800 outline-none bg-transparent resize-none"><?= htmlspecialchars($candidate['disability_description'] ?? '') ?></textarea>
+                        class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent resize-none transition-colors"><?= htmlspecialchars($candidate['disability_description'] ?? '') ?></textarea>
                 </div>
 
                 <!-- Jenis-jenis disabilitas -->
                 <div>
-                    <p class="text-xs font-semibold text-slate-500 mb-3">Pilih Jenis Disabilitas</p>
+                    <p class="text-xs font-semibold uppercase tracking-wide mb-3" style="color:#94A3B8;">Pilih Jenis Disabilitas</p>
                     <div class="flex flex-col gap-2">
                         <?php foreach ($jenisDisabilitas as $key => $info): ?>
                             <div
                                 class="flex items-center justify-between px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 transition">
                                 <div>
                                     <p class="text-sm font-semibold text-slate-800"><?= $info['label'] ?></p>
-                                    <p class="text-xs text-slate-500"><?= $info['desc'] ?></p>
+                                    <p class="text-xs text-slate-500 mt-0.5"><?= $info['desc'] ?></p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
                                     <input type="checkbox" class="sr-only peer disability-type-toggle"
@@ -274,25 +264,28 @@ ob_start();
         id="pendidikan"
         class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-            <h2 class="font-bold text-slate-800">Riwayat Pendidikan</h2>
+            <h2 class="font-bold text-base text-slate-800">Riwayat Pendidikan</h2>
             <a href="<?= BASE_URL ?>views/pendidikan/create.php?candidate_id=<?= $candidate['id'] ?>"
-                class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
-                + Tambah
+                class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Tambah
             </a>
         </div>
         <div class="divide-y divide-slate-100">
             <?php if (empty($pendidikanList)): ?>
-                <div class="p-8 text-center">
-                    <p class="text-2xl mb-2">🎓</p>
+                <div class="p-10 text-center">
+                    <span class="inline-flex items-center justify-center mb-3" style="width:52px;height:52px;border-radius:50%;background:#F1F5F9;color:#94A3B8;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                    </span>
                     <p class="text-sm text-slate-400 italic">Belum ada riwayat pendidikan.</p>
                 </div>
             <?php else: ?>
                 <?php foreach ($pendidikanList as $p): ?>
-                    <div class="px-6 py-4 flex items-start justify-between">
+                    <div class="px-6 py-5 flex items-start justify-between">
                         <div class="flex gap-3">
-                            <div class="w-2 h-2 rounded-full bg-blue-800 mt-1.5 flex-shrink-0"></div>
+                            <div class="w-2 h-2 rounded-full bg-blue-800 mt-2 flex-shrink-0"></div>
                             <div>
-                                <p class="text-sm font-semibold text-slate-800">
+                                <p class="text-sm font-bold text-slate-800">
                                     <?php
 
                                     $jenjangTanpaJurusan = [
@@ -311,7 +304,7 @@ ob_start();
 
                                     ?>
                                 </p>
-                                <p class="text-xs text-slate-500">
+                                <p class="text-xs text-slate-500 mt-1">
 
                                     <?= htmlspecialchars($p['institusi']) ?>
 
@@ -325,7 +318,7 @@ ob_start();
 
                                     <?php if (!empty($p['ipk'])): ?>
 
-                                        •
+                                        &bull;
 
                                         <?php
 
@@ -349,14 +342,18 @@ ob_start();
                                 </p>
                             </div>
                         </div>
-                        <div class="flex gap-3 flex-shrink-0">
+                        <div class="flex gap-4 flex-shrink-0">
                             <a href="<?= BASE_URL ?>views/pendidikan/edit.php?id=<?= $p['id_pendidikan'] ?>"
-                                class="text-xs text-500 hover:text-blue-700">
-                                ✏️ Edit</a>
+                                class="text-xs font-semibold flex items-center gap-1" style="color:#64748B;" onmouseover="this.style.color='#1D4ED8'" onmouseout="this.style.color='#64748B'">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                Edit
+                            </a>
                             <a href="<?= BASE_URL ?>views/pendidikan/delete.php?id=<?= $p['id_pendidikan'] ?>"
                                 onclick="return confirm('Hapus data pendidikan ini?')"
-                                class="text-xs text-red-500 hover:text-red-700">
-                                🗑️ Hapus</a>
+                                class="text-xs font-semibold flex items-center gap-1 text-red-500 hover:text-red-700">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                Hapus
+                            </a>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -367,46 +364,49 @@ ob_start();
     <!-- ========== PENGALAMAN KERJA ========== -->
     <div id="pengalaman-kerja" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-            <h2 class="font-bold text-slate-800">Pengalaman Kerja</h2>
+            <h2 class="font-bold text-base text-slate-800">Pengalaman Kerja</h2>
             <a href="<?= BASE_URL ?>views/pengalamanKerja/create.php?candidate_id=<?= $candidate['id'] ?>"
-                class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
-                + Tambah
+                class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Tambah
             </a>
         </div>
         <div class="divide-y divide-slate-100">
             <?php if (empty($pengalamanList)): ?>
-                <div class="p-8 text-center">
-                    <p class="text-2xl mb-2">💼</p>
+                <div class="p-10 text-center">
+                    <span class="inline-flex items-center justify-center mb-3" style="width:52px;height:52px;border-radius:50%;background:#F1F5F9;color:#94A3B8;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    </span>
                     <p class="text-sm text-slate-400 italic">Belum ada pengalaman kerja.</p>
                 </div>
             <?php else: ?>
                 <?php foreach ($pengalamanList as $px): ?>
-                    <div class="px-6 py-4 flex items-start justify-between">
+                    <div class="px-6 py-5 flex items-start justify-between">
 
                         <div class="flex gap-3">
-                            <div class="w-2 h-2 rounded-full bg-emerald-600 mt-1.5 flex-shrink-0"></div>
+                            <div class="w-2 h-2 rounded-full bg-emerald-600 mt-2 flex-shrink-0"></div>
 
-                            <div class="space-y-1">
+                            <div class="space-y-1.5">
 
                                 <!-- POSISI -->
-                                <p class="text-sm font-semibold text-slate-800">
+                                <p class="text-sm font-bold text-slate-800">
                                     <?= htmlspecialchars($px['posisi']) ?>
                                 </p>
 
                                 <!-- PERUSAHAAN -->
-                                <p class="text-xs text-500">
+                                <p class="text-xs text-slate-500">
                                     Perusahaan: <?= htmlspecialchars($px['nama_perusahaan']) ?>
                                 </p>
 
                                 <!-- TANGGAL -->
-                                <p class="text-xs text-500">
+                                <p class="text-xs text-slate-500">
                                     Tanggal mulai: <?= $px['tanggal_mulai'] ?> Tanggal selesai:
                                     <?= $px['tanggal_selesai'] ?? 'sekarang' ?>
                                 </p>
 
                                 <!-- DESKRIPSI -->
                                 <?php if (!empty($px['deskripsi_pekerjaan'])): ?>
-                                    <p class="text-xs text-500 leading-relaxed max-w-xl">
+                                    <p class="text-xs text-slate-500 leading-relaxed max-w-xl">
                                         Deskripsi: <?= htmlspecialchars($px['deskripsi_pekerjaan']) ?>
                                     </p>
                                 <?php endif; ?>
@@ -415,18 +415,20 @@ ob_start();
                         </div>
 
                         <!-- ACTION -->
-                        <div class="flex gap-3 flex-shrink-0">
+                        <div class="flex gap-4 flex-shrink-0">
                             <a href="<?= BASE_URL ?>views/pengalamanKerja/edit.php?id=<?= $px['id'] ?>"
-                                class="text-xs text-500 hover:text-blue-700">
-                                ✏️ Edit
+                                class="text-xs font-semibold flex items-center gap-1" style="color:#64748B;" onmouseover="this.style.color='#1D4ED8'" onmouseout="this.style.color='#64748B'">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                Edit
                             </a>
 
                             <button type="button" onclick="openDeleteModal(
                                     <?= $px['id'] ?>,
                                     <?= $candidate['id'] ?>,
                                     '<?= htmlspecialchars($px['posisi'], ENT_QUOTES) ?>'
-                                )" class="text-xs text-red-500 hover:text-red-700">
-                                🗑️ Hapus
+                                )" class="text-xs font-semibold flex items-center gap-1 text-red-500 hover:text-red-700">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                Hapus
                             </button>
                         </div>
                         <!-- DELETE MODAL -->
@@ -437,8 +439,8 @@ ob_start();
                                 <div class="flex items-center gap-3 mb-4">
 
                                     <div
-                                        class="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-600 text-xl">
-                                        ⚠️
+                                        class="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-600">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                                     </div>
 
                                     <div>
@@ -446,7 +448,7 @@ ob_start();
                                             Konfirmasi Hapus
                                         </h3>
 
-                                        <p class="text-xs text-slate-500">
+                                        <p class="text-xs text-slate-500 mt-0.5">
                                             Tindakan ini tidak dapat dibatalkan
                                         </p>
                                     </div>
@@ -459,12 +461,12 @@ ob_start();
                                 <div class="flex justify-end gap-3">
 
                                     <button type="button" onclick="closeDeleteModal()"
-                                        class="px-4 py-2 text-sm rounded-lg border border-slate-300">
+                                        class="px-4 py-2 text-sm font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 transition">
                                         Batal
                                     </button>
 
                                     <a id="deleteConfirmBtn" href="#"
-                                        class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700">
+                                        class="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
                                         Ya, Hapus
                                     </a>
 
@@ -482,21 +484,22 @@ ob_start();
     <!-- ========== SKILL ========== -->
     <div id="skill-section" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-            <h2 class="font-bold text-slate-800">Skill</h2>
+            <h2 class="font-bold text-base text-slate-800">Skill</h2>
             <a href="<?= BASE_URL ?>views/candidateSkill/create.php?candidate_id=<?= $candidate['id'] ?>"
-                class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
-                + Tambah
+                class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Tambah
             </a>
         </div>
         <div class="p-6">
 
             <?php if (empty($skillList)): ?>
 
-                <div class="text-center py-8">
+                <div class="text-center py-10">
                     <div
                         class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center"
                         style="background:#DBEAFE;color:#1E3A8A;">
-                        🛠️
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 9-5-9-5-9 5 9 5Z"></path><path d="m22 9-10 5L2 9"></path><path d="M6 11.5v4.5a6 3 0 0 0 12 0v-4.5"></path></svg>
                     </div>
 
                     <p class="text-sm text-slate-400 italic">
@@ -512,22 +515,22 @@ ob_start();
 
                         <div
                            
-                            class="group flex items-center gap-2 px-4 py-2 rounded-full transition"
+                            class="group flex items-center gap-2.5 px-4 py-2.5 rounded-full transition"
                             style="
                         background:#DBEAFE;
                         color:#1E3A8A;
                         border:1px solid #BFDBFE;
                     ">
 
-                            <span class="text-xs font-semibold">
+                            <span class="text-sm font-semibold">
                                 <?= htmlspecialchars($skill['nama_skill']) ?>
                             </span>
 
                             <a
                                 href="<?= BASE_URL ?>views/candidateSkill/delete.php?id=<?= $skill['id'] ?>&candidate_id=<?= $candidate['id'] ?>" onclick="return confirm('Hapus skill ini?')"
-                                class="opacity-60 hover:opacity-100 transition"
+                                class="opacity-60 hover:opacity-100 transition flex items-center"
                                 style="color:#DC2626;">
-                                ✕
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             </a>
 
                         </div>
@@ -545,20 +548,23 @@ ob_start();
         <div id="sertifikasi" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
 
             <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-                <h2 class="font-bold text-slate-800">Sertifikasi</h2>
+                <h2 class="font-bold text-base text-slate-800">Sertifikasi</h2>
 
                 <a href="<?= BASE_URL ?>views/sertifikasi/create.php?candidate_id=<?= $candidate['id'] ?>"
-                    class="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
-                    + Tambah
+                    class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Tambah
                 </a>
             </div>
 
-            <div class="p-4">
+            <div class="p-5">
 
                 <?php if (mysqli_num_rows($sertifikasiList) == 0): ?>
 
-                    <div class="text-center py-8">
-                        <p class="text-3xl mb-2">🏆</p>
+                    <div class="text-center py-10">
+                        <span class="inline-flex items-center justify-center mb-3" style="width:56px;height:56px;border-radius:50%;background:#F1F5F9;color:#94A3B8;">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path><circle cx="12" cy="8" r="6"></circle></svg>
+                        </span>
                         <p class="text-sm text-slate-400 italic">
                             Belum ada sertifikasi.
                         </p>
@@ -570,21 +576,21 @@ ob_start();
 
                         <?php while ($sertifikasi = mysqli_fetch_assoc($sertifikasiList)): ?>
 
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
 
                                 <div class="flex justify-between items-start">
 
                                     <div>
 
-                                        <h3 class="font-semibold text-slate-800">
+                                        <h3 class="font-bold text-base text-slate-800">
                                             <?= htmlspecialchars($sertifikasi['nama_sertifikasi']) ?>
                                         </h3>
 
-                                        <p class="text-sm text-slate-500">
+                                        <p class="text-sm text-slate-500 mt-1">
                                             <?= htmlspecialchars($sertifikasi['penyelenggara']) ?>
                                         </p>
 
-                                        <p class="text-xs text-slate-400 mt-1">
+                                        <p class="text-xs text-slate-400 mt-1.5">
                                             Terbit:
                                             <?= date('d M Y', strtotime($sertifikasi['tanggal_terbit'])) ?>
                                         </p>
@@ -604,7 +610,7 @@ ob_start();
                                                 $file;
                                             ?>
 
-                                            <div class="mt-3 flex items-start gap-4 cursor-pointer"
+                                            <div class="mt-4 flex items-start gap-4 cursor-pointer"
     onclick="openPreviewSertifikasi(
         '<?= $fileUrl ?>',
         '<?= $ext ?>'
@@ -637,11 +643,11 @@ ob_start();
 
     <div class="min-w-0 flex-1">
 
-        <p class="text-sm font-medium text-slate-700 truncate">
+        <p class="text-sm font-semibold text-slate-700 truncate">
             <?= htmlspecialchars($file) ?>
         </p>
 
-        <p class="text-xs text-slate-400 mt-1">
+        <p class="text-xs text-slate-400 mt-1.5">
             Klik untuk melihat dokumen
         </p>
 
@@ -652,21 +658,23 @@ ob_start();
 
                                     </div>
 
-                                    <div class="flex gap-3 flex-shrink-0">
+                                    <div class="flex gap-4 flex-shrink-0">
 
                                         <a href="<?= BASE_URL ?>views/sertifikasi/edit.php?id=<?= $sertifikasi['id_sertifikasi'] ?>"
-                                            class="text-xs text-slate-400 hover:text-blue-700 transition">
+                                            class="text-xs font-semibold flex items-center gap-1 transition" style="color:#94A3B8;" onmouseover="this.style.color='#1D4ED8'" onmouseout="this.style.color='#94A3B8'">
 
-                                            ✏️ Edit
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                            Edit
 
                                         </a>
 
                                         <button type="button" onclick="openDeleteModalSertifikasi(
                                             <?= $sertifikasi['id_sertifikasi'] ?>,
                                             '<?= htmlspecialchars($sertifikasi['nama_sertifikasi'], ENT_QUOTES) ?>'
-                                        )" class="text-xs text-red-500 hover:text-red-700">
+                                        )" class="text-xs font-semibold flex items-center gap-1 text-red-500 hover:text-red-700">
 
-                                            🗑️ Hapus
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                            Hapus
 
                                         </button>
 
@@ -692,15 +700,15 @@ ob_start();
             <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
 
                 <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-600 text-xl">
-                        ⚠️
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-600">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                     </div>
                     <div>
                         <h3 class="font-bold text-slate-800">
                             Konfirmasi Hapus
                         </h3>
 
-                        <p class="text-xs text-slate-500">
+                        <p class="text-xs text-slate-500 mt-0.5">
                             Tindakan ini tidak dapat dibatalkan
                         </p>
                     </div>
@@ -711,12 +719,12 @@ ob_start();
                 <div class="flex justify-end gap-3">
 
                     <button type="button" onclick="closeDeleteModalSertifikasi()"
-                        class="px-4 py-2 text-sm rounded-lg border border-slate-300">
+                        class="px-4 py-2 text-sm font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 transition">
                         Batal
                     </button>
 
                     <a id="deleteSertifikasiLink" href="#"
-                        class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700">
+                        class="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
                         Ya, Hapus
                     </a>
 
@@ -732,9 +740,9 @@ ob_start();
             <div class="bg-white rounded-2xl w-[95%] h-[90%] overflow-hidden relative">
 
                 <button onclick="closePreviewSertifikasi()"
-                    class="absolute top-4 right-4 z-10 bg-white rounded-full px-3 py-1 shadow">
+                    class="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow flex items-center justify-center">
 
-                    ✕
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#475569;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
 
                 <div id="previewContentSertifikasi" class="w-full h-full">
@@ -749,17 +757,17 @@ ob_start();
     <!-- ========== DANGER ZONE ========== -->
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-4 border-b border-slate-100">
-            <h2 class="font-bold text-red-600">Danger Zone</h2>
+            <h2 class="font-bold text-base text-red-600">Danger Zone</h2>
         </div>
         <div class="p-6 flex items-center justify-between">
             <div>
-                <h4 class="text-sm font-semibold text-slate-800">Hapus Akun</h4>
-                <p class="text-xs text-slate-500">Setelah dihapus, semua data tidak dapat dikembalikan. Harap
+                <h4 class="text-sm font-bold text-slate-800">Hapus Akun</h4>
+                <p class="text-xs text-slate-500 mt-1">Setelah dihapus, semua data tidak dapat dikembalikan. Harap
                     berhati-hati.</p>
             </div>
             <a href="delete.php?id=<?= $candidate['id'] ?>"
                 onclick="return confirm('Yakin ingin menghapus akun ini secara permanen?')"
-                class="px-4 py-2 text-xs font-semibold rounded-xl text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition">
+                class="px-5 py-2.5 text-xs font-bold rounded-xl text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition">
                 Hapus Akun
             </a>
         </div>
@@ -884,7 +892,7 @@ ob_start();
 
         // Ganti label jadi loading
         const label = document.getElementById('cvUploadLabel');
-        label.innerHTML = '⏳ Mengunggah...';
+        label.innerHTML = 'Mengunggah...';
         label.style.pointerEvents = 'none';
 
         const formData = new FormData();
@@ -904,21 +912,25 @@ ob_start();
 
                 // Update info file
                 document.getElementById('cvInfo').innerHTML = `
-                <span class="text-2xl">📄</span>
+                <span class="inline-flex items-center justify-center flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:#EFF6FF;color:#1E3A8A;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                </span>
                 <div>
                     <p id="cvFileName" class="text-sm font-semibold text-slate-800">${fileName}</p>
-                    <p class="text-xs text-slate-500">File CV tersedia</p>
+                    <p class="text-xs text-slate-500 mt-0.5">File CV tersedia</p>
                 </div>`;
 
                 // Update tombol preview & unduh
                 document.getElementById('cvActions').innerHTML = `
                 <a href="${baseUrl}${fileName}" target="_blank"
-                    class="px-4 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                    👁️ Preview
+                    class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    Preview
                 </a>
                 <a href="${baseUrl}${fileName}" download
-                    class="px-4 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                    ⬇️ Unduh
+                    class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Unduh
                 </a>`;
 
                 showToast('CV berhasil diupload.', 'success');
@@ -928,7 +940,7 @@ ob_start();
         } catch (err) {
             showToast('Terjadi kesalahan jaringan.', 'error');
         } finally {
-            label.innerHTML = '📎 Upload CV';
+            label.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>Upload CV';
             label.style.pointerEvents = 'auto';
             this.value = '';
         }

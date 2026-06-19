@@ -23,13 +23,13 @@ if (!$candidate) {
     exit;
 }
 
-$isProfileComplete = ProfileHelper::isComplete($conn, $candidate['id']);
+// $isProfileComplete = ProfileHelper::isComplete($conn, $candidate['id']);
 
-if (!$isProfileComplete) {
-    $_SESSION['error'] = 'Lengkapi profil terlebih dahulu sebelum mengakses lowongan.';
-    header('Location: ' . BASE_URL . 'views/dashboard.php');
-    exit;
-}
+// if (!$isProfileComplete) {
+//     $_SESSION['error'] = 'Lengkapi profil terlebih dahulu sebelum mengakses lowongan.';
+//     header('Location: ' . BASE_URL . 'views/dashboard.php');
+//     exit;
+// }
 
 ob_start();
 ?>
@@ -853,7 +853,7 @@ ob_start();
                             <?= empty($filters['tipe_pekerjaan']) ? 'checked' : '' ?>>
                         <span>Semua tipe</span>
                     </label>
-                    <?php foreach (['Full Time', 'Part Time', 'Contract', 'Internship','Freelance'] as $t): ?>
+                    <?php foreach (['Full Time', 'Part Time', 'Contract', 'Internship', 'Freelance'] as $t): ?>
                         <label class="jl-radio-row">
                             <input type="radio" name="tipe_pekerjaan" value="<?= $t ?>"
                                 <?= ($filters['tipe_pekerjaan'] ?? '') === $t ? 'checked' : '' ?>>
@@ -978,7 +978,7 @@ ob_start();
         <?php endif; ?>
     </div>
 
-</div><!-- .jl-wrap -->
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

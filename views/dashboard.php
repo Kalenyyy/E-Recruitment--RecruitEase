@@ -20,8 +20,11 @@ $missing = [];
 if ($role === 'candidate') {
     $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] ?? null);
     if ($candidateData && isset($candidateData['id'])) {
-        $isProfileComplete = ProfileHelper::isComplete($conn, $candidateData['id']);
-        $missing = ProfileHelper::getMissingFields($conn, $candidateData['id']);
+        $candidateId = $candidateData['id'];
+        // $isProfileComplete = ProfileHelper::isComplete($conn, $candidateId);
+        // $missing = ProfileHelper::getMissingFields($conn, $candidateId);
+
+        $candidateDashboard = DashboardController::getCandidateDashboardData($conn, $candidateId);
     }
 }
 
@@ -223,10 +226,35 @@ ob_start();
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
                         scales: {
-                            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#94A3B8' } },
-                            y: { grid: { color: 'rgba(148,163,184,0.12)' }, ticks: { font: { size: 11 }, color: '#94A3B8' }, beginAtZero: true }
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11
+                                    },
+                                    color: '#94A3B8'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: 'rgba(148,163,184,0.12)'
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11
+                                    },
+                                    color: '#94A3B8'
+                                },
+                                beginAtZero: true
+                            }
                         }
                     }
                 });
@@ -255,7 +283,11 @@ ob_start();
                         responsive: true,
                         maintainAspectRatio: false,
                         cutout: '70%',
-                        plugins: { legend: { display: false } }
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
                     }
                 });
 
@@ -294,9 +326,8 @@ ob_start();
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <span class="bg-[#ECFDF5] text-[#059669] text-[11px] font-bold px-2 py-0.5 rounded-full">↑ 2</span>
                 </div>
-                <p class="text-2xl font-bold text-[#1E293B]">8</p>
+                <p class="text-2xl font-bold text-[#1E293B]"><?= $candidateDashboard['stats']['total_apply'] ?? 0 ?></p>
                 <p class="text-xs text-[#64748B] mt-0.5 font-medium">Total Lamaran</p>
             </div>
 
@@ -309,7 +340,7 @@ ob_start();
                         </svg>
                     </div>
                 </div>
-                <p class="text-2xl font-bold text-[#1E293B]">3</p>
+                <p class="text-2xl font-bold text-[#1E293B]"><?= $candidateDashboard['stats']['review'] ?? 0 ?></p>
                 <p class="text-xs text-[#64748B] mt-0.5 font-medium">Sedang Direviu</p>
             </div>
 
@@ -322,8 +353,8 @@ ob_start();
                         </svg>
                     </div>
                 </div>
-                <p class="text-2xl font-bold text-[#1E293B]">2</p>
-                <p class="text-xs text-[#64748B] mt-0.5 font-medium">Interview Dijadwalkan</p>
+                <p class="text-2xl font-bold text-[#1E293B]"><?= $candidateDashboard['stats']['interview'] ?? 0 ?></p>
+                <p class="text-xs text-[#64748B] mt-0.5 font-medium">Interview</p>
             </div>
 
             <!-- Diterima -->
@@ -335,7 +366,7 @@ ob_start();
                         </svg>
                     </div>
                 </div>
-                <p class="text-2xl font-bold text-[#1E293B]">1</p>
+                <p class="text-2xl font-bold text-[#1E293B]"><?= $candidateDashboard['stats']['diterima'] ?? 0 ?></p>
                 <p class="text-xs text-[#64748B] mt-0.5 font-medium">Diterima</p>
             </div>
         </div>
@@ -346,43 +377,43 @@ ob_start();
             <div class="bg-white border border-[#E2E8F0] rounded-2xl p-[22px] lg:col-span-2 shadow-sm">
                 <div class="mb-4">
                     <p class="text-sm font-semibold text-[#1E293B]">Posisi yang Dilamar</p>
-                    <p class="text-xs text-[#94A3B8]">Riwayat lamaran Anda</p>
+                    <p class="text-xs text-[#94A3B8]">Riwayat lamaran terbaru Anda</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse">
                         <thead>
                             <tr>
-                                <th class="text-[11px] font-bold text-[#94A3B8] uppercase tracking-widest p-4 text-left border-bottom border-[#F1F5F9]">Posisi</th>
-                                <th class="text-[11px] font-bold text-[#94A3B8] uppercase tracking-widest p-4 text-left border-bottom border-[#F1F5F9]">Perusahaan</th>
-                                <th class="text-[11px] font-bold text-[#94A3B8] uppercase tracking-widest p-4 text-left border-bottom border-[#F1F5F9]">Tanggal Lamar</th>
-                                <th class="text-[11px] font-bold text-[#94A3B8] uppercase tracking-widest p-4 text-left border-bottom border-[#F1F5F9]">Status</th>
+                                <th class="text-[11px] font-bold text-[#94A3B8] uppercase tracking-widest p-4 text-left border-b border-[#F1F5F9]">Posisi</th>
+                                <th class="text-[11px] font-bold text-[#94A3B8] uppercase tracking-widest p-4 text-left border-b border-[#F1F5F9]">Tanggal Lamar</th>
+                                <th class="text-[11px] font-bold text-[#94A3B8] uppercase tracking-widest p-4 text-left border-b border-[#F1F5F9]">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#F8FAFC]">
-                            <tr class="hover:bg-[#F8FAFC] transition-colors">
-                                <td class="p-4 text-[13.5px] font-medium text-[#1E293B]">Frontend Developer</td>
-                                <td class="p-4 text-[13.5px] text-[#64748B]">PT Tech Innovasi</td>
-                                <td class="p-4 text-[13.5px] text-[#94A3B8]">12 Jan 2025</td>
-                                <td class="p-4">
-                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 bg-[#EFF6FF] text-[#1D4ED8] before:content-[''] before:w-1 before:h-1 before:rounded-full before:bg-[#3B82F6]">Interview</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-[#F8FAFC] transition-colors">
-                                <td class="p-4 text-[13.5px] font-medium text-[#1E293B]">UI/UX Designer</td>
-                                <td class="p-4 text-[13.5px] text-[#64748B]">PT Creative Studio</td>
-                                <td class="p-4 text-[13.5px] text-[#94A3B8]">10 Jan 2025</td>
-                                <td class="p-4">
-                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 bg-[#ECFDF5] text-[#065F46] before:content-[''] before:w-1 before:h-1 before:rounded-full before:bg-[#10B981]">Diterima</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-[#F8FAFC] transition-colors">
-                                <td class="p-4 text-[13.5px] font-medium text-[#1E293B]">Backend Developer</td>
-                                <td class="p-4 text-[13.5px] text-[#64748B]">PT Digital Solution</td>
-                                <td class="p-4 text-[13.5px] text-[#94A3B8]">08 Jan 2025</td>
-                                <td class="p-4">
-                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 bg-[#FFFBEB] text-[#B45309] before:content-[''] before:w-1 before:h-1 before:rounded-full before:bg-[#D97706]">Review</span>
-                                </td>
-                            </tr>
+                            <?php if (!empty($candidateDashboard['applications'])): ?>
+                                <?php foreach ($candidateDashboard['applications'] as $app): ?>
+                                    <tr class="hover:bg-[#F8FAFC] transition-colors">
+                                        <td class="p-4 text-[13.5px] font-medium text-[#1E293B]"><?= htmlspecialchars($app['judul_job']) ?></td>
+                                        <td class="p-4 text-[13.5px] text-[#94A3B8]"><?= date('d M Y', strtotime($app['tanggal_melamar'])) ?></td>
+                                        <td class="p-4">
+                                            <?php
+                                            $status = $app['status_lamaran'];
+                                            $class = "bg-[#F1F5F9] text-[#475569] before:bg-[#94A3B8]"; // Default
+                                            if ($status == 'INTERVIEW') $class = "bg-[#EFF6FF] text-[#1D4ED8] before:bg-[#3B82F6]";
+                                            if ($status == 'DITERIMA') $class = "bg-[#ECFDF5] text-[#065F46] before:bg-[#10B981]";
+                                            if ($status == 'ADMINISTRASI') $class = "bg-[#FFFBEB] text-[#B45309] before:bg-[#D97706]";
+                                            if ($status == 'DITOLAK') $class = "bg-[#FEF2F2] text-[#991B1B] before:bg-[#EF4444]";
+                                            ?>
+                                            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 <?= $class ?> before:content-[''] before:w-1 before:h-1 before:rounded-full">
+                                                <?= $status ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="3" class="p-8 text-center text-sm text-[#94A3B8]">Belum ada lamaran terkirim.</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -392,52 +423,57 @@ ob_start();
             <div class="flex flex-col gap-4">
                 <!-- Profile Status -->
                 <div class="bg-white border border-[#E2E8F0] rounded-2xl p-[22px] shadow-sm">
-                    <p class="text-sm font-semibold text-[#1E293B] mb-3">Status Profil</p>
+                    <p class="text-sm font-semibold text-[#1E293B] mb-3">Status Profil (<?= $candidateDashboard['profile_pct']['total_pct'] ?>%)</p>
                     <div class="flex flex-col gap-3.5">
+                        <!-- CV Status -->
                         <div>
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">📄 CV</span>
-                                <span class="text-xs font-bold text-[#059669]">✓ Ada</span>
+                                <span class="text-xs font-bold <?= $candidateDashboard['profile_pct']['has_cv'] ? 'text-[#059669]' : 'text-amber-600' ?>">
+                                    <?= $candidateDashboard['profile_pct']['has_cv'] ? '✓ Ada' : 'Belum Ada' ?>
+                                </span>
                             </div>
                             <div class="h-1.5 w-full bg-[#F1F5F9] rounded-full overflow-hidden">
-                                <div class="h-full bg-[#059669] rounded-full transition-all duration-1000" style="width:100%"></div>
+                                <div class="h-full bg-[#059669] rounded-full transition-all duration-1000" style="width: <?= $candidateDashboard['profile_pct']['has_cv'] ? '100%' : '0%' ?>"></div>
                             </div>
                         </div>
+                        <!-- Foto Status -->
                         <div>
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">🖼️ Foto</span>
-                                <span class="text-xs font-bold text-[#059669]">✓ Ada</span>
+                                <span class="text-xs font-bold <?= $candidateDashboard['profile_pct']['has_foto'] ? 'text-[#059669]' : 'text-amber-600' ?>">
+                                    <?= $candidateDashboard['profile_pct']['has_foto'] ? '✓ Ada' : 'Belum Ada' ?>
+                                </span>
                             </div>
                             <div class="h-1.5 w-full bg-[#F1F5F9] rounded-full overflow-hidden">
-                                <div class="h-full bg-[#059669] rounded-full transition-all duration-1000" style="width:100%"></div>
+                                <div class="h-full bg-[#059669] rounded-full transition-all duration-1000" style="width: <?= $candidateDashboard['profile_pct']['has_foto'] ? '100%' : '0%' ?>"></div>
                             </div>
                         </div>
+                        <!-- Pendidikan Status -->
                         <div>
                             <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">✍️ Bio</span>
-                                <span class="text-xs font-bold text-[#D97706]">75%</span>
+                                <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">✍️ Pendidikan</span>
+                                <span class="text-xs font-bold <?= $candidateDashboard['profile_pct']['has_edu'] ? 'text-[#059669]' : 'text-amber-600' ?>">
+                                    <?= $candidateDashboard['profile_pct']['has_edu'] ? '✓ Lengkap' : 'Belum Isi' ?>
+                                </span>
                             </div>
                             <div class="h-1.5 w-full bg-[#F1F5F9] rounded-full overflow-hidden">
-                                <div class="h-full bg-[#D97706] rounded-full transition-all duration-1000" style="width:75%"></div>
+                                <div class="h-full bg-[#059669] rounded-full transition-all duration-1000" style="width: <?= $candidateDashboard['profile_pct']['has_edu'] ? '100%' : '0%' ?>"></div>
                             </div>
                         </div>
                     </div>
-                    <button class="w-full mt-4 bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">Edit Profil</button>
+                    <a href="<?= BASE_URL ?>views/candidate/profile.php?id=<?= $candidateData['id'] ?>" class="block w-full">
+                        <button class="w-full mt-4 bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">Edit Profil</button>
+                    </a>
                 </div>
 
-                <!-- Upcoming Interviews -->
+                <!-- Upcoming Interviews (Static for now) -->
                 <div class="bg-white border border-[#E2E8F0] rounded-2xl p-[22px] flex-1 shadow-sm">
                     <p class="text-sm font-semibold text-[#1E293B] mb-3">Interview Mendatang</p>
                     <div class="flex flex-col gap-2.5">
-                        <div class="p-3 border border-[#E2E8F0] rounded-lg bg-[#F8FAFC]">
-                            <p class="text-xs font-semibold text-[#1E293B]">Frontend Developer</p>
-                            <p class="text-[11px] text-[#64748B] mt-0.5">PT Tech Innovasi</p>
-                            <div class="flex items-center gap-2 text-[10px] text-[#3B82F6] font-semibold mt-1.5">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" />
-                                </svg>
-                                15 Jan 2025 • 10:00
-                            </div>
+                        <!-- Placeholder karena tabel belum ada -->
+                        <div class="p-3 border border-dashed border-[#E2E8F0] rounded-lg bg-[#F8FAFC] text-center">
+                            <p class="text-[11px] text-[#64748B]">Belum ada jadwal interview terdekat.</p>
                         </div>
                     </div>
                 </div>
@@ -449,28 +485,76 @@ ob_start();
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <p class="text-sm font-semibold text-[#1E293B]">Posisi Rekomendasi Untuk Anda</p>
-                    <p class="text-xs text-[#94A3B8]">Berdasarkan profil Anda</p>
+                    <p class="text-xs text-[#94A3B8]">Berdasarkan kecocokan skill & status disabilitas Anda</p>
                 </div>
-                <a href="/lowongan" class="text-xs font-semibold text-[#3B82F6] hover:text-[#1E3A8A] transition-colors">Lihat semua →</a>
+                <a href="<?= BASE_URL ?>views/formJob/index.php" class="text-xs font-semibold text-[#3B82F6] hover:text-[#1E3A8A] transition-colors">Lihat semua →</a>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Card Rekomendasi -->
-                <div class="border border-[#E2E8F0] rounded-xl p-4 hover:border-[#BFDBFE] hover:shadow-md transition-all group">
-                    <div class="flex items-start justify-between mb-2">
-                        <div>
-                            <p class="text-sm font-semibold text-[#1E293B] group-hover:text-[#1E3A8A]">Senior Frontend Developer</p>
-                            <p class="text-xs text-[#64748B] mt-0.5">PT Tech Enterprise</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <?php if (!empty($candidateDashboard['recommendations'])): ?>
+                    <?php foreach ($candidateDashboard['recommendations'] as $job): ?>
+                        <div class="group bg-white border border-[#E2E8F0] rounded-xl p-5 transition-all duration-200 hover:border-[#1E3A8A]/30 hover:bg-[#F8FAFC]">
+
+                            <!-- Header: Title & Match -->
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="max-w-[75%]">
+                                    <h3 class="text-[15px] font-bold text-[#1E293B] leading-tight group-hover:text-[#1E3A8A]">
+                                        <?= htmlspecialchars($job['judul_job']) ?>
+                                    </h3>
+                                    <p class="text-[12px] text-[#64748B] mt-1 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2" />
+                                        </svg>
+                                        <?= htmlspecialchars($job['lokasi']) ?>
+                                    </p>
+                                </div>
+                                <span class="text-[10px] font-bold text-[#059669] bg-[#ECFDF5] px-2 py-1 rounded-md">
+                                    <?= round($job['match_percent']) ?>% Match
+                                </span>
+                            </div>
+
+                            <!-- Job Tags -->
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="text-[10px] font-semibold px-2 py-1 bg-[#F1F5F9] text-[#475569] rounded">
+                                    <?= $job['tipe_pekerjaan'] ?>
+                                </span>
+
+                                <?php if ($job['is_remote_work']): ?>
+                                    <span class="text-[10px] font-semibold px-2 py-1 bg-[#EFF6FF] text-[#1E3A8A] rounded flex items-center gap-1">
+                                        <span>🏠</span> Remote
+                                    </span>
+                                <?php endif; ?>
+
+                                <?php if ($job['is_disabilitas']): ?>
+                                    <span class="text-[10px] font-semibold px-2 py-1 bg-[#F5F3FF] text-[#7C3AED] rounded flex items-center gap-1">
+                                        <span>♿</span> Ramah Disabilitas
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Footer: Salary & Action -->
+                            <div class="flex items-center justify-between pt-4 border-t border-[#F1F5F9] mt-auto">
+                                <div>
+                                    <?php if (!empty($job['gaji'])): ?>
+                                        <p class="text-[13px] font-bold text-[#1E293B]">Rp <?= number_format($job['gaji'], 0, ',', '.') ?></p>
+                                    <?php else: ?>
+                                        <p class="text-[11px] text-[#94A3B8]">Gaji Kompetitif</p>
+                                    <?php endif; ?>
+                                </div>
+
+                                <a href="<?= BASE_URL ?>views/formJob/detail.php?id=<?= $job['id'] ?>" class="text-[12px] font-bold text-[#1E3A8A] hover:underline flex items-center gap-1">
+                                    Detail
+                                    <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path d="M9 5l7 7-7 7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </a>
+                            </div>
                         </div>
-                        <span class="text-[10px] font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-1 rounded-lg">95% Match</span>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-span-full p-8 text-center border-2 border-dashed border-[#E2E8F0] rounded-xl">
+                        <p class="text-sm text-[#94A3B8]">Belum ada rekomendasi yang sesuai profil Anda.</p>
                     </div>
-                    <div class="flex items-center gap-2 text-xs text-[#64748B] mb-3">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2" />
-                        </svg>
-                        Jakarta, Indonesia
-                    </div>
-                    <button class="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">Lihat Detail</button>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
     <?php endif; ?>

@@ -37,16 +37,17 @@ ob_start();
         <p class="text-sm" style="color: #64748B;">Lengkapi data untuk mempublikasikan lowongan baru</p>
     </div>
     <a href="<?= BASE_URL ?>views/job/index.php"
-        class="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition"
+        class="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition hover:bg-slate-100"
         style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;">
-        ← Kembali
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Kembali
     </a>
 </div>
 
 <?php if (isset($errors['umum'])): ?>
     <div class="mb-4 p-4 rounded-xl border flex items-center gap-3"
         style="background: #FEF2F2; border-color: #FECACA; color: #991B1B;">
-        <span>⚠️</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
         <span class="text-sm font-semibold"><?= $errors['umum'] ?></span>
     </div>
 <?php endif; ?>
@@ -57,9 +58,11 @@ ob_start();
     <div class="flex flex-col gap-5">
 
         <!-- ===== CARD 1: INFORMASI UTAMA ===== -->
-        <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0;">
-            <div class="px-6 py-4 flex items-center gap-2" style="border-bottom: 1px solid #F1F5F9;">
-                <span style="font-size:16px;">📋</span>
+        <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
+            <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
+                <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                </span>
                 <h2 class="font-bold text-sm" style="color: #1E293B;">Informasi Utama</h2>
             </div>
             <div class="p-6 grid grid-cols-2 gap-4">
@@ -70,7 +73,9 @@ ob_start();
                         Judul Pekerjaan <span style="color:#EF4444;">*</span>
                     </label>
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">💼</span>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                        </span>
                         <input type="text" name="judul_job" required placeholder="Contoh: Senior Backend Engineer"
                             class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none"
                             style="border: 1px solid <?= isset($errors['judul_job']) ? '#EF4444' : '#CBD5E1' ?>;
@@ -88,7 +93,9 @@ ob_start();
                         Posisi <span style="color:#EF4444;">*</span>
                     </label>
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">🏷️</span>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 23H4v-7L13.41 5.59a2 2 0 0 1 2.82 0l4.36 4.36a2 2 0 0 1 0 2.82Z"></path><circle cx="7.5" cy="15.5" r=".5" fill="currentColor"></circle></svg>
+                        </span>
                         <select name="posisi_id" required
                             class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none appearance-none"
                             style="border: 1px solid <?= isset($errors['posisi_id']) ? '#EF4444' : '#CBD5E1' ?>;
@@ -113,7 +120,9 @@ ob_start();
                         Lokasi <span style="color:#EF4444;">*</span>
                     </label>
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">📍</span>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        </span>
                         <input type="text" name="lokasi" required placeholder="Contoh: Jakarta Selatan"
                             class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none"
                             style="border: 1px solid <?= isset($errors['lokasi']) ? '#EF4444' : '#CBD5E1' ?>;
@@ -132,16 +141,18 @@ ob_start();
                     </label>
                     <?php
                     $tipeList = [
-                        'Full Time'  => '⏰ Full Time',
-                        'Part Time'  => '🕐 Part Time',
-                        'Internship' => '🎓 Magang',
-                        'Freelance'  => '💻 Freelance',
-                        'Contract'   => '📄 Kontrak',
+                        'Full Time'  => 'Full Time',
+                        'Part Time'  => 'Part Time',
+                        'Internship' => 'Magang',
+                        'Freelance'  => 'Freelance',
+                        'Contract'   => 'Kontrak',
                     ];
                     $selectedTipe = $_POST['tipe_pekerjaan'] ?? '';
                     ?>
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">⏰</span>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </span>
                         <select name="tipe_pekerjaan" required
                             class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none appearance-none"
                             style="border: 1px solid #CBD5E1; background: #F8FAFC; color: #1E293B;">
@@ -189,14 +200,22 @@ ob_start();
 
         <!-- ===== CARD 2: SKILLS ===== -->
         <div class="bg-white border border-slate-200 rounded-[16px] overflow-hidden shadow-sm mb-6">
+            <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
+                <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 9-5-9-5-9 5 9 5Z"></path><path d="m22 9-10 5L2 9"></path><path d="M6 11.5v4.5a6 3 0 0 0 12 0v-4.5"></path></svg>
+                </span>
+                <h2 class="font-bold text-sm" style="color: #1E293B;">Skills</h2>
+            </div>
             <div class="p-6">
                 <div class="flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase text-slate-400 mb-3.5 after:content-[''] after:flex-1 after:h-[0.5px] after:bg-slate-200">
-                    Cari & Pilih Skill yang Dibutuhkan
+                    Cari &amp; Pilih Skill yang Dibutuhkan
                 </div>
 
                 <!-- Input Pencarian -->
                 <div class="relative mb-2.5">
-                    <span class="absolute left-[11px] top-1/2 -translate-y-1/2 text-[15px] text-slate-400 pointer-events-none">🔍</span>
+                    <span class="absolute left-[11px] top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </span>
                     <input
                         type="text"
                         id="skillSearch"
@@ -222,23 +241,33 @@ ob_start();
         </div>
 
         <!-- ===== CARD 3: OPSI KERJA ===== -->
-        <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0;">
-            <div class="px-6 py-4 flex items-center gap-2" style="border-bottom: 1px solid #F1F5F9;">
-                <span style="font-size:16px;">⚙️</span>
+        <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
+            <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
+                <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
+                </span>
                 <h2 class="font-bold text-sm" style="color: #1E293B;">Opsi Pekerjaan</h2>
             </div>
             <div class="p-6 flex flex-col gap-4">
                 <?php
                 $toggleOptions = [
-                    'is_remote_work'      => ['icon' => '🏠', 'label' => 'Remote Work',        'desc' => 'Pekerjaan bisa dilakukan dari rumah'],
-                    'is_remote_interview' => ['icon' => '💬', 'label' => 'Remote Interview',   'desc' => 'Proses wawancara dilakukan secara online'],
+                    'is_remote_work'      => [
+                        'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>',
+                        'label' => 'Remote Work',
+                        'desc' => 'Pekerjaan bisa dilakukan dari rumah',
+                    ],
+                    'is_remote_interview' => [
+                        'icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
+                        'label' => 'Remote Interview',
+                        'desc' => 'Proses wawancara dilakukan secara online',
+                    ],
                 ];
                 foreach ($toggleOptions as $fieldName => $opt):
                     $isChecked = isset($_POST[$fieldName]) ? (bool)$_POST[$fieldName] : false;
                 ?>
                     <div class="flex items-center justify-between py-1">
                         <div class="flex items-center gap-3">
-                            <span style="font-size:20px;"><?= $opt['icon'] ?></span>
+                            <span class="inline-flex items-center justify-center" style="width:38px;height:38px;border-radius:10px;background:#F1F5F9;color:#1E3A8A;"><?= $opt['icon'] ?></span>
                             <div>
                                 <p class="text-sm font-semibold" style="color:#1E293B;"><?= $opt['label'] ?></p>
                                 <p class="text-xs" style="color:#64748B;"><?= $opt['desc'] ?></p>
@@ -261,10 +290,12 @@ ob_start();
         </div>
 
         <!-- ===== CARD 4: DISABILITAS ===== -->
-        <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0;">
-            <div class="px-6 py-4 flex items-center gap-2" style="border-bottom: 1px solid #F1F5F9;">
-                <span style="font-size:16px;">♿</span>
-                <h2 class="font-bold text-sm" style="color: #1E293B;">Aksesibilitas & Disabilitas</h2>
+        <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
+            <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
+                <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.5"></circle><path d="M9 9h6l-1 4 4 2v6"></path><path d="M7 21h10"></path><path d="M9 13a4 4 0 0 0 4 6"></path></svg>
+                </span>
+                <h2 class="font-bold text-sm" style="color: #1E293B;">Aksesibilitas &amp; Disabilitas</h2>
             </div>
             <div class="p-6 flex flex-col gap-4">
                 <div class="flex items-center justify-between py-1">
@@ -341,14 +372,16 @@ ob_start();
         <div class="flex items-center justify-between px-6 py-4 rounded-2xl"
             style="background: #F8FAFC; border: 1px solid #E2E8F0;">
             <a href="<?= BASE_URL ?>views/job/index.php"
-                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition hover:bg-slate-50"
                 style="background: #fff; color: #64748B; border: 1px solid #CBD5E1;">
-                ← Batal
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Batal
             </a>
             <button type="submit"
-                class="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-bold rounded-xl text-white transition shadow-lg shadow-blue-900/20"
+                class="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-bold rounded-xl text-white transition shadow-lg shadow-blue-900/20 hover:opacity-95"
                 style="background: #1E3A8A; border: none;">
-                🚀 Simpan
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Simpan
             </button>
         </div>
 
@@ -411,9 +444,9 @@ ob_start();
         skills.forEach(skill => {
             const isSelected = selected.has(Number(skill.id_skill));
             if (isSelected) {
-                html += `<div class="px-3.5 py-2.5 text-[13px] flex items-center justify-between text-slate-400 bg-white border-b border-slate-50 cursor-not-allowed"><span>${skill.nama_skill}</span><span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">✓ Terpilih</span></div>`;
+                html += `<div class="px-3.5 py-2.5 text-[13px] flex items-center justify-between text-slate-400 bg-white border-b border-slate-50 cursor-not-allowed"><span>${skill.nama_skill}</span><span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">Terpilih</span></div>`;
             } else {
-                html += `<div class="cs-skill-opt px-3.5 py-2.5 text-[13px] cursor-pointer flex items-center justify-between text-slate-800 border-b border-slate-50 hover:bg-blue-50 transition-colors" data-id="${skill.id_skill}" data-name="${skill.nama_skill}"><span>${skill.nama_skill}</span><span class="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">+ Tambah</span></div>`;
+                html += `<div class="cs-skill-opt px-3.5 py-2.5 text-[13px] cursor-pointer flex items-center justify-between text-slate-800 border-b border-slate-50 hover:bg-blue-50 transition-colors" data-id="${skill.id_skill}" data-name="${skill.nama_skill}"><span>${skill.nama_skill}</span><span class="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">Tambah</span></div>`;
             }
         });
         dropdown.innerHTML = html;

@@ -24,325 +24,296 @@ if (!$jobDetails) {
 ob_start();
 ?>
 
-<!-- PAGE HEADER -->
-<div class="flex items-center justify-between mb-8 font-sans">
-    <div class="flex items-start gap-4">
-        <div class="inline-flex items-center justify-center rounded-2xl flex-shrink-0" style="width:52px;height:52px;background:linear-gradient(135deg,#1E3A8A,#2563EB);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-        </div>
+<!-- BREADCRUMB & HEADER -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900">Pelamar: <?= htmlspecialchars($jobDetails['judul_job']) ?></h1>
-            <p class="text-sm text-slate-500 mt-1">Posisi: <span class="font-semibold text-slate-700"><?= htmlspecialchars($jobDetails['nama_posisi']) ?></span> &mdash; Kelola berkas dan tahap seleksi kandidat</p>
+            <nav class="flex items-center gap-2 text-sm text-slate-500 mb-2 font-medium">
+                <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php" class="hover:text-blue-700">Manajemen Lowongan</a>
+                <span>/</span>
+                <span class="text-slate-900">Daftar Pelamar</span>
+            </nav>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Pelamar: <?= htmlspecialchars($jobDetails['judul_job']) ?></h1>
+            <p class="text-slate-500 font-medium">Total <span class="text-blue-600 font-bold"><?= count($applicants) ?></span> kandidat dalam database.</p>
         </div>
-    </div>
-    <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php"
-        class="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition hover:shadow-md flex-shrink-0"
-        style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        Kembali
-    </a>
-</div>
-
-<!-- MAIN CARD -->
-<div class="rounded-2xl overflow-hidden shadow-md" style="background: #FFFFFF; border: 1px solid #E2E8F0;">
-
-    <!-- CARD HEADER -->
-    <div class="px-8 py-6 flex items-center justify-between" style="background: linear-gradient(135deg, #1E3A8A, #2563EB);">
-        <div class="flex items-center gap-4">
-            <span class="inline-flex items-center justify-center" style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            </span>
-            <div>
-                <h2 class="font-bold text-xl text-white">Daftar Kandidat</h2>
-                <p class="text-sm text-blue-200 mt-0.5">Total pelamar: <span class="font-bold text-white"><?= count($applicants) ?></span> kandidat</p>
-            </div>
-        </div>
+        <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Kembali
+        </a>
     </div>
 
-    <div class="p-8">
+    <!-- MAIN LIST -->
+    <div class="space-y-4">
         <?php if (empty($applicants)): ?>
-            <!-- EMPTY STATE -->
-            <div class="text-center py-20">
-                <span class="inline-flex items-center justify-center mb-5" style="width:80px;height:80px;border-radius:50%;background:#F1F5F9;color:#94A3B8;">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11Z"></path></svg>
-                </span>
-                <p class="text-lg font-bold text-slate-700">Belum ada pelamar untuk lowongan ini</p>
-                <p class="text-sm text-slate-400 mt-2">Data pelamar baru akan muncul begitu kandidat menekan tombol kirim lamaran.</p>
+            <div class="bg-white border-2 border-dashed border-slate-200 rounded-[32px] p-20 text-center">
+                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300 text-4xl">👥</div>
+                <h3 class="text-xl font-bold text-slate-800">Belum Ada Pelamar</h3>
+                <p class="text-slate-500">Lowongan ini belum menerima lamaran dari kandidat manapun.</p>
             </div>
         <?php else: ?>
-            <div class="space-y-5">
-                <?php foreach ($applicants as $app): ?>
-                   <div class="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden p-6">
-                        <div class="p-6" style="background: #FFFFFF;">
-                            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <?php foreach ($applicants as $app):
+                $status = $app['status_lamaran'];
+                $statusConfig = match ($status) {
+                    'ADMINISTRASI' => ['color' => 'bg-amber-100 text-amber-700 border-amber-200', 'label' => 'Administrasi', 'accent' => 'border-l-amber-500'],
+                    'INTERVIEW'    => ['color' => 'bg-blue-100 text-blue-700 border-blue-200', 'label' => 'Interview', 'accent' => 'border-l-blue-500'],
+                    'OFFERING'     => ['color' => 'bg-violet-100 text-violet-700 border-violet-200', 'label' => 'Offering', 'accent' => 'border-l-violet-500'],
+                    'DITERIMA'     => ['color' => 'bg-emerald-100 text-emerald-700 border-emerald-200', 'label' => 'Diterima', 'accent' => 'border-l-emerald-500'],
+                    'DITOLAK'      => ['color' => 'bg-rose-100 text-rose-700 border-rose-200', 'label' => 'Ditolak', 'accent' => 'border-l-rose-500'],
+                    default        => ['color' => 'bg-slate-100 text-slate-700 border-slate-200', 'label' => $status, 'accent' => 'border-l-slate-400']
+                };
+            ?>
+                <div class="bg-white border border-slate-200 border-l-4 <?= $statusConfig['accent'] ?> rounded-[24px] p-6 shadow-sm hover:shadow-md transition-all group">
+                    <div class="flex flex-col lg:flex-row gap-8 items-start lg:items-center">
 
-                                <!-- KANDIDAT INFO -->
-                                <div class="lg:col-span-1">
-                                <div class="flex items-start gap-4">
-
-                                <!-- Avatar -->
-                                <div class="flex-shrink-0 flex items-center justify-center font-bold text-white"
-                                     style="width:56px;height:56px;border-radius:14px;background:#1E40AF;font-size:24px;">
-                                <?= strtoupper(substr($app['nama_lengkap'], 0, 1)) ?>
-                                </div>
-
-                                <div class="flex-1 min-w-0">
-                                 <!-- Nama -->
-                                    <h3 style="font-size:17px;font-weight:600;color:#0F172A;margin:0 0 4px;line-height:1.35;">
-                                 <?= htmlspecialchars($app['nama_lengkap']) ?>
-                                    </h3>
-
-                                 <!-- Tanggal melamar -->
-                                 <p class="flex items-center gap-1.5" style="font-size:13px;color:#94A3B8;margin:0;">
-                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                 Melamar <?= date('d M Y', strtotime($app['tanggal_melamar'])) ?>
-                                 </p>
-
-                                 <!-- Pemisah -->
-                                    <div style="height:1px;background:#E2E8F0;margin:12px 0;"></div>
-
-                                 <!-- Email -->
-                                <p class="flex items-center gap-2 truncate" style="font-size:14px;color:#334155;margin:0 0 8px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#94A3B8;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                     <?= htmlspecialchars($app['email']) ?>
-                                 </p>
-
-                                 <!-- No HP -->
-                                 <p class="flex items-center gap-2" style="font-size:14px;color:#334155;margin:0;">
-                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#94A3B8;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                                 <?= htmlspecialchars($app['no_hp']) ?>
-                                 </p>
+                        <!-- Profile Info -->
+                        <div class="flex items-center gap-5 flex-1 min-w-0">
+                            <div class="w-16 h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-2xl font-black shadow-lg shrink-0 uppercase">
+                                <?= substr($app['nama_lengkap'], 0, 1) ?>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-lg font-extrabold text-slate-900 truncate group-hover:text-blue-700 transition-colors"><?= htmlspecialchars($app['nama_lengkap']) ?></h3>
+                                <p class="text-sm text-slate-400 font-medium mt-0.5 tracking-tight">Melamar pada <?= date('d M Y', strtotime($app['tanggal_melamar'])) ?></p>
+                                <div class="flex items-center gap-4 mt-2">
+                                    <span class="text-xs text-slate-500 flex items-center gap-1.5 font-semibold">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                        <?= htmlspecialchars($app['email']) ?>
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                                <!-- KUALIFIKASI -->
-                                <div class="lg:col-span-1">
-                                    <div class="space-y-3">
-                                        <div class="p-3.5 rounded-xl" style="background: #EFF6FF; border: 1px solid #BFDBFE;">
-                                            <span class="flex items-center gap-1.5 text-[11px] font-extrabold tracking-wider uppercase text-blue-600 mb-1.5">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-                                                Keahlian
-                                            </span>
-                                            <p class="text-sm font-semibold text-slate-800">
-                                                <?= (!empty($app['expert_bidang']) && $app['expert_bidang'] !== '-') ? htmlspecialchars($app['expert_bidang']) : '<span class="text-slate-400 font-normal italic text-xs">Tidak ditentukan</span>' ?>
-                                            </p>
-                                        </div>
 
-                                        <div class="p-3.5 rounded-xl" style="background: #FFFBEB; border: 1px solid #FDE68A;">
-                                            <span class="flex items-center gap-1.5 text-[11px] font-extrabold tracking-wider uppercase text-amber-600 mb-1.5">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                                Pengalaman
-                                            </span>
-                                            <p class="text-sm font-semibold text-amber-900">
-                                                <?= (!empty($app['pengalaman_bidang']) && $app['pengalaman_bidang'] !== '-') ? htmlspecialchars($app['pengalaman_bidang']) : '<span class="text-amber-600/60 font-normal italic text-xs">Fresh Graduate</span>' ?>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- STATUS -->
-                                <div class="lg:col-span-1 flex items-center justify-center">
-                                    <?php 
-                                    $status = $app['status_lamaran'];
-                                    $badgeStyle = "bg-slate-100 text-slate-700"; 
-                                    $statusIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
-                                    $statusColor = '#64748B';
-                                    if ($status === 'ADMINISTRASI') {
-                                        $badgeStyle = "bg-amber-100 text-amber-800 border border-amber-300";
-                                        $statusIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>';
-                                        $statusColor = '#B45309';
-                                    }
-                                    if ($status === 'INTERVIEW') {
-                                        $badgeStyle = "bg-blue-100 text-blue-800 border border-blue-300";
-                                        $statusIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>';
-                                        $statusColor = '#1D4ED8';
-                                    }
-                                    if ($status === 'DITERIMA') {
-                                        $badgeStyle = "bg-emerald-100 text-emerald-800 border border-emerald-300";
-                                        $statusIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
-                                        $statusColor = '#047857';
-                                    }
-                                    if ($status === 'DITOLAK') {
-                                        $badgeStyle = "bg-rose-100 text-rose-800 border border-rose-300";
-                                        $statusIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
-                                        $statusColor = '#BE123C';
-                                    }
-                                    ?>
-                                    <div class="text-center">
-                                        <div class="flex items-center justify-center mb-2" style="color:<?= $statusColor ?>;"><?= $statusIcon ?></div>
-                                        <span class="inline-block px-4 py-1.5 text-xs font-bold rounded-full <?= $badgeStyle ?>">
-                                            <?= $status ?>
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- AKSI -->
-                                <div class="lg:col-span-1 flex flex-col gap-2.5 justify-center">
-                                    <?php if (!empty($app['cv_file'])): ?>
-                                        <a href="<?= BASE_URL . 'public/uploads/cv/' . $app['cv_file'] ?>" target="_blank"
-                                           class="inline-flex items-center justify-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl transition hover:shadow-md"
-                                           style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                                            Lihat CV
-                                        </a>
-                                    <?php else: ?>
-                                        <span class="text-xs text-slate-400 italic text-center py-2">Tidak ada CV</span>
-                                    <?php endif; ?>
-
-                                    <a href="<?= BASE_URL ?>views/pelamarPekerjaan/riwayat_pelamar.php?id_transaksi=<?= $app['id_transaksi'] ?>"
-                                       class="inline-flex items-center justify-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl text-white transition hover:shadow-lg"
-                                       style="background: linear-gradient(135deg, #1E3A8A, #2563EB);">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
-                                        Detail
-                                    </a>
-
-                                    <?php if ($status === 'ADMINISTRASI'): ?>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <button type="button"
-                                                data-action="INTERVIEW"
-                                                data-transaksi="<?= $app['id_transaksi'] ?>"
-                                                data-name="<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>"
-                                                class="js-open-status-modal text-xs font-bold px-2 py-2 rounded-xl text-white transition hover:shadow-md flex items-center justify-center gap-1.5"
-                                                style="background: linear-gradient(135deg, #10B981, #059669);">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                                Lolos
-                                            </button>
-                                            <button type="button"
-                                                data-action="DITOLAK"
-                                                data-transaksi="<?= $app['id_transaksi'] ?>"
-                                                data-name="<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>"
-                                                class="js-open-status-modal text-xs font-bold px-2 py-2 rounded-xl text-white transition hover:shadow-md flex items-center justify-center gap-1.5"
-                                                style="background: linear-gradient(135deg, #EF4444, #DC2626);">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                                Tolak
-                                            </button>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-
+                        <!-- Qualification -->
+                        <div class="flex flex-wrap gap-3 lg:w-72">
+                            <div class="bg-slate-50 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold border border-slate-100 flex-1 text-center">
+                                <p class="text-[9px] uppercase opacity-60 mb-0.5 tracking-widest">Expertise</p>
+                                <?= htmlspecialchars($app['expert_bidang'] ?: '-') ?>
+                            </div>
+                            <div class="bg-slate-50 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold border border-slate-100 flex-1 text-center">
+                                <p class="text-[9px] uppercase opacity-60 mb-0.5 tracking-widest">Experience</p>
+                                <?= htmlspecialchars($app['pengalaman_bidang'] ?: '-') ?>
                             </div>
                         </div>
+
+                        <!-- Status & Actions -->
+                        <div class="flex flex-row lg:flex-col items-center lg:items-end gap-4 shrink-0 w-full lg:w-auto">
+                            <span class="px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase border <?= $statusConfig['color'] ?>">
+                                <?= $statusConfig['label'] ?>
+                            </span>
+
+                            <div class="flex items-center gap-2 ml-auto lg:ml-0">
+                                <a href="<?= BASE_URL ?>views/pelamarPekerjaan/riwayat_pelamar.php?id_transaksi=<?= $app['id_transaksi'] ?>" class="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-blue-600 hover:text-white transition shadow-sm" title="Lihat Profil Lengkap">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </a>
+
+                                <?php if ($status === 'ADMINISTRASI'): ?>
+                                    <button type="button" onclick="openStatusModal('INTERVIEW', '<?= $app['id_transaksi'] ?>', '<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">Lolos</button>
+                                    <button type="button" onclick="openStatusModal('DITOLAK', '<?= $app['id_transaksi'] ?>', '<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')" class="bg-rose-50 text-rose-600 px-5 py-2.5 rounded-xl text-xs font-bold border border-rose-100 hover:bg-rose-100 transition">Tolak</button>
+                                <?php endif; ?>
+
+                                <?php if ($status === 'INTERVIEW'): ?>
+                                    <button onclick="openOfferingModal('<?= $app['id_transaksi'] ?>','<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')" class="bg-violet-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-violet-700 transition shadow-lg shadow-violet-100 flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Kirim Offering
+                                    </button>
+                                    <button onclick="openStatusModal('DITOLAK','<?= $app['id_transaksi'] ?>','<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')" class="bg-rose-50 text-rose-600 border border-rose-100 px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition">Gagal</button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
                     </div>
-                <?php endforeach; ?>
-            </div>
+                </div>
+            <?php endforeach; ?>
         <?php endif; ?>
     </div>
 </div>
 
 <!-- MODAL KONFIRMASI STATUS -->
-<div id="status-confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 px-4 py-6 backdrop-blur-sm">
-    <div class="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl transform transition-all">
-        <div class="flex items-start justify-between gap-4 mb-6">
-            <h3 id="modal-title" class="text-xl font-bold text-slate-900 flex items-center gap-2">Konfirmasi Status</h3>
-            <button type="button" id="modal-close" class="text-slate-400 hover:text-slate-600 transition">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
+<div id="statusModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+    <div class="bg-white rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden transform translate-y-10 transition-transform duration-300">
+        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+            <h2 id="modalTitle" class="text-xl font-black text-slate-900">Konfirmasi Seleksi</h2>
+            <button onclick="closeModal('statusModal')" class="p-2 text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+        <form id="modalForm" method="POST" class="p-8 space-y-6">
+            <input type="hidden" name="status_lamaran" id="inputStatus">
+            <div id="modalInfoBox" class="p-5 rounded-2xl border-2 flex items-center gap-4">
+                <div id="modalIcon" class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 font-bold"></div>
+                <div>
+                    <p id="modalKandidat" class="font-black text-slate-900 text-lg leading-tight"></p>
+                    <p id="modalSubtext" class="text-sm font-medium text-slate-500 mt-0.5"></p>
+                </div>
+            </div>
+            <div id="interviewFields" class="hidden animate-fadeIn">
+                <div class="p-6 bg-blue-50 rounded-2xl border border-blue-100 space-y-4">
+                    <label class="block text-[10px] font-black text-blue-600 uppercase tracking-widest">Jadwal Wawancara</label>
+                    <input type="datetime-local" name="tanggal_interview" id="tanggalInput" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-600 outline-none">
+                    <textarea name="catatan" rows="2" placeholder="Catatan (Lokasi/Link Zoom)..." class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm outline-none focus:border-blue-600 resize-none"></textarea>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('statusModal')" class="flex-1 px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl text-sm font-bold">Batal</button>
+                <button type="submit" id="submitBtn" class="flex-1 px-6 py-4 text-white rounded-2xl text-sm font-bold transition shadow-lg active:scale-95"></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL OFFERING LETTER -->
+<div id="offeringModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+    <div class="bg-white rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden transform translate-y-10 transition-transform duration-300">
+        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-violet-50/50">
+            <h2 class="text-xl font-black text-violet-900 tracking-tight">Kirim Offering Letter</h2>
+            <button onclick="closeModal('offeringModal')" class="p-2 text-violet-400 hover:text-violet-600">✕</button>
         </div>
 
-        <form id="status-confirm-form" method="POST" class="space-y-5">
-            <input type="hidden" name="status_lamaran" id="modal-status" value="">
-            
-            <div class="rounded-2xl border-2 p-5" id="modal-info-box">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Informasi Pelamar</p>
-                <p id="modal-candidate-name" class="text-lg font-bold text-slate-900 mb-1.5"></p>
-                <p id="modal-action-label" class="text-sm text-slate-600 flex items-center gap-2"></p>
-            </div>
+        <form action="<?= BASE_URL ?>public/actions/create_offering.php" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
+            <input type="hidden" name="id_transaksi" id="offering_id_transaksi">
 
-            <div class="rounded-2xl p-4" id="modal-status-box" style="background: #EFF6FF; border: 1px solid #BFDBFE;">
-                <p class="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">Status yang akan diubah</p>
-                <div class="flex items-center gap-2">
-                    <span id="modal-status-icon" class="inline-flex items-center justify-center"></span>
-                    <p id="modal-status-text" class="font-bold text-base text-blue-900"></p>
+            <div class="flex items-center gap-4 p-4 bg-violet-50 rounded-2xl border border-violet-100">
+                <div class="w-12 h-12 bg-violet-600 text-white rounded-xl flex items-center justify-center text-xl">📄</div>
+                <div>
+                    <p id="offering_kandidat_name" class="font-bold text-slate-900"></p>
+                    <p class="text-xs text-violet-600 font-semibold uppercase tracking-wider">Tahap Penawaran Kerja</p>
                 </div>
             </div>
 
-            <div class="flex gap-3 pt-1">
-                <button type="button" id="modal-cancel" class="flex-1 rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-                    Batal
-                </button>
-                <button type="submit" id="modal-confirm" class="flex-1 rounded-xl text-white px-4 py-3 text-sm font-bold transition-all hover:shadow-lg"
-                        style="background: linear-gradient(135deg, #1E3A8A, #2563EB);">
-                    Ya, Lanjutkan
-                </button>
+            <div class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Gaji yang Ditawarkan (IDR)</label>
+                    <div class="relative group">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 group-focus-within:text-violet-600">Rp</span>
+                        <input type="number" name="gaji_offering" required placeholder="Contoh: 5000000" class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl text-lg font-black text-slate-800 outline-none focus:border-violet-600 focus:bg-white transition-all">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Dokumen Surat Penawaran (PDF)</label>
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-[24px] cursor-pointer hover:bg-slate-50 hover:border-violet-400 transition-all">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg class="w-8 h-8 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p class="text-sm text-slate-500 font-bold" id="fileNameDisplay">Klik untuk upload file PDF</p>
+                        </div>
+                        <input type="file" name="file_offering" class="hidden" accept=".pdf" required onchange="updateFileName(this)">
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeModal('offeringModal')" class="flex-1 px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl text-sm font-bold">Batal</button>
+                <button type="submit" class="flex-1 px-6 py-4 bg-violet-600 text-white rounded-2xl text-sm font-bold shadow-lg shadow-violet-100 hover:bg-violet-700 active:scale-95 transition">Kirim Penawaran</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-(function() {
-    const modal = document.getElementById('status-confirm-modal');
-    const openButtons = document.querySelectorAll('.js-open-status-modal');
-    const closeButton = document.getElementById('modal-close');
-    const cancelButton = document.getElementById('modal-cancel');
-    const modalTitle = document.getElementById('modal-title');
-    const candidateName = document.getElementById('modal-candidate-name');
-    const actionLabel = document.getElementById('modal-action-label');
-    const modalStatus = document.getElementById('modal-status');
-    const modalStatusText = document.getElementById('modal-status-text');
-    const modalStatusIcon = document.getElementById('modal-status-icon');
-    const modalInfoBox = document.getElementById('modal-info-box');
-    const modalStatusBox = document.getElementById('modal-status-box');
-    const form = document.getElementById('status-confirm-form');
-
-    const ICON_CHECK_CIRCLE = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
-    const ICON_ALERT = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
-    const ICON_CHECK_SMALL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-    const ICON_X_SMALL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-
-    function closeModal() {
-        modal.classList.add('hidden');
-    }
-
-    function openModal(action, transaksiId, name) {
+    function openStatusModal(action, id_transaksi, name) {
+        const modal = document.getElementById('statusModal');
+        const modalBox = modal.querySelector('div');
         const isLolos = action === 'INTERVIEW';
-        const label = isLolos ? 'Lolos Seleksi' : 'Ditolak';
 
-        modalTitle.innerHTML = (isLolos ? ICON_CHECK_CIRCLE : ICON_ALERT) + '<span style="margin-left:8px;vertical-align:middle;">' + (isLolos ? 'Lolos Tahap Seleksi?' : 'Tolak Pelamar?') + '</span>';
-        candidateName.textContent = name;
-        actionLabel.innerHTML = (isLolos ? ICON_CHECK_SMALL : ICON_X_SMALL) +
-            '<span>' + (isLolos
-                ? 'Pelamar akan dilanjutkan ke tahap wawancara'
-                : 'Pelamar tidak lolos dari tahap administrasi') + '</span>';
+        document.getElementById('inputStatus').value = action;
+        document.getElementById('modalForm').action = `<?= BASE_URL ?>public/actions/update_status_interview.php?id_transaksi=${id_transaksi}`;
+        document.getElementById('modalKandidat').textContent = name;
 
-        modalStatus.value = action;
-        modalStatusText.textContent = label;
-        modalStatusIcon.innerHTML = isLolos ? ICON_CHECK_CIRCLE : ICON_ALERT;
+        const infoBox = document.getElementById('modalInfoBox');
+        const iconDiv = document.getElementById('modalIcon');
+        const submitBtn = document.getElementById('submitBtn');
 
         if (isLolos) {
-            modalInfoBox.style.borderColor = '#D1FAE5';
-            modalInfoBox.style.background = '#F0FDF4';
-            modalStatusBox.style.background = '#F0FDF4';
-            modalStatusBox.style.borderColor = '#86EFAC';
-            modalStatusBox.style.color = '#166534';
+            document.getElementById('modalTitle').textContent = 'Loloskan Tahap Seleksi';
+            document.getElementById('modalSubtext').textContent = 'Kandidat akan lanjut ke tahap interview.';
+            infoBox.className = 'p-5 rounded-2xl border-2 border-emerald-100 bg-emerald-50 flex items-center gap-4 text-emerald-800';
+            iconDiv.className = 'w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center';
+            iconDiv.innerHTML = '✓';
+            submitBtn.className = 'flex-1 px-6 py-4 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition';
+            submitBtn.textContent = 'Ya, Atur Jadwal';
+            document.getElementById('interviewFields').classList.remove('hidden');
+            document.getElementById('tanggalInput').required = true;
+            setMinDate();
         } else {
-            modalInfoBox.style.borderColor = '#FECACA';
-            modalInfoBox.style.background = '#FEF2F2';
-            modalStatusBox.style.background = '#FEF2F2';
-            modalStatusBox.style.borderColor = '#FCA5A5';
-            modalStatusBox.style.color = '#7F1D1D';
+            document.getElementById('modalTitle').textContent = 'Tolak Kandidat';
+            document.getElementById('modalSubtext').textContent = 'Berikan keputusan untuk menolak pelamar ini.';
+            infoBox.className = 'p-5 rounded-2xl border-2 border-rose-100 bg-rose-50 flex items-center gap-4 text-rose-800';
+            iconDiv.className = 'w-12 h-12 rounded-xl bg-rose-600 text-white flex items-center justify-center';
+            iconDiv.innerHTML = '✕';
+            submitBtn.className = 'flex-1 px-6 py-4 bg-rose-600 text-white rounded-2xl text-sm font-bold hover:bg-rose-700 transition';
+            submitBtn.textContent = 'Ya, Tolak';
+            document.getElementById('interviewFields').classList.add('hidden');
+            document.getElementById('tanggalInput').required = false;
         }
-        
-        form.action = '<?= BASE_URL ?>views/pelamarPekerjaan/riwayat_pelamar.php?id_transaksi=' + encodeURIComponent(transaksiId);
-        modal.classList.remove('hidden');
+
+        showModalUI(modal, modalBox);
     }
 
-    openButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            openModal(this.dataset.action, this.dataset.transaksi, this.dataset.name);
-        });
-    });
+    function openOfferingModal(id_transaksi, name) {
+        const modal = document.getElementById('offeringModal');
+        const modalBox = modal.querySelector('div');
+        document.getElementById('offering_id_transaksi').value = id_transaksi;
+        document.getElementById('offering_kandidat_name').textContent = name;
+        showModalUI(modal, modalBox);
+    }
 
-    closeButton.addEventListener('click', closeModal);
-    cancelButton.addEventListener('click', closeModal);
+    function showModalUI(modal, modalBox) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.add('opacity-100');
+            modalBox.classList.remove('translate-y-10');
+        }, 10);
+    }
 
-    window.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
-            closeModal();
-        }
-    });
-})();
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        const modalBox = modal.querySelector('div');
+        modal.classList.remove('opacity-100');
+        modalBox.classList.add('translate-y-10');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function updateFileName(input) {
+        const name = input.files[0] ? input.files[0].name : 'Klik untuk upload file PDF';
+        document.getElementById('fileNameDisplay').textContent = name;
+    }
+
+    function setMinDate() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('tanggalInput').min = now.toISOString().slice(0, 16);
+    }
+
+    window.onclick = (e) => {
+        if (e.target.id.includes('Modal')) closeModal(e.target.id);
+    }
 </script>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.4s ease-out forwards;
+    }
+</style>
 
 <?php
 $content = ob_get_clean();

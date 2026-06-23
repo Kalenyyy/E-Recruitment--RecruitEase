@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../../init.php';
-require_once __DIR__ . '/../../controllers/PelamarPekerjaanController.php';
 
 // Proteksi Halaman: Wajib login dan harus HR
 AuthController::requireLogin();

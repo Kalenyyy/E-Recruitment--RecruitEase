@@ -159,4 +159,22 @@ class Dashboard
         }
         return $jobs;
     }
+
+    public static function getUpcomingInterviews($conn, $candidateId)
+    {
+        $query = "SELECT ji.*, jp.judul_job, jp.lokasi as lokasi_job
+              FROM jadwal_interview ji
+              JOIN candidate_apply_job caj ON ji.id_candidate_apply_job = caj.id
+              JOIN job_posting jp ON caj.id_lowongan = jp.id
+              WHERE ji.id_kandidat = $candidateId 
+              AND ji.status_interview = 'JADWAL'
+              ORDER BY ji.tanggal_interview ASC";
+
+        $result = mysqli_query($conn, $query);
+        $data = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+        return $data;
+    }
 }

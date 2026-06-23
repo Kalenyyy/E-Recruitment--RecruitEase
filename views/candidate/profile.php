@@ -50,6 +50,18 @@ $jenisDisabilitas = [
 ob_start();
 ?>
 
+<?php if (isset($_GET['msg']) && $_GET['msg'] === 'profile_incomplete'): ?>
+    <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-amber-800">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <div class="text-sm font-semibold">
+            Mohon lengkapi Alamat, Tanggal Lahir, Jenis Kelamin, Foto, dan CV sebelum melamar pekerjaan.
+        </div>
+    </div>
+<?php endif; ?>
 <!-- BREADCRUMB & TITLE -->
 <div class="flex items-center justify-between mb-8">
     <div>
@@ -62,62 +74,96 @@ ob_start();
 
 <div class="flex flex-col gap-6 mb-10">
 
-    <!-- ========== MY PROFILE ========== -->
-      <?php if ($hasFoto): ?>
+    <!-- ========== MY PROFILE (Informasi Pribadi & Alamat) ========== -->
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <!-- Header Kartu dengan Tombol Simpan -->
+        <div class="px-8 py-4 flex items-center justify-between border-b border-slate-100">
+            <h2 class="font-bold text-base text-slate-800">Profil & Alamat</h2>
+            <button type="submit" form="mainForm"
+                class="flex items-center gap-2 px-5 py-2 text-xs font-bold rounded-lg bg-blue-800 text-white hover:bg-blue-900 transition shadow-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                Simpan Profil
+            </button>
+        </div>
+
+        <form id="mainForm" action="<?= BASE_URL ?>public/actions/update_profile_candidate.php" method="POST" enctype="multipart/form-data" class="p-8">
+            <input type="hidden" name="id" value="<?= $candidate['id'] ?>">
+            <!-- Header Profile (Foto & Nama) -->
+            <div class="flex flex-col md:flex-row items-center gap-6 mb-8 pb-2">
+                <div class="relative group">
+                    <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-slate-50 shadow-sm">
+                        <?php if ($hasFoto): ?>
                             <img id="fotoPreview" src="<?= BASE_URL ?>public/uploads/candidate/<?= $candidate['foto'] ?>"
                                 class="w-full h-full object-cover">
                         <?php else: ?>
-                            <div id="fotoInitials" class="w-full h-full flex items-center justify-center text-xl font-bold"
+                            <div id="fotoInitials" class="w-full h-full flex items-center justify-center text-2xl font-bold"
                                 style="background:#DBEAFE;color:#1E3A8A;">
                                 <?= $initials ?>
                             </div>
                         <?php endif; ?>
                     </div>
-                    <label
-                        class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition text-white text-xs font-semibold">
-                        Ganti
+                    <label class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition text-white text-xs font-semibold">
+                        Ganti Foto
                         <input type="file" name="foto" class="hidden" accept="image/*" onchange="previewFoto(this)">
                     </label>
                 </div>
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800"><?= htmlspecialchars($nama) ?></h3>
-                    <p class="text-sm text-slate-500 mt-0.5">Candidate</p>
+                <div class="text-center md:text-left">
+                    <h3 class="text-xl font-bold text-slate-800"><?= htmlspecialchars($nama) ?></h3>
+                    <p class="text-sm text-slate-500 mt-0.5">Kandidat Terverifikasi</p>
                 </div>
             </div>
 
-            <!-- Fields -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+            <!-- Grid Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <!-- Nama -->
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Nama Lengkap</label>
+                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Nama Lengkap</label>
                     <input type="text" name="nama_lengkap" value="<?= htmlspecialchars($candidate['nama_lengkap']) ?>"
                         class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
+
+                <!-- Email -->
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Email</label>
+                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Email</label>
                     <input type="email" name="email" value="<?= htmlspecialchars($candidate['email']) ?>"
                         class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
+
+                <!-- No HP -->
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">No. HP</label>
+                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">No. HP / WhatsApp</label>
                     <input type="text" name="no_hp" value="<?= htmlspecialchars($candidate['no_hp']) ?>"
                         class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
+
+                <!-- Tanggal Lahir -->
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Tanggal Lahir</label>
+                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Tanggal Lahir</label>
                     <input type="date" name="tanggal_lahir"
                         value="<?= htmlspecialchars($candidate['tanggal_lahir'] ?? '') ?>"
                         class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
+
+                <!-- Jenis Kelamin -->
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Jenis Kelamin</label>
+                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Jenis Kelamin</label>
                     <select name="jenis_kelamin"
                         class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent cursor-pointer transition-colors">
                         <option value="">-- Pilih --</option>
-                        <option value="L" <?= ($candidate['jenis_kelamin'] ?? '') === 'L' ? 'selected' : '' ?>>Laki-laki
-                        </option>
-                        <option value="P" <?= ($candidate['jenis_kelamin'] ?? '') === 'P' ? 'selected' : '' ?>>Perempuan
-                        </option>
+                        <option value="L" <?= ($candidate['jenis_kelamin'] ?? '') === 'L' ? 'selected' : '' ?>>Laki-laki</option>
+                        <option value="P" <?= ($candidate['jenis_kelamin'] ?? '') === 'P' ? 'selected' : '' ?>>Perempuan</option>
                     </select>
+                </div>
+
+                <!-- Alamat (Sekarang masuk sini dan dibuat Full Width) -->
+                <div class="flex flex-col gap-1.5 md:col-span-2">
+                    <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Alamat Lengkap</label>
+                    <textarea name="alamat" rows="2"
+                        class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent resize-none transition-colors"><?= htmlspecialchars($candidate['alamat'] ?? '') ?></textarea>
                 </div>
             </div>
         </form>
@@ -129,7 +175,9 @@ ob_start();
             <h2 class="font-bold text-base text-slate-800">CV / Resume</h2>
             <label id="cvUploadLabel"
                 class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 cursor-pointer transition">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
                 Upload CV
                 <input type="file" id="cvFileInput" class="hidden" accept=".pdf,.doc,.docx">
             </label>
@@ -138,7 +186,10 @@ ob_start();
             <div id="cvInfo" class="flex items-center gap-3">
                 <?php if (!empty($candidate['cv_file'])): ?>
                     <span class="inline-flex items-center justify-center flex-shrink-0" style="width:40px;height:40px;border-radius:10px;background:#EFF6FF;color:#1E3A8A;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
                     </span>
                     <div>
                         <p id="cvFileName" class="text-sm font-semibold text-slate-800">
@@ -155,34 +206,22 @@ ob_start();
                     <a id="cvPreviewBtn" href="<?= BASE_URL ?>public/uploads/cv/<?= $candidate['cv_file'] ?>"
                         target="_blank"
                         class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
                         Preview
                     </a>
                     <a id="cvDownloadBtn" href="<?= BASE_URL ?>public/uploads/cv/<?= $candidate['cv_file'] ?>" download
                         class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
                         Unduh
                     </a>
                 <?php endif; ?>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========== ALAMAT ========== -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-            <h2 class="font-bold text-base text-slate-800">Alamat</h2>
-            <button type="submit" form="mainForm"
-                class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                Simpan
-            </button>
-        </div>
-        <div class="p-6">
-            <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-semibold uppercase tracking-wide" style="color:#94A3B8;">Alamat Lengkap</label>
-                <textarea form="mainForm" name="alamat" rows="2"
-                    class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent resize-none transition-colors"><?= htmlspecialchars($candidate['alamat'] ?? '') ?></textarea>
             </div>
         </div>
     </div>
@@ -193,7 +232,11 @@ ob_start();
             <h2 class="font-bold text-base text-slate-800">Informasi Disabilitas</h2>
             <button type="button" onclick="saveDisabilitas()"
                 class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-50 transition">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
                 Simpan
             </button>
         </div>
@@ -207,8 +250,8 @@ ob_start();
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleDisabilitas" class="sr-only peer"
-                    <?= $isDisabled ? 'checked' : '' ?>    
-                    onchange="toggleDisabilitasSection(this.checked)">
+                        <?= $isDisabled ? 'checked' : '' ?>
+                        onchange="toggleDisabilitasSection(this.checked)">
                     <div class="w-11 h-6 bg-slate-200 rounded-full peer
                         peer-checked:bg-blue-800
                         after:content-[''] after:absolute after:top-0.5 after:left-0.5
@@ -267,7 +310,10 @@ ob_start();
             <h2 class="font-bold text-base text-slate-800">Riwayat Pendidikan</h2>
             <a href="<?= BASE_URL ?>views/pendidikan/create.php?candidate_id=<?= $candidate['id'] ?>"
                 class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 Tambah
             </a>
         </div>
@@ -275,7 +321,10 @@ ob_start();
             <?php if (empty($pendidikanList)): ?>
                 <div class="p-10 text-center">
                     <span class="inline-flex items-center justify-center mb-3" style="width:52px;height:52px;border-radius:50%;background:#F1F5F9;color:#94A3B8;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                        </svg>
                     </span>
                     <p class="text-sm text-slate-400 italic">Belum ada riwayat pendidikan.</p>
                 </div>
@@ -345,13 +394,19 @@ ob_start();
                         <div class="flex gap-4 flex-shrink-0">
                             <a href="<?= BASE_URL ?>views/pendidikan/edit.php?id=<?= $p['id_pendidikan'] ?>"
                                 class="text-xs font-semibold flex items-center gap-1" style="color:#64748B;" onmouseover="this.style.color='#1D4ED8'" onmouseout="this.style.color='#64748B'">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
                                 Edit
                             </a>
                             <a href="<?= BASE_URL ?>views/pendidikan/delete.php?id=<?= $p['id_pendidikan'] ?>"
                                 onclick="return confirm('Hapus data pendidikan ini?')"
                                 class="text-xs font-semibold flex items-center gap-1 text-red-500 hover:text-red-700">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
                                 Hapus
                             </a>
                         </div>
@@ -367,7 +422,10 @@ ob_start();
             <h2 class="font-bold text-base text-slate-800">Pengalaman Kerja</h2>
             <a href="<?= BASE_URL ?>views/pengalamanKerja/create.php?candidate_id=<?= $candidate['id'] ?>"
                 class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 Tambah
             </a>
         </div>
@@ -375,7 +433,10 @@ ob_start();
             <?php if (empty($pengalamanList)): ?>
                 <div class="p-10 text-center">
                     <span class="inline-flex items-center justify-center mb-3" style="width:52px;height:52px;border-radius:50%;background:#F1F5F9;color:#94A3B8;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
                     </span>
                     <p class="text-sm text-slate-400 italic">Belum ada pengalaman kerja.</p>
                 </div>
@@ -418,7 +479,10 @@ ob_start();
                         <div class="flex gap-4 flex-shrink-0">
                             <a href="<?= BASE_URL ?>views/pengalamanKerja/edit.php?id=<?= $px['id'] ?>"
                                 class="text-xs font-semibold flex items-center gap-1" style="color:#64748B;" onmouseover="this.style.color='#1D4ED8'" onmouseout="this.style.color='#64748B'">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
                                 Edit
                             </a>
 
@@ -427,7 +491,10 @@ ob_start();
                                     <?= $candidate['id'] ?>,
                                     '<?= htmlspecialchars($px['posisi'], ENT_QUOTES) ?>'
                                 )" class="text-xs font-semibold flex items-center gap-1 text-red-500 hover:text-red-700">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
                                 Hapus
                             </button>
                         </div>
@@ -440,7 +507,11 @@ ob_start();
 
                                     <div
                                         class="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-600">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                        </svg>
                                     </div>
 
                                     <div>
@@ -487,7 +558,10 @@ ob_start();
             <h2 class="font-bold text-base text-slate-800">Skill</h2>
             <a href="<?= BASE_URL ?>views/candidateSkill/create.php?candidate_id=<?= $candidate['id'] ?>"
                 class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 Tambah
             </a>
         </div>
@@ -499,7 +573,11 @@ ob_start();
                     <div
                         class="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center"
                         style="background:#DBEAFE;color:#1E3A8A;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 9-5-9-5-9 5 9 5Z"></path><path d="m22 9-10 5L2 9"></path><path d="M6 11.5v4.5a6 3 0 0 0 12 0v-4.5"></path></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m12 14 9-5-9-5-9 5 9 5Z"></path>
+                            <path d="m22 9-10 5L2 9"></path>
+                            <path d="M6 11.5v4.5a6 3 0 0 0 12 0v-4.5"></path>
+                        </svg>
                     </div>
 
                     <p class="text-sm text-slate-400 italic">
@@ -514,7 +592,7 @@ ob_start();
                     <?php foreach ($skillList as $skill): ?>
 
                         <div
-                           
+
                             class="group flex items-center gap-2.5 px-4 py-2.5 rounded-full transition"
                             style="
                         background:#DBEAFE;
@@ -530,7 +608,10 @@ ob_start();
                                 href="<?= BASE_URL ?>views/candidateSkill/delete.php?id=<?= $skill['id'] ?>&candidate_id=<?= $candidate['id'] ?>" onclick="return confirm('Hapus skill ini?')"
                                 class="opacity-60 hover:opacity-100 transition flex items-center"
                                 style="color:#DC2626;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
                             </a>
 
                         </div>
@@ -545,213 +626,232 @@ ob_start();
     </div>
 
     <!-- ========== SERTIFIKASI ========== -->
-        <div id="sertifikasi" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div id="sertifikasi" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
 
-            <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-                <h2 class="font-bold text-base text-slate-800">Sertifikasi</h2>
+        <div class="px-6 py-4 flex items-center justify-between border-b border-slate-100">
+            <h2 class="font-bold text-base text-slate-800">Sertifikasi</h2>
 
-                <a href="<?= BASE_URL ?>views/sertifikasi/create.php?candidate_id=<?= $candidate['id'] ?>"
-                    class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Tambah
-                </a>
-            </div>
+            <a href="<?= BASE_URL ?>views/sertifikasi/create.php?candidate_id=<?= $candidate['id'] ?>"
+                class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 transition">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Tambah
+            </a>
+        </div>
 
-            <div class="p-5">
+        <div class="p-5">
 
-                <?php if (mysqli_num_rows($sertifikasiList) == 0): ?>
+            <?php if (mysqli_num_rows($sertifikasiList) == 0): ?>
 
-                    <div class="text-center py-10">
-                        <span class="inline-flex items-center justify-center mb-3" style="width:56px;height:56px;border-radius:50%;background:#F1F5F9;color:#94A3B8;">
-                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path><circle cx="12" cy="8" r="6"></circle></svg>
-                        </span>
-                        <p class="text-sm text-slate-400 italic">
-                            Belum ada sertifikasi.
-                        </p>
-                    </div>
+                <div class="text-center py-10">
+                    <span class="inline-flex items-center justify-center mb-3" style="width:56px;height:56px;border-radius:50%;background:#F1F5F9;color:#94A3B8;">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"></path>
+                            <circle cx="12" cy="8" r="6"></circle>
+                        </svg>
+                    </span>
+                    <p class="text-sm text-slate-400 italic">
+                        Belum ada sertifikasi.
+                    </p>
+                </div>
 
-                <?php else: ?>
+            <?php else: ?>
 
-                    <div class="space-y-4">
+                <div class="space-y-4">
 
-                        <?php while ($sertifikasi = mysqli_fetch_assoc($sertifikasiList)): ?>
+                    <?php while ($sertifikasi = mysqli_fetch_assoc($sertifikasiList)): ?>
 
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
 
-                                <div class="flex justify-between items-start">
+                            <div class="flex justify-between items-start">
 
-                                    <div>
+                                <div>
 
-                                        <h3 class="font-bold text-base text-slate-800">
-                                            <?= htmlspecialchars($sertifikasi['nama_sertifikasi']) ?>
-                                        </h3>
+                                    <h3 class="font-bold text-base text-slate-800">
+                                        <?= htmlspecialchars($sertifikasi['nama_sertifikasi']) ?>
+                                    </h3>
 
-                                        <p class="text-sm text-slate-500 mt-1">
-                                            <?= htmlspecialchars($sertifikasi['penyelenggara']) ?>
-                                        </p>
+                                    <p class="text-sm text-slate-500 mt-1">
+                                        <?= htmlspecialchars($sertifikasi['penyelenggara']) ?>
+                                    </p>
 
-                                        <p class="text-xs text-slate-400 mt-1.5">
-                                            Terbit:
-                                            <?= date('d M Y', strtotime($sertifikasi['tanggal_terbit'])) ?>
-                                        </p>
+                                    <p class="text-xs text-slate-400 mt-1.5">
+                                        Terbit:
+                                        <?= date('d M Y', strtotime($sertifikasi['tanggal_terbit'])) ?>
+                                    </p>
 
-                                        <?php if (!empty($sertifikasi['file_sertifikasi'])): ?>
+                                    <?php if (!empty($sertifikasi['file_sertifikasi'])): ?>
 
-                                            <?php
-                                            $file = $sertifikasi['file_sertifikasi'];
+                                        <?php
+                                        $file = $sertifikasi['file_sertifikasi'];
 
-                                            $ext = strtolower(
-                                                pathinfo($file, PATHINFO_EXTENSION)
-                                            );
+                                        $ext = strtolower(
+                                            pathinfo($file, PATHINFO_EXTENSION)
+                                        );
 
-                                            $fileUrl =
-                                                BASE_URL .
-                                                "uploads/sertifikasi/" .
-                                                $file;
-                                            ?>
+                                        $fileUrl =
+                                            BASE_URL .
+                                            "uploads/sertifikasi/" .
+                                            $file;
+                                        ?>
 
-                                            <div class="mt-4 flex items-start gap-4 cursor-pointer"
-    onclick="openPreviewSertifikasi(
+                                        <div class="mt-4 flex items-start gap-4 cursor-pointer"
+                                            onclick="openPreviewSertifikasi(
         '<?= $fileUrl ?>',
         '<?= $ext ?>'
     )">
 
-    <div
-        class="w-[180px] h-[110px] overflow-hidden rounded-xl border border-slate-200 bg-slate-100 flex-shrink-0">
+                                            <div
+                                                class="w-[180px] h-[110px] overflow-hidden rounded-xl border border-slate-200 bg-slate-100 flex-shrink-0">
 
-        <?php if (
-            in_array(
-                $ext,
-                ['jpg', 'jpeg', 'png', 'webp']
-            )
-        ): ?>
+                                                <?php if (
+                                                    in_array(
+                                                        $ext,
+                                                        ['jpg', 'jpeg', 'png', 'webp']
+                                                    )
+                                                ): ?>
 
-            <img
-                src="<?= $fileUrl ?>"
-                class="w-full h-full object-cover">
+                                                    <img
+                                                        src="<?= $fileUrl ?>"
+                                                        class="w-full h-full object-cover">
 
-        <?php elseif ($ext === 'pdf'): ?>
+                                                <?php elseif ($ext === 'pdf'): ?>
 
-            <canvas
-                class="pdf-thumb w-full h-full"
-                data-pdf="<?= $fileUrl ?>">
-            </canvas>
+                                                    <canvas
+                                                        class="pdf-thumb w-full h-full"
+                                                        data-pdf="<?= $fileUrl ?>">
+                                                    </canvas>
 
-        <?php endif; ?>
+                                                <?php endif; ?>
 
-    </div>
+                                            </div>
 
-    <div class="min-w-0 flex-1">
+                                            <div class="min-w-0 flex-1">
 
-        <p class="text-sm font-semibold text-slate-700 truncate">
-            <?= htmlspecialchars($file) ?>
-        </p>
+                                                <p class="text-sm font-semibold text-slate-700 truncate">
+                                                    <?= htmlspecialchars($file) ?>
+                                                </p>
 
-        <p class="text-xs text-slate-400 mt-1.5">
-            Klik untuk melihat dokumen
-        </p>
+                                                <p class="text-xs text-slate-400 mt-1.5">
+                                                    Klik untuk melihat dokumen
+                                                </p>
 
-    </div>
+                                            </div>
 
-</div>
-                                        <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
 
-                                    </div>
+                                </div>
 
-                                    <div class="flex gap-4 flex-shrink-0">
+                                <div class="flex gap-4 flex-shrink-0">
 
-                                        <a href="<?= BASE_URL ?>views/sertifikasi/edit.php?id=<?= $sertifikasi['id_sertifikasi'] ?>"
-                                            class="text-xs font-semibold flex items-center gap-1 transition" style="color:#94A3B8;" onmouseover="this.style.color='#1D4ED8'" onmouseout="this.style.color='#94A3B8'">
+                                    <a href="<?= BASE_URL ?>views/sertifikasi/edit.php?id=<?= $sertifikasi['id_sertifikasi'] ?>"
+                                        class="text-xs font-semibold flex items-center gap-1 transition" style="color:#94A3B8;" onmouseover="this.style.color='#1D4ED8'" onmouseout="this.style.color='#94A3B8'">
 
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                            Edit
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                        Edit
 
-                                        </a>
+                                    </a>
 
-                                        <button type="button" onclick="openDeleteModalSertifikasi(
+                                    <button type="button" onclick="openDeleteModalSertifikasi(
                                             <?= $sertifikasi['id_sertifikasi'] ?>,
                                             '<?= htmlspecialchars($sertifikasi['nama_sertifikasi'], ENT_QUOTES) ?>'
                                         )" class="text-xs font-semibold flex items-center gap-1 text-red-500 hover:text-red-700">
 
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                            Hapus
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                        Hapus
 
-                                        </button>
-
-                                    </div>
+                                    </button>
 
                                 </div>
 
                             </div>
 
-                        <?php endwhile; ?>
+                        </div>
 
-                    </div>
-
-                <?php endif; ?>
-
-            </div>
-
-        </div>
-
-        <!-- MODAL DELETE SERTIFIKASI -->
-        <div id="deleteModalSertifikasi" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
-
-            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-600">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800">
-                            Konfirmasi Hapus
-                        </h3>
-
-                        <p class="text-xs text-slate-500 mt-0.5">
-                            Tindakan ini tidak dapat dibatalkan
-                        </p>
-                    </div>
-                </div>
-                <p id="deleteMessageSertifikasi" class="text-sm text-slate-600 mb-6">
-                </p>
-
-                <div class="flex justify-end gap-3">
-
-                    <button type="button" onclick="closeDeleteModalSertifikasi()"
-                        class="px-4 py-2 text-sm font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 transition">
-                        Batal
-                    </button>
-
-                    <a id="deleteSertifikasiLink" href="#"
-                        class="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
-                        Ya, Hapus
-                    </a>
+                    <?php endwhile; ?>
 
                 </div>
 
-
-            </div>
+            <?php endif; ?>
 
         </div>
 
-        <div id="previewModalSertifikasi" class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/70">
+    </div>
 
-            <div class="bg-white rounded-2xl w-[95%] h-[90%] overflow-hidden relative">
+    <!-- MODAL DELETE SERTIFIKASI -->
+    <div id="deleteModalSertifikasi" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
 
-                <button onclick="closePreviewSertifikasi()"
-                    class="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
 
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#475569;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center bg-red-100 text-red-600">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800">
+                        Konfirmasi Hapus
+                    </h3>
+
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Tindakan ini tidak dapat dibatalkan
+                    </p>
+                </div>
+            </div>
+            <p id="deleteMessageSertifikasi" class="text-sm text-slate-600 mb-6">
+            </p>
+
+            <div class="flex justify-end gap-3">
+
+                <button type="button" onclick="closeDeleteModalSertifikasi()"
+                    class="px-4 py-2 text-sm font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 transition">
+                    Batal
                 </button>
 
-                <div id="previewContentSertifikasi" class="w-full h-full">
+                <a id="deleteSertifikasiLink" href="#"
+                    class="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
+                    Ya, Hapus
+                </a>
 
-                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div id="previewModalSertifikasi" class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/70">
+
+        <div class="bg-white rounded-2xl w-[95%] h-[90%] overflow-hidden relative">
+
+            <button onclick="closePreviewSertifikasi()"
+                class="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow flex items-center justify-center">
+
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#475569;">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <div id="previewContentSertifikasi" class="w-full h-full">
 
             </div>
 
         </div>
+
+    </div>
 
 
     <!-- ========== DANGER ZONE ========== -->
@@ -799,7 +899,7 @@ ob_start();
     function previewFoto(input) {
         if (!input.files || !input.files[0]) return;
         const reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = function(e) {
             // Kalau ada elemen img, update src-nya
             let img = document.getElementById('fotoPreview');
             const initials = document.getElementById('fotoInitials');
@@ -876,7 +976,7 @@ ob_start();
     }
 
     // ===== AJAX Upload CV =====
-    document.getElementById('cvFileInput').addEventListener('change', async function () {
+    document.getElementById('cvFileInput').addEventListener('change', async function() {
         const file = this.files[0];
         if (!file) return;
 
@@ -947,7 +1047,7 @@ ob_start();
     });
 
     // ===== AJAX Submit Main Form =====
-    document.getElementById('mainForm').addEventListener('submit', async function (e) {
+    document.getElementById('mainForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const formData = new FormData(this);
@@ -1000,13 +1100,13 @@ ob_start();
             );
 
         document.getElementById(
-            'deleteMessageSertifikasi'
-        ).innerHTML =
+                'deleteMessageSertifikasi'
+            ).innerHTML =
             `Apakah anda yakin ingin menghapus sertifikasi <b>${namaSertifikasi}</b>?`;
 
         document.getElementById(
-            'deleteSertifikasiLink'
-        ).href =
+                'deleteSertifikasiLink'
+            ).href =
             "<?= BASE_URL ?>views/sertifikasi/delete.php?id=" +
             idSertifikasi;
 
@@ -1095,7 +1195,7 @@ ob_start();
         )
         .addEventListener(
             'click',
-            function (e) {
+            function(e) {
 
                 if (e.target === this) {
                     closePreviewSertifikasi();
@@ -1103,15 +1203,12 @@ ob_start();
 
             }
         )
-
-
 </script>
 
 <script>
-
     document.addEventListener(
         'DOMContentLoaded',
-        async function () {
+        async function() {
 
             const thumbs =
                 document.querySelectorAll(
@@ -1127,8 +1224,8 @@ ob_start();
 
                     const pdf =
                         await pdfjsLib
-                            .getDocument(pdfUrl)
-                            .promise;
+                        .getDocument(pdfUrl)
+                        .promise;
 
                     const page =
                         await pdf.getPage(1);
@@ -1142,7 +1239,7 @@ ob_start();
                         canvas.getContext('2d');
 
                     canvas.style.width = "180px";
-canvas.style.height = "110px";
+                    canvas.style.height = "110px";
 
                     await page.render({
                         canvasContext: ctx,
@@ -1160,7 +1257,6 @@ canvas.style.height = "110px";
             }
 
         });
-
 </script>
 
 <?php

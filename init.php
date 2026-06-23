@@ -27,6 +27,7 @@ require_once __DIR__ . '/controllers/JobFormController.php';
 require_once __DIR__ . '/controllers/LowonganPekerjaanController.php'; 
 require_once __DIR__ . '/controllers/LamaranController.php'; 
 require_once __DIR__ . '/controllers/DashboardController.php';
+require_once __DIR__ . '/controllers/PelamarPekerjaanController.php';
 // 5. MODEL
 require_once __DIR__ . '/models/User.php'; 
 require_once __DIR__ . '/models/Candidate.php'; 

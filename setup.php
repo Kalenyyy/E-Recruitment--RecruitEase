@@ -363,7 +363,7 @@ CREATE TABLE IF NOT EXISTS candidate_apply_job (
     catatan TEXT DEFAULT NULL, 
     expert_bidang VARCHAR(50) NOT NULL,
     pengalaman_bidang VARCHAR(50) NOT NULL,
-    status_lamaran ENUM('ADMINISTRASI', 'INTERVIEW', 'DITOLAK', 'DITERIMA') DEFAULT 'ADMINISTRASI', 
+    status_lamaran ENUM('ADMINISTRASI', 'INTERVIEW', 'OFFERING', 'DITOLAK', 'DITERIMA') DEFAULT 'ADMINISTRASI', 
     tanggal_melamar DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kandidat) REFERENCES candidates(id) ON DELETE CASCADE,
@@ -376,6 +376,49 @@ if (mysqli_query($conn, $sqlTransaksiLamaran)) {
     echo 'Tabel candidate_apply_job berhasil dibuat <br>';
 } else {
     echo 'Error membuat tabel candidate_apply_job: ' . mysqli_error($conn) . '<br>';
+}
+
+$sqlJadwalInterview = "
+CREATE TABLE IF NOT EXISTS jadwal_interview (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_kandidat INT NOT NULL,
+    id_candidate_apply_job INT NOT NULL,
+    status_interview ENUM('JADWAL', 'SELESAI', 'BATAL') DEFAULT 'JADWAL',
+    catatan TEXT DEFAULT NULL, 
+    tanggal_interview DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_kandidat) REFERENCES candidates(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_candidate_apply_job) REFERENCES candidate_apply_job(id) ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlJadwalInterview)) {
+    echo 'Tabel jadwal_interview berhasil dibuat <br>';
+} else {
+    echo 'Error membuat tabel jadwal_interview: ' . mysqli_error($conn) . '<br>';
+}
+
+$sqlOfferingLetter = "
+CREATE TABLE IF NOT EXISTS offering_letter (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_kandidat INT NOT NULL,
+    id_candidate_apply_job INT NOT NULL,
+    gaji_offering INT NOT NULL,
+    status ENUM('DITERIMA', 'DITOLAK'),
+    tanggal_offering DATETIME NOT NULL,
+    file_offering VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_kandidat) REFERENCES candidates(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_candidate_apply_job) REFERENCES candidate_apply_job(id) ON DELETE CASCADE
+);
+";
+
+if (mysqli_query($conn, $sqlOfferingLetter)) {
+    echo 'Tabel offering_letter berhasil dibuat <br>';
+} else {
+    echo 'Error membuat tabel offering_letter: ' . mysqli_error($conn) . '<br>';
 }
 
 /* =========================

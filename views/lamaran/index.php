@@ -1,399 +1,251 @@
 <?php
-// views/lamaran/index.php
-
 require_once __DIR__ . '/../../init.php';
 
-// 1. Proteksi Keamanan Akses Sesi Halaman
 AuthController::requireLogin();
 if ($_SESSION['role'] !== 'candidate') {
-    die("Access denied. Hanya akun kandidat yang dapat mengakses halaman ini.");
+    die("Access denied.");
 }
 
-// 2. Ambil ID Kandidat berdasarkan user_id dari Session yang aktif
 $candidate = CandidateController::getCandidateByUserId($_SESSION['user_id']);
-if (!$candidate) {
-    die("Profil kandidat tidak ditemukan. Silakan lengkapi profil Anda terlebih dahulu.");
-}
-
-// 3. Tarik data riwayat lamaran dari database
-$daftarLamaran = LamaranModel::getLamaranByCandidateId($conn, $candidate['id']);
+$daftarLamaran = LamaranController::getCandidateHistory($conn, $_SESSION['user_id']);
 $totalLamaran = count($daftarLamaran);
+
+$statusClasses = [
+    'administrasi' => 'bg-blue-100 text-blue-700',
+    'interview'    => 'bg-amber-100 text-amber-700',
+    'offering'     => 'bg-violet-100 text-violet-700',
+    'diterima'     => 'bg-emerald-100 text-emerald-700',
+    'ditolak'      => 'bg-red-100 text-red-700'
+];
 
 ob_start();
 ?>
 
-<style>
-    /* ── Desain Tokens Aplikasi (Disamakan dengan Detail & Index Lowongan) ── */
-    :root {
-        --ink: #1A1D2E;
-        --ink-muted: #5A607A;
-        --ink-faint: #9299B0;
-        --surface: #F4F6FB;
-        --card: #FFFFFF;
-        --border: #E4E8F3;
-        --brand: #4F46E5;
-        --brand-dark: #3730A3;
-        --brand-pale: #EEF0FF;
-        --radius-sm: 8px;
-        --radius-md: 14px;
-        --radius-lg: 22px;
-        --radius-xl: 32px;
-        --shadow-card: 0 2px 12px 0 rgba(79, 70, 229, .06), 0 1px 3px 0 rgba(26, 29, 46, .05);
-        --shadow-hover: 0 8px 32px 0 rgba(79, 70, 229, .1), 0 2px 8px 0 rgba(26, 29, 46, .06);
-    }
+<div class="bg-slate-50 min-h-screen py-10">
+    <div class="max-w-5xl mx-auto px-6">
 
-    .vls-wrap * { box-sizing: border-box; }
-
-    .vls-wrap {
-        font-family: 'Inter', system-ui, sans-serif;
-        background: var(--surface);
-        min-height: 100vh;
-        padding: 40px 0 80px;
-    }
-
-    .vls-container {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 0 28px;
-    }
-
-    /* ── Back Navigation Link ── */
-    .vls-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--ink-muted);
-        text-decoration: none;
-        font-size: .9rem;
-        font-weight: 700;
-        margin-bottom: 24px;
-        transition: color .2s;
-    }
-
-    .vls-back:hover {
-        color: var(--brand);
-    }
-
-    /* ── HEADER STYLE (KEMBAR DENGAN JELAJAHI LOWONGAN) ── */
-    .jl-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 16px;
-        margin-bottom: 36px;
-    }
-
-    .jl-header h1 {
-        font-size: 1.85rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0 0 6px;
-        letter-spacing: -0.5px;
-    }
-
-    .jl-header p {
-        color: var(--ink-muted);
-        margin: 0;
-        font-size: 0.95rem;
-    }
-
-    .jl-count-pill {
-        background: var(--brand-pale);
-        color: var(--brand);
-        border: 1px solid #C7D2FE;
-        padding: 8px 18px;
-        border-radius: 999px;
-        font-size: 0.85rem;
-        font-weight: 700;
-    }
-
-    .jl-count-pill span {
-        font-weight: 900;
-    }
-
-    /* ── List Grid Cards Lamaran ── */
-    .vls-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-    }
-
-    .vls-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 26px 32px;
-        box-shadow: var(--shadow-card);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    }
-
-    .vls-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-hover);
-        border-color: var(--brand);
-    }
-
-    .vls-job-info {
-        flex: 1;
-    }
-
-    .vls-job-title {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0 0 6px;
-        letter-spacing: -0.3px;
-    }
-
-    .vls-job-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        color: var(--ink-muted);
-        font-size: 0.85rem;
-        margin-bottom: 12px;
-    }
-
-    .vls-meta-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .vls-date-badge {
-        font-size: 0.78rem;
-        color: var(--ink-faint);
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    /* ── Badges Status Alur Seleksi ── */
-    .vls-status-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 14px;
-        min-width: 160px;
-    }
-
-    .vls-badge {
-        display: inline-flex;
-        align-items: center;
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 6px 16px;
-        border-radius: 999px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .vls-badge-administrasi { background: #E0F2FE; color: #0369A1; }
-    .vls-badge-interview { background: #FEF3C7; color: #B45309; }
-    .vls-badge-diterima { background: #D1FAE5; color: #065F46; }
-    .vls-badge-ditolak { background: #FEE2E2; color: #991B1B; }
-
-    .vls-btn-detail {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--ink-muted);
-        padding: 8px 16px;
-        font-size: 0.82rem;
-        font-weight: 700;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-
-    .vls-btn-detail:hover {
-        background: var(--brand-pale);
-        color: var(--brand);
-        border-color: var(--brand);
-    }
-
-    /* ── EMPTY STATE ── */
-    .vls-empty {
-        background: var(--card);
-        border: 2px dashed var(--border);
-        border-radius: var(--radius-xl);
-        padding: 64px 24px;
-        text-align: center;
-        box-shadow: var(--shadow-card);
-    }
-
-    .vls-empty-icon { font-size: 3rem; margin-bottom: 16px; }
-    .vls-empty h3 { font-size: 1.2rem; font-weight: 800; color: var(--ink); margin: 0 0 8px; }
-    .vls-empty p { color: var(--ink-muted); font-size: 0.9rem; margin: 0 0 24px; }
-    .vls-btn-explore {
-        display: inline-flex;
-        background: var(--brand);
-        color: #FFFFFF;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 0.88rem;
-        padding: 12px 28px;
-        border-radius: var(--radius-md);
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
-        transition: background 0.2s;
-    }
-    .vls-btn-explore:hover { background: var(--brand-dark); }
-
-    /* ── Modal PopUp Detail Styles ── */
-    .vls-modal {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(26, 29, 46, 0.5);
-        display: flex; align-items: center; justify-content: center;
-        opacity: 0; pointer-events: none;
-        z-index: 9999;
-        transition: opacity 0.25s ease;
-    }
-    .vls-modal.is-open { opacity: 1; pointer-events: auto; }
-    .vls-modal-card {
-        background: var(--card); border-radius: var(--radius-xl);
-        width: 100%; max-width: 540px; padding: 32px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        transform: translateY(20px); transition: transform 0.25s ease;
-    }
-    .vls-modal.is-open .vls-modal-card { transform: translateY(0); }
-    .vls-modal-header { display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px; }
-    .vls-modal-header h2 { font-size: 1.25rem; font-weight: 800; color: var(--ink); margin: 0; }
-    .vls-modal-close { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: var(--ink-faint); }
-    .vls-modal-close:hover { color: var(--ink); }
-    .vls-detail-row { margin-bottom: 16px; }
-    .vls-detail-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--ink-faint); letter-spacing: 0.5px; margin-bottom: 4px; display: block;}
-    .vls-detail-val { font-size: 0.95rem; color: var(--ink); font-weight: 600; margin: 0; }
-    .vls-detail-box { background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.9rem; color: var(--ink-muted); white-space: pre-line; line-height: 1.5; margin: 4px 0 0; }
-</style>
-
-<div class="vls-wrap">
-    <div class="vls-container">
-        
-        <a href="<?= BASE_URL ?>views/lowonganPekerjaan/index.php" class="vls-back">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            Kembali ke Jelajahi Lowongan
-        </a>
-
-        <header class="jl-header">
-            <div>
-                <h1>Lamaran Saya</h1>
-                <p>Pantau riwayat peninjauan berkas, kompetensi, dan status tahapan rekrutmen Anda.</p>
-            </div>
-            <div class="jl-count-pill">
-                <span><?= number_format($totalLamaran) ?></span> Posisi dilamar
-            </div>
-        </header>
-
-        <?php if (empty($daftarLamaran)): ?>
-            <div class="vls-empty">
-                <div class="vls-empty-icon">📄</div>
-                <h3>Belum Ada Lamaran</h3>
-                <p>Anda belum mengirimkan berkas lamaran ke posisi pekerjaan apa pun saat ini.</p>
-                <a href="<?= BASE_URL ?>views/lowonganPekerjaan/index.php" class="vls-btn-explore">Jelajahi Lowongan</a>
-            </div>
-        <?php else: ?>
-            <div class="vls-grid">
-                <?php foreach ($daftarLamaran as $item): ?>
-                    <div class="vls-card">
-                        
-                        <div class="vls-job-info">
-                            <h2 class="vls-job-title"><?= htmlspecialchars($item['judul_job']) ?></h2>
-                            <div class="vls-job-meta">
-                                <div class="vls-meta-item">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                    </svg>
-                                    <?= htmlspecialchars($item['lokasi']) ?>
-                                </div>
-                                <div class="vls-meta-item">💼 <?= htmlspecialchars($item['tipe_pekerjaan']) ?></div>
-                                <div class="vls-meta-item">💰 <?= $item['gaji'] ? 'Rp ' . number_format($item['gaji'], 0, ',', '.') : 'Kompetitif' ?></div>
-                            </div>
-                            <div class="vls-date-badge">
-                                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                Dilamar pada: <?= date('d M Y, H:i', strtotime($item['tanggal_melamar'])) ?> WIB
-                            </div>
-                        </div>
-
-                        <div class="vls-status-wrap">
-                            <span class="vls-badge vls-badge-<?= strtolower($item['status_lamaran']) ?>">
-                                <?= htmlspecialchars($item['status_lamaran']) ?>
-                            </span>
-                            <button type="button" class="vls-btn-detail" 
-                                    onclick="bukaModalDetail(<?= htmlspecialchars(json_encode($item)) ?>)">
-                                Lihat Detail
-                            </button>
-                        </div>
-
-                    </div>
-                <?php endforeach; ?>
+        <!-- Notifikasi Sukses/Gagal -->
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="mb-6 p-4 bg-emerald-100 text-emerald-700 rounded-2xl border border-emerald-200 font-bold text-sm animate-bounce">
+                🎉 <?= $_SESSION['success'];
+                    unset($_SESSION['success']); ?>
             </div>
         <?php endif; ?>
 
+        <!-- Header -->
+        <a href="<?= BASE_URL ?>views/lowonganPekerjaan/index.php" class="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-bold mb-8 transition-colors">
+            ← Kembali ke Jelajahi Lowongan
+        </a>
+
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Lamaran Saya</h1>
+            <div class="bg-indigo-50 text-indigo-600 px-5 py-2 rounded-full text-sm font-bold shadow-sm">
+                <?= $totalLamaran ?> Posisi dilamar
+            </div>
+        </header>
+
+        <!-- List Lamaran -->
+        <div class="flex flex-col gap-5">
+            <?php foreach ($daftarLamaran as $item):
+                $statusKey = strtolower($item['status_lamaran']);
+                $currentStatusClass = $statusClasses[$statusKey] ?? 'bg-slate-100 text-slate-600';
+            ?>
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-center gap-6 group">
+                    <div class="flex-1">
+                        <h2 class="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors"><?= htmlspecialchars($item['judul_job']) ?></h2>
+                        <p class="text-slate-500 text-sm font-medium"><?= htmlspecialchars($item['lokasi']) ?> • <?= htmlspecialchars($item['tipe_pekerjaan']) ?></p>
+                    </div>
+                    <div class="flex flex-col items-end gap-3">
+                        <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border <?= $currentStatusClass ?>">
+                            <?= $item['status_lamaran'] ?>
+                        </span>
+                        <button onclick="bukaModalDetail(<?= htmlspecialchars(json_encode($item)) ?>)" class="text-xs font-black text-slate-600 border-2 border-slate-100 px-6 py-2.5 rounded-2xl hover:bg-slate-900 hover:text-white transition-all shadow-sm">Lihat Detail</button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 </div>
 
-<div class="vls-modal" id="modalDetailLamaran" onclick="tutupModalDetailOnOuterClick(event)">
-    <div class="vls-modal-card">
-        <div class="vls-modal-header">
-            <h2 id="m-judul-job">Detail Informasi Lamaran</h2>
-            <button type="button" class="vls-modal-close" onclick="tutupModalDetail()">✕</button>
+<!-- MODAL DETAIL UTAMA -->
+<div id="modalDetailLamaran" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[50] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300" onclick="if(event.target===this) tutupModalDetail()">
+    <div class="bg-white rounded-[2.5rem] w-full max-w-lg p-8 shadow-2xl transform translate-y-8 transition-transform duration-300 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-start border-b border-slate-100 pb-6 mb-6">
+            <h2 id="m-judul-job" class="text-2xl font-black text-slate-900 tracking-tight">Detail Lamaran</h2>
+            <button onclick="tutupModalDetail()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors">✕</button>
         </div>
-        <div class="vls-modal-body">
-            <div class="vls-detail-row">
-                <span class="vls-detail-label">Keahlian Utama Bidang</span>
-                <p class="vls-detail-val" id="m-expert"></p>
+
+        <div class="space-y-8">
+            <!-- SEKSI OFFERING -->
+            <div id="section-offering" class="hidden">
+                <div class="bg-violet-50 border-2 border-violet-100 rounded-[2rem] p-6 shadow-inner">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-violet-600 text-white rounded-xl flex items-center justify-center text-xl shadow-lg shadow-violet-200">🎉</div>
+                        <h3 class="text-violet-900 font-black text-xs uppercase tracking-[0.2em]">Penawaran Kerja</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 mb-8">
+                        <div>
+                            <label class="text-[10px] font-black text-violet-400 uppercase tracking-widest block mb-1">Gaji Penawaran</label>
+                            <p id="m-gaji-offering" class="text-2xl font-black text-slate-900"></p>
+                        </div>
+                        <a id="m-download-pdf" href="#" target="_blank" class="flex justify-center items-center gap-3 w-full bg-white border-2 border-violet-200 text-violet-700 font-black py-4 rounded-2xl hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-all shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Download PDF
+                        </a>
+                    </div>
+
+                    <!-- Tombol Aksi -->
+                    <div id="offering-actions" class="grid grid-cols-2 gap-4 hidden">
+                        <button type="button" onclick="bukaConfirm('DITERIMA')" class="bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-100 hover:bg-emerald-700 active:scale-95 transition-all">Terima</button>
+                        <button type="button" onclick="bukaConfirm('DITOLAK')" class="bg-white border-2 border-rose-100 text-rose-600 font-black py-4 rounded-2xl hover:bg-rose-50 active:scale-95 transition-all">Tolak</button>
+                    </div>
+
+                    <p id="offering-responded" class="hidden text-center text-[11px] font-bold text-violet-500 bg-white/50 py-3 rounded-xl border border-violet-100 italic uppercase tracking-wider">
+                        Sudah direspon
+                    </p>
+                </div>
             </div>
-            <div class="vls-detail-row">
-                <span class="vls-detail-label">Pengalaman Bidang</span>
-                <p class="vls-detail-val" id="m-pengalaman"></p>
+
+            <!-- Detail Lamaran -->
+            <div class="grid grid-cols-2 gap-6">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Keahlian</label>
+                    <p id="m-expert" class="font-bold text-slate-800"></p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pengalaman</label>
+                    <p id="m-pengalaman" class="font-bold text-slate-800"></p>
+                </div>
             </div>
-            <div class="vls-detail-row">
-                <span class="vls-detail-label">Catatan Tambahan Anda</span>
-                <div class="vls-detail-box" id="m-catatan"></div>
-            </div>
-            <div class="vls-detail-row" style="margin-bottom: 0; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
-                <span class="vls-detail-label">Status Peninjauan Perusahaan</span>
-                <span class="vls-badge" id="m-status"></span>
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Catatan Lamaran</label>
+                <div id="m-catatan" class="text-sm text-slate-600 leading-relaxed font-medium"></div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- MODAL KONFIRMASI (NEW & COOL) -->
+<div id="confirmModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+    <div class="bg-white rounded-[3rem] w-full max-w-sm p-8 shadow-2xl transform scale-90 transition-transform duration-300">
+        <div id="confirmIcon" class="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center text-4xl shadow-xl"></div>
+
+        <div class="text-center mb-8">
+            <h3 id="confirmTitle" class="text-2xl font-black text-slate-900 mb-2"></h3>
+            <p id="confirmText" class="text-slate-500 text-sm font-medium leading-relaxed"></p>
+        </div>
+
+        <form action="<?= BASE_URL ?>public/actions/respond_offering.php" method="POST" class="space-y-3">
+            <input type="hidden" name="id_transaksi" id="confirm-id">
+            <input type="hidden" name="respon" id="confirm-respon">
+
+            <button type="submit" id="confirmBtn" class="w-full py-4 rounded-2xl text-white font-black shadow-lg transition-all active:scale-95 uppercase tracking-widest text-xs"></button>
+            <button type="button" onclick="tutupConfirm()" class="w-full py-4 rounded-2xl text-slate-400 font-bold hover:bg-slate-50 transition-all uppercase tracking-widest text-[10px]">Batalkan</button>
+        </form>
     </div>
 </div>
 
 <script>
-    const modal = document.getElementById('modalDetailLamaran');
+    let currentData = null;
 
     function bukaModalDetail(data) {
-        document.getElementById('m-judul-job').textContent = data.judul_job;
-        document.getElementById('m-expert').textContent = data.expert_bidang ? data.expert_bidang : '-';
-        document.getElementById('m-pengalaman').textContent = data.pengalaman_bidang ? data.pengalaman_bidang : '-';
-        document.getElementById('m-catatan').textContent = data.catatan ? data.catatan : 'Tidak ada catatan tambahan.';
-        
-        const badgeStatus = document.getElementById('m-status');
-        badgeStatus.textContent = data.status_lamaran;
-        badgeStatus.className = 'vls-badge vls-badge-' + data.status_lamaran.toLowerCase();
+        currentData = data;
+        const modal = document.getElementById('modalDetailLamaran');
+        const modalBox = modal.querySelector('div');
 
-        modal.classList.add('is-open');
+        // Reset
+        document.getElementById('section-offering').classList.add('hidden');
+        document.getElementById('offering-actions').classList.add('hidden');
+        document.getElementById('offering-responded').classList.add('hidden');
+
+        // Data Dasar
+        document.getElementById('m-judul-job').textContent = data.judul_job;
+        document.getElementById('m-expert').textContent = data.expert_bidang || '-';
+        document.getElementById('m-pengalaman').textContent = data.pengalaman_bidang || '-';
+        document.getElementById('m-catatan').textContent = data.catatan || 'Tidak ada catatan khusus.';
+
+        // Logic Offering
+        if (data.status_lamaran.toUpperCase() === 'OFFERING') {
+            document.getElementById('section-offering').classList.remove('hidden');
+            document.getElementById('m-download-pdf').href = `<?= BASE_URL ?>public/uploads/offering/${data.file_offering}`;
+
+            const gaji = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(data.gaji_offering);
+            document.getElementById('m-gaji-offering').textContent = gaji;
+
+            if (data.status_respon_offering) {
+                document.getElementById('offering-responded').classList.remove('hidden');
+            } else {
+                document.getElementById('offering-actions').classList.remove('hidden');
+            }
+        }
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.add('opacity-100');
+            modalBox.classList.remove('translate-y-8');
+        }, 10);
         document.body.style.overflow = 'hidden';
     }
 
     function tutupModalDetail() {
-        modal.classList.remove('is-open');
+        const modal = document.getElementById('modalDetailLamaran');
+        modal.classList.remove('opacity-100');
+        modal.querySelector('div').classList.add('translate-y-8');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
         document.body.style.overflow = '';
     }
 
-    function tutupModalDetailOnOuterClick(event) {
-        if (event.target === modal) {
-            tutupModalDetail();
+    // LOGIC KONFIRMASI MODERN
+    function bukaConfirm(type) {
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmBox = confirmModal.querySelector('div');
+        const icon = document.getElementById('confirmIcon');
+        const title = document.getElementById('confirmTitle');
+        const text = document.getElementById('confirmText');
+        const btn = document.getElementById('confirmBtn');
+
+        document.getElementById('confirm-id').value = currentData.id;
+        document.getElementById('confirm-respon').value = type;
+
+        if (type === 'DITERIMA') {
+            icon.className = "w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center text-4xl shadow-xl bg-emerald-100 text-emerald-600";
+            icon.innerHTML = "🤝";
+            title.innerHTML = "Terima Pekerjaan?";
+            text.innerHTML = "Pastikan Anda telah membaca seluruh syarat di Offering Letter. Keputusan ini akan mengubah status Anda menjadi karyawan.";
+            btn.className = "w-full py-4 rounded-2xl bg-emerald-600 text-white font-black shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-all active:scale-95 uppercase tracking-widest text-xs";
+            btn.textContent = "Ya, Saya Terima";
+        } else {
+            icon.className = "w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center text-4xl shadow-xl bg-rose-100 text-rose-600";
+            icon.innerHTML = "✕";
+            title.innerHTML = "Tolak Penawaran?";
+            text.innerHTML = "Tindakan ini tidak dapat dibatalkan. Berikan kesempatan ini untuk kandidat lain jika Anda merasa tidak cocok.";
+            btn.className = "w-full py-4 rounded-2xl bg-rose-600 text-white font-black shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all active:scale-95 uppercase tracking-widest text-xs";
+            btn.textContent = "Ya, Saya Tolak";
         }
+
+        confirmModal.classList.remove('hidden');
+        setTimeout(() => {
+            confirmModal.classList.add('opacity-100');
+            confirmBox.classList.remove('scale-90');
+        }, 10);
+    }
+
+    function tutupConfirm() {
+        const confirmModal = document.getElementById('confirmModal');
+        confirmModal.classList.remove('opacity-100');
+        confirmModal.querySelector('div').classList.add('scale-90');
+        setTimeout(() => {
+            confirmModal.classList.add('hidden');
+        }, 300);
     }
 </script>
 

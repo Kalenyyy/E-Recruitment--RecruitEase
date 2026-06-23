@@ -467,14 +467,48 @@ ob_start();
                     </a>
                 </div>
 
-                <!-- Upcoming Interviews (Static for now) -->
+                <!-- Upcoming Interviews -->
                 <div class="bg-white border border-[#E2E8F0] rounded-2xl p-[22px] flex-1 shadow-sm">
                     <p class="text-sm font-semibold text-[#1E293B] mb-3">Interview Mendatang</p>
-                    <div class="flex flex-col gap-2.5">
-                        <!-- Placeholder karena tabel belum ada -->
-                        <div class="p-3 border border-dashed border-[#E2E8F0] rounded-lg bg-[#F8FAFC] text-center">
-                            <p class="text-[11px] text-[#64748B]">Belum ada jadwal interview terdekat.</p>
-                        </div>
+                    <div class="flex flex-col gap-3">
+                        <?php if (!empty($candidateDashboard['interviews'])): ?>
+                            <?php foreach ($candidateDashboard['interviews'] as $iv): ?>
+                                <div class="p-3.5 border border-[#E2E8F0] rounded-xl bg-[#F8FAFC] group hover:border-[#1E3A8A]/30 transition-all">
+                                    <div class="flex items-start gap-3">
+                                        <!-- Date Badge -->
+                                        <div class="flex flex-col items-center justify-center bg-white border border-[#E2E8F0] rounded-lg p-2 min-w-[50px] shadow-sm">
+                                            <span class="text-[10px] font-bold text-[#64748B] uppercase"><?= date('M', strtotime($iv['tanggal_interview'])) ?></span>
+                                            <span class="text-sm font-black text-[#1E293B]"><?= date('d', strtotime($iv['tanggal_interview'])) ?></span>
+                                        </div>
+                                        <!-- Info -->
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-[13px] font-bold text-[#1E293B] truncate"><?= htmlspecialchars($iv['judul_job']) ?></h4>
+                                            <p class="text-[11px] text-[#64748B] mt-0.5 flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" />
+                                                </svg>
+                                                <?= date('H:i', strtotime($iv['tanggal_interview'])) ?> WIB
+                                            </p>
+                                            <?php if (!empty($iv['catatan'])): ?>
+                                                <div class="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-100/50">
+                                                    <p class="text-[10px] text-blue-700 leading-relaxed font-medium">
+                                                        <span class="font-bold">Info:</span> <?= htmlspecialchars($iv['catatan']) ?>
+                                                    </p>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <!-- Jika Kosong -->
+                            <div class="p-8 border border-dashed border-[#E2E8F0] rounded-xl bg-[#F8FAFC] text-center">
+                                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
+                                    <span class="text-lg"></span>
+                                </div>
+                                <p class="text-[11px] text-[#64748B] font-medium">Belum ada jadwal interview terdekat.</p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

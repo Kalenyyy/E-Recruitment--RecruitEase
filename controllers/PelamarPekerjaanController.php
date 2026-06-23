@@ -14,7 +14,7 @@ class PelamarPekerjaanController
         return JobPostingModel::getJobDetails($conn, $job_id);
     }
 
-    public static function getApplicants($conn, $job_id) 
+    public static function getApplicants($conn, $job_id)
     {
         // REVISI: Query didefinisikan DAN langsung dieksekusi di sini
         $query = "SELECT 
@@ -30,7 +30,7 @@ class PelamarPekerjaanController
                   JOIN candidates c ON caj.id_kandidat = c.id
                   WHERE caj.id_lowongan = ?
                   ORDER BY caj.tanggal_melamar DESC";
-        
+
         $stmt = $conn->prepare($query);
         if (!$stmt) {
             die("Query bermasalah: " . $conn->error);
@@ -56,8 +56,34 @@ class PelamarPekerjaanController
         return JobPostingModel::getApplicationById($conn, $id_transaksi);
     }
 
-    public static function ubahStatus($conn, $id_transaksi, $status_baru)
+    public static function ubahStatus($conn, $id_transaksi, $status_baru, $tanggal_interview = null, $catatan = null)
     {
-        return JobPostingModel::updateApplicationStatus($conn, $id_transaksi, $status_baru);
+        $app = self::getApplication($conn, $id_transaksi);
+        $id_kandidat = $app['id_kandidat'];
+
+        if ($status_baru === 'INTERVIEW') {
+            // Kirim $catatan ke model
+            return JobPostingModel::moveKandidatKeInterview($conn, $id_transaksi, $id_kandidat, $tanggal_interview, $catatan);
+        } else {
+            return JobPostingModel::updateApplicationStatus($conn, $id_transaksi, $status_baru);
+        }
+    }
+
+    public static function kirimOffering($conn, $id_transaksi, $gaji, $file_name)
+    {
+        // 1. Ambil data aplikasi untuk mendapatkan id_kandidat
+        $app = self::getApplication($conn, $id_transaksi);
+        if (!$app) return false;
+
+        $id_kandidat = $app['id_kandidat'];
+
+        // 2. Panggil fungsi di model yang sudah Anda buat
+        return JobPostingModel::moveKandidatKeOffering(
+            $conn,
+            $id_transaksi,
+            $id_kandidat,
+            $gaji,
+            $file_name
+        );
     }
 }

@@ -1,19 +1,19 @@
 <?php
 require_once __DIR__ . '/../../init.php';
+require_once __DIR__ . '/../../controllers/LamaranController.php';
 
 AuthController::requireLogin();
 if ($_SESSION['role'] !== 'candidate') {
-    die("Access denied. Hanya akun kandidat yang dapat mengakses halaman ini.");
+    die("Access denied.");
 }
 
-// 1. Validasi ID Parameter wajib ada dan numerik
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$id) {
     header("Location: " . BASE_URL . "views/lowonganPekerjaan/index.php");
     exit;
 }
 
-// 2. Ambil data detail lowongan secara spesifik
+// Ambil data detail lowongan
 $job = LowonganPekerjaanController::detailLowongan($conn, $id);
 if (!$job) {
     die("Lowongan tidak ditemukan atau sudah ditutup.");
@@ -21,10 +21,9 @@ if (!$job) {
 
 $skills = $job['skills'] ? explode(', ', $job['skills']) : [];
 
-// 3. LOGIKA INTEGRASI: Ambil ID Kandidat untuk cek riwayat apply
+// Cek status lamaran
 $candidate = CandidateController::getCandidateByUserId($_SESSION['user_id']);
 $sudahMelamar = false;
-
 if ($candidate) {
     $sudahMelamar = LamaranModel::hasApplied($conn, $candidate['id'], $id);
 }
@@ -32,596 +31,158 @@ if ($candidate) {
 ob_start();
 ?>
 
-<style>
-    /* ── Design Tokens ──────────────── */
-    :root {
-        --ink: #1A1D2E;
-        --ink-muted: #5A607A;
-        --ink-faint: #9299B0;
-        --surface: #F4F6FB;
-        --card: #FFFFFF;
-        --border: #E4E8F3;
-        --brand: #4F46E5;
-        --brand-dark: #3730A3;
-        --brand-pale: #EEF0FF;
-        --brand-mid: #C7D2FE;
-        --teal: #0D9488;
-        --teal-pale: #CCFBF1;
-        --emerald: #059669;
-        --emerald-pale: #D1FAE5;
-        --amber: #B45309;
-        --amber-pale: #FEF3C7;
-        --rose: #E11D48;
-        --rose-pale: #FFE4E6;
-        --radius-sm: 8px;
-        --radius-md: 14px;
-        --radius-lg: 22px;
-        --radius-xl: 32px;
-        --shadow-card: 0 2px 12px 0 rgba(79, 70, 229, .06), 0 1px 3px 0 rgba(26, 29, 46, .05);
-    }
+<div class="min-h-screen bg-slate-50 py-12">
+    <div class="max-w-6xl mx-auto px-6">
 
-    .jld-wrap * {
-        box-sizing: border-box;
-    }
-
-    .jld-wrap {
-        font-family: 'Inter', system-ui, sans-serif;
-        background: var(--surface);
-        min-height: 100vh;
-        padding: 40px 0 80px;
-    }
-
-    .jld-container {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 0 28px;
-    }
-
-    /* ── Back Navigation ────────────────── */
-    .jld-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--ink-muted);
-        text-decoration: none;
-        font-size: .9rem;
-        font-weight: 700;
-        margin-bottom: 24px;
-        transition: color .2s;
-    }
-
-    .jld-back:hover {
-        color: var(--brand);
-    }
-
-    /* ── Main Layout Split ────────────────── */
-    .jld-main-grid {
-        display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: 28px;
-        align-items: flex-start;
-    }
-
-    @media (max-width: 900px) {
-        .jld-main-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* ── Card Styles ──────────────────────── */
-    .jld-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        padding: 36px;
-        box-shadow: var(--shadow-card);
-        margin-bottom: 28px;
-    }
-
-    /* ── Header Area ──────────────────────── */
-    .jld-header-block {
-        display: flex;
-        gap: 24px;
-        align-items: flex-start;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 32px;
-        margin-bottom: 32px;
-    }
-
-    .jld-logo {
-        width: 64px;
-        height: 64px;
-        background: var(--brand-pale);
-        border-radius: var(--radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.6rem;
-        font-weight: 900;
-        color: var(--brand);
-        border: 1.5px solid var(--brand-mid);
-    }
-
-    .jld-header-info {
-        flex: 1;
-    }
-
-    .jld-header-info h1 {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0 0 8px;
-        letter-spacing: -0.5px;
-    }
-
-    .jld-meta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        color: var(--ink-muted);
-        font-size: .9rem;
-    }
-
-    .jld-meta-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    /* ── Badges ─────────────────────────── */
-    .jld-badges {
-        display: flex;
-        gap: 8px;
-        margin-top: 14px;
-        flex-wrap: wrap;
-    }
-
-    .jld-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: .75rem;
-        font-weight: 700;
-        padding: 6px 14px;
-        border-radius: 999px;
-    }
-
-    .jld-badge-type {
-        background: #F1F2F8;
-        color: var(--ink-muted);
-        border: 1px solid var(--border);
-        text-transform: uppercase;
-        letter-spacing: .5px;
-    }
-
-    .jld-badge-inklusif {
-        background: var(--teal-pale);
-        color: var(--teal);
-    }
-
-    .jld-badge-remote {
-        background: var(--emerald-pale);
-        color: var(--emerald);
-    }
-
-    /* ── Content Section ─────────────────── */
-    .jld-section {
-        margin-bottom: 32px;
-    }
-
-    .jld-section:last-child {
-        margin-bottom: 0;
-    }
-
-    .jld-section h3 {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--ink);
-        margin: 0 0 16px;
-    }
-
-    .jld-rich-text {
-        color: var(--ink-muted);
-        font-size: .975rem;
-        line-height: 1.7;
-        white-space: pre-line;
-    }
-
-    /* Box Info Disabilitas Eksplisit */
-    .disability-status-box {
-        padding: 16px 20px;
-        border-radius: var(--radius-md);
-        font-size: 0.9rem;
-        line-height: 1.5;
-    }
-
-    .disability-status-box.active {
-        background: var(--teal-pale);
-        border: 1px solid var(--teal);
-        color: #0F534C;
-    }
-
-    .disability-status-box.inactive {
-        background: var(--rose-pale);
-        border: 1px solid var(--rose);
-        color: #84102B;
-    }
-
-    /* ── Skills ─────────────────────────── */
-    .jld-skills {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .jld-skill {
-        font-size: .8rem;
-        font-weight: 600;
-        background: var(--surface);
-        color: var(--ink-muted);
-        padding: 6px 14px;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-    }
-
-    /* ── Sidebar Sticky Panel ────────────── */
-    .jld-sidebar {
-        position: sticky;
-        top: 40px;
-    }
-
-    .jld-action-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        padding: 28px;
-        box-shadow: var(--shadow-card);
-        text-align: center;
-    }
-
-    .jld-salary-box {
-        background: var(--amber-pale);
-        border-radius: var(--radius-md);
-        padding: 16px;
-        margin-bottom: 24px;
-        text-align: left;
-    }
-
-    .jld-salary-label {
-        font-size: .7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: var(--amber);
-        letter-spacing: .5px;
-        display: block;
-        margin-bottom: 4px;
-    }
-
-    .jld-salary-val {
-        font-size: 1.3rem;
-        font-weight: 800;
-        color: var(--amber);
-    }
-
-    .jld-btn-apply {
-        display: block;
-        width: 100%;
-        background: var(--brand);
-        color: #fff;
-        text-align: center;
-        text-decoration: none;
-        font-weight: 800;
-        font-size: .95rem;
-        padding: 16px;
-        border-radius: var(--radius-md);
-        box-shadow: 0 4px 14px rgba(79, 70, 229, .3);
-        transition: background .2s, transform .1s;
-        margin-bottom: 12px;
-        cursor: pointer;
-        border: none;
-    }
-
-    .jld-btn-apply:hover {
-        background: var(--brand-dark);
-    }
-
-    .jld-btn-apply:active {
-        transform: scale(.98);
-    }
-
-    .jld-btn-apply.is-disabled {
-        background: #E4E8F3 !important;
-        color: var(--ink-faint) !important;
-        cursor: not-allowed !important;
-        box-shadow: none !important;
-        transform: none !important;
-    }
-
-    .jld-alert-applied {
-        background: var(--brand-pale);
-        border: 1px solid var(--brand-mid);
-        color: var(--brand-dark);
-        border-radius: var(--radius-md);
-        padding: 14px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        margin-bottom: 16px;
-        text-align: left;
-        line-height: 1.4;
-    }
-
-    .jld-info-tip {
-        font-size: .8rem;
-        color: var(--ink-faint);
-        margin: 0;
-    }
-
-    /* ── FORM INPUT INLINE STYLES ──────────────── */
-    #form-lamaran-container {
-        display: none;
-        animation: fadeIn 0.4s ease forwards;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-        text-align: left;
-    }
-
-    .form-label {
-        display: block;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin-bottom: 8px;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 12px 16px;
-        font-size: 0.9rem;
-        border: 1.5px solid var(--border);
-        border-radius: var(--radius-sm);
-        color: var(--ink);
-        background: var(--surface);
-        transition: border-color 0.2s;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: var(--brand);
-        background: #FFFFFF;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>
-
-<div class="jld-wrap">
-    <div class="jld-container">
-
-        <a href="<?= BASE_URL ?>views/lowonganPekerjaan/index.php" class="jld-back">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Back Button -->
+        <a href="<?= BASE_URL ?>views/lowonganPekerjaan/index.php" class="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors mb-8 group">
+            <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Kembali ke Jelajahi Lowongan
         </a>
 
-        <div class="jld-main-grid">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
 
-            <div class="jld-content-area">
-                <div class="jld-card">
-                    <div class="jld-header-block">
-                        <div class="jld-logo"><?= strtoupper(substr($job['judul_job'], 0, 1)) ?></div>
-                        <div class="jld-header-info">
-                            <h1><?= htmlspecialchars($job['judul_job']) ?></h1>
-                            <div class="jld-meta-row">
-                                <div class="jld-meta-item">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    </svg>
-                                    <?= htmlspecialchars($job['lokasi']) ?>
-                                </div>
+            <!-- Left Column: Content -->
+            <div class="lg:col-span-2 space-y-8">
+                <div class="bg-white border border-slate-200 rounded-[32px] p-8 md:p-12 shadow-sm">
+
+                    <!-- Header Info -->
+                    <div class="flex flex-col md:flex-row gap-8 items-start border-b border-slate-100 pb-10 mb-10">
+                        <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center text-3xl font-black border border-indigo-100 shrink-0 shadow-sm">
+                            <?= strtoupper(substr($job['judul_job'], 0, 1)) ?>
+                        </div>
+                        <div class="flex-1">
+                            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight"><?= htmlspecialchars($job['judul_job']) ?></h1>
+                            <div class="flex items-center gap-2 text-slate-500 font-semibold mt-2">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                </svg>
+                                <?= htmlspecialchars($job['lokasi']) ?>
                             </div>
-                            <div class="jld-badges">
-                                <span class="jld-badge window-badge jld-badge-type"><?= htmlspecialchars($job['tipe_pekerjaan']) ?></span>
+                            <div class="flex flex-wrap gap-2 mt-6">
+                                <span class="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest border border-slate-200"><?= htmlspecialchars($job['tipe_pekerjaan']) ?></span>
                                 <?php if ($job['is_disabilitas']): ?>
-                                    <span class="jld-badge jld-badge-inklusif">✓ Ramah Disabilitas</span>
+                                    <span class="bg-teal-50 text-teal-700 px-4 py-1.5 rounded-full text-[11px] font-bold border border-teal-100">✓ RAMAH DISABILITAS</span>
                                 <?php endif; ?>
                                 <?php if ($job['is_remote_work']): ?>
-                                    <span class="jld-badge jld-badge-remote">🌐 Remote Work</span>
+                                    <span class="bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-full text-[11px] font-bold border border-indigo-100 text-nowrap">🌐 REMOTE WORK</span>
                                 <?php endif; ?>
                             </div>
                         </div>
                     </div>
 
-                    <div class="jld-section">
-                        <h3>Deskripsi Pekerjaan</h3>
-                        <div class="jld-rich-text">
+                    <!-- Job Description -->
+                    <section class="mb-12">
+                        <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-indigo-600 rounded-full"></span>
+                            Deskripsi Pekerjaan
+                        </h3>
+                        <div class="text-slate-600 leading-relaxed whitespace-pre-line text-lg">
                             <?= htmlspecialchars($job['deskripsi'] ?? 'Tidak ada deskripsi yang disediakan.') ?>
                         </div>
-                    </div>
+                    </section>
 
-                    <?php if (!empty($job['persyaratan'])): ?>
-                        <div class="jld-section">
-                            <h3>Persyaratan</h3>
-                            <div class="jld-rich-text">
-                                <?= htmlspecialchars($job['persyaratan']) ?>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="jld-section">
-                        <h3>Informasi Aksesibilitas & Kategori Disabilitas</h3>
+                    <!-- Accessibility Info -->
+                    <section class="mb-12">
+                        <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                            <span class="w-1.5 h-6 bg-teal-500 rounded-full"></span>
+                            Aksesibilitas & Kategori Disabilitas
+                        </h3>
 
                         <?php if ($job['is_disabilitas']): ?>
-                            <div class="disability-status-box active" style="margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                            <div class="bg-teal-50 border border-teal-200 rounded-2xl p-6 mb-8">
+                                <div class="flex items-center gap-3 text-teal-800 font-extrabold text-lg">
                                     <span>♿</span> Lowongan Ini Terbuka untuk Penyandang Disabilitas
                                 </div>
                             </div>
 
-                            <p style="font-size: 0.85rem; font-weight: 700; color: var(--ink); margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                                Ragam Disabilitas yang Dapat Mengajukan Lamaran:
-                            </p>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Ragam Disabilitas yang Didukung:</p>
 
                             <?php if (!empty($job['supported_disabilities'])): ?>
-                                <div style="display: flex; flex-direction: column; gap: 12px;">
-                                    <?php
-                                    foreach ($job['supported_disabilities'] as $typeKey):
-                                        // Ambil detail label dan deskripsi berdasarkan key master data
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <?php foreach ($job['supported_disabilities'] as $typeKey):
                                         if (isset($job['disability_options'][$typeKey])):
                                             $detail = $job['disability_options'][$typeKey];
                                     ?>
-                                            <div style="background: #FFFFFF; border: 1px solid var(--teal); border-left: 4px solid var(--teal); padding: 12px 16px; border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 2px;">
-                                                <span style="font-size: 0.9rem; font-weight: 800; color: var(--teal);">
-                                                    ✓ <?= htmlspecialchars($detail['label']) ?>
-                                                </span>
-                                                <span style="font-size: 0.8rem; color: var(--ink-muted);">
-                                                    Kualifikasi: <?= htmlspecialchars($detail['desc']) ?>
-                                                </span>
+                                            <div class="bg-white border border-teal-100 border-l-4 border-l-teal-500 p-5 rounded-2xl shadow-sm">
+                                                <h4 class="font-bold text-teal-700 mb-1">✓ <?= htmlspecialchars($detail['label']) ?></h4>
+                                                <p class="text-sm text-slate-500 leading-snug"><?= htmlspecialchars($detail['desc']) ?></p>
                                             </div>
-                                    <?php
-                                        endif;
-                                    endforeach;
-                                    ?>
+                                    <?php endif;
+                                    endforeach; ?>
                                 </div>
                             <?php else: ?>
-                                <div style="background: var(--surface); padding: 14px; border-radius: var(--radius-md); border: 1px dashed var(--border);">
-                                    <p style="margin: 0; font-size: 0.85rem; color: var(--ink-muted); font-style: italic;">
-                                        Terbuka untuk semua ragam disabilitas umum. Silakan ajukan berkas Anda.
-                                    </p>
+                                <div class="bg-slate-50 border-2 border-dashed border-slate-200 p-8 rounded-2xl text-center italic text-slate-500">
+                                    Terbuka untuk semua ragam disabilitas. Silakan ajukan berkas Anda.
                                 </div>
                             <?php endif; ?>
 
                             <?php if (!empty($job['additional_support'])): ?>
-                                <div style="margin-top: 16px; padding: 12px 16px; background: var(--brand-pale); border: 1px solid var(--brand-mid); border-radius: var(--radius-md);">
-                                    <strong style="display: block; font-size: 0.75rem; color: var(--brand-dark); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-                                        Dukungan & Fasilitas Aksesibilitas dari Perusahaan:
-                                    </strong>
-                                    <p style="margin: 0; font-size: 0.85rem; color: var(--ink-muted); font-weight: 500;">
-                                        <?= htmlspecialchars($job['additional_support']) ?>
-                                    </p>
+                                <div class="mt-8 p-6 bg-indigo-50 border border-indigo-100 rounded-2xl">
+                                    <strong class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2">Dukungan & Fasilitas:</strong>
+                                    <p class="text-slate-700 font-medium leading-relaxed"><?= htmlspecialchars($job['additional_support']) ?></p>
                                 </div>
                             <?php endif; ?>
 
                         <?php else: ?>
-                            <div class="disability-status-box inactive">
-                                <div style="display: flex; align-items: center; gap: 8px; font-weight: 800;">
-                                    <span>⚠️</span> Lowongan Ini Belum Mendukung Jalur Khusus Disabilitas
-                                </div>
+                            <div class="bg-rose-50 border border-rose-100 text-rose-700 rounded-2xl p-6 font-bold flex items-center gap-3">
+                                <span>⚠️</span> Lowongan ini belum mendukung jalur khusus disabilitas.
                             </div>
                         <?php endif; ?>
-                    </div>
+                    </section>
 
+                    <!-- Required Skills -->
                     <?php if ($skills): ?>
-                        <div class="jld-section">
-                            <h3>Keahlian yang Dibutuhkan</h3>
-                            <div class="jld-skills">
+                        <section>
+                            <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+                                <span class="w-1.5 h-6 bg-amber-500 rounded-full"></span>
+                                Keahlian yang Dibutuhkan
+                            </h3>
+                            <div class="flex flex-wrap gap-3">
                                 <?php foreach ($skills as $s): ?>
-                                    <span class="jld-skill"><?= htmlspecialchars($s) ?></span>
+                                    <span class="bg-slate-100 text-slate-700 px-5 py-2 rounded-xl text-sm font-bold border border-slate-200"><?= htmlspecialchars($s) ?></span>
                                 <?php endforeach; ?>
                             </div>
-                        </div>
+                        </section>
                     <?php endif; ?>
                 </div>
-
-                <!-- <div class="jld-card" id="form-lamaran-container">
-                    <div class="jld-section">
-                        <h3>Form Pengajuan Lamaran</h3>
-                        <p class="jld-info-tip" style="margin-bottom: 20px;">Isi berkas tambahan jika diperlukan untuk posisi <strong><?= htmlspecialchars($job['judul_job']) ?></strong>.</p>
-
-                        <form action="<?= BASE_URL ?>controllers/LamaranController.php?action=store" method="POST" enctype="multipart/form-data">
-                            <input type="hidden" name="job_id" value="<?= $job['id'] ?>">
-                            <input type="hidden" name="candidate_id" value="<?= htmlspecialchars($candidate['id'] ?? '') ?>">
-
-                            <div class="form-group">
-                                <label class="form-label">Surat Pengantar / Cover Letter (Opsional)</label>
-                                <textarea name="cover_letter" rows="5" class="form-control" placeholder="Tulis alasan mengapa Anda tertarik dengan posisi ini..."></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Unggah CV / Portofolio Terbaru (PDF max 2MB)</label>
-                                <input type="file" name="dokumen_cv" class="form-control" required accept=".pdf">
-                            </div>
-
-                            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
-                                <button type="button" id="btn-batal-lamar" class="jld-skill" style="padding: 12px 24px; cursor: pointer;">Batal</button>
-                                <button type="submit" class="jld-btn-apply" style="width: auto; margin-bottom: 0; padding: 12px 28px;">Kirim Lamaran Sekarang</button>
-                            </div>
-                        </form>
-                    </div>
-                </div> -->
             </div>
 
-            <aside class="jld-sidebar">
-                <div class="jld-action-card">
-                    <div class="jld-salary-box">
-                        <span class="jld-salary-label">Estimasi Gaji</span>
-                        <span class="jld-salary-val">
-                            <?= $job['gaji'] ? 'Rp ' . number_format($job['gaji'], 0, ',', '.') : 'Kompetitif' ?>
-                        </span>
+            <!-- Right Column: Sidebar Action -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white border border-slate-200 rounded-[32px] p-8 sticky top-10 shadow-xl shadow-slate-200/50">
+                    <div class="bg-amber-50 border border-amber-100 rounded-2xl p-6 mb-8">
+                        <label class="block text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2">Estimasi Gaji Bulanan</label>
+                        <p class="text-2xl font-black text-amber-700">
+                            <?= $job['gaji'] ? 'Rp ' . number_format($job['gaji'], 0, ',', '.') : 'Gaji Kompetitif' ?>
+                        </p>
                     </div>
 
                     <?php if ($sudahMelamar): ?>
-                        <div class="jld-alert-applied">
-                            🎉 Anda sudah mengirimkan lamaran untuk posisi ini. Silakan pantau status seleksi di halaman "Lamaran Saya".
+                        <div class="bg-indigo-50 border border-indigo-100 text-indigo-800 rounded-2xl p-6 text-sm font-semibold leading-relaxed mb-6">
+                            🎉 Anda sudah melamar posisi ini. Pantau terus status lamaran Anda di dashboard.
                         </div>
-                        <button class="jld-btn-apply is-disabled" disabled>
-                            Lamaran Sudah Terkirim
+                        <button disabled class="w-full py-5 bg-slate-100 text-slate-400 font-black rounded-2xl cursor-not-allowed">
+                            ✓ SUDAH DILAMAR
                         </button>
                     <?php else: ?>
-                        <a
-                            href="<?= BASE_URL ?>views/lamaran/create.php?job_id=<?= $job['id'] ?>"
-                            class="jld-btn-apply">
+                        <a href="<?= BASE_URL ?>views/lamaran/create.php?job_id=<?= $job['id'] ?>"
+                            class="block w-full py-5 bg-indigo-600 text-white text-center font-black rounded-2xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95 mb-4 uppercase tracking-widest text-sm">
                             Lamar Sekarang
                         </a>
                     <?php endif; ?>
 
-                    <p class="jld-info-tip">Pastikan profil dan CV Anda sudah diperbarui sebelum melamar.</p>
+                    <p class="text-center text-xs text-slate-400 font-medium px-4 mt-6 leading-relaxed">
+                        Pastikan Profil, Foto, dan CV Anda sudah lengkap dan terbaru sebelum menekan tombol lamar.
+                    </p>
                 </div>
             </aside>
 
         </div>
-
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const btnTrigger = document.getElementById('btn-trigger-lamar');
-        const btnBatal = document.getElementById('btn-batal-lamar');
-        const formContainer = document.getElementById('form-lamaran-container');
-
-        if (btnTrigger && formContainer) {
-            btnTrigger.addEventListener('click', function() {
-                formContainer.style.display = 'block';
-                formContainer.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            });
-        }
-
-        if (btnBatal && formContainer) {
-            btnBatal.addEventListener('click', function() {
-                formContainer.style.display = 'none';
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-        }
-    });
-</script>
 
 <?php
 $content = ob_get_clean();

@@ -17,7 +17,8 @@ class DashboardController
             'stats'         => Dashboard::getCandidateStats($conn, $candidateId),
             'applications'  => Dashboard::getCandidateApplications($conn, $candidateId),
             'profile_pct'   => Dashboard::getProfileCompletion($conn, $candidateId),
-            'recommendations' => Dashboard::getRecommendedJobs($conn, $candidateId)
+            'recommendations' => Dashboard::getRecommendedJobs($conn, $candidateId),
+            'interviews'      => Dashboard::getUpcomingInterviews($conn, $candidateId)
         ];
     }
 }

@@ -4,102 +4,78 @@
 class LamaranController
 {
 
-    /**
-     * Memeriksa apakah kandidat sudah pernah melamar di lowongan tertentu
-     * Disesuaikan dengan tabel candidate_apply_job (id_kandidat, id_lowongan)
-     */
-    public static function checkExistingApply($conn, $candidate_id, $job_id)
+    // Fungsi pengecekan profil lengkap
+    public static function isProfileComplete($candidate)
     {
-        $query = "SELECT id FROM candidate_apply_job WHERE id_kandidat = ? AND id_lowongan = ?";
-        $stmt = $conn->prepare($query);
-        if (!$stmt) {
-            return false;
+        if (!$candidate) return false;
+
+        // Daftar field yang tidak boleh kosong sesuai permintaan kamu
+        $requiredFields = ['alamat', 'tanggal_lahir', 'jenis_kelamin', 'foto', 'cv_file'];
+
+        foreach ($requiredFields as $field) {
+            if (empty($candidate[$field])) {
+                return false;
+            }
         }
-        $stmt->bind_param('ii', $candidate_id, $job_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->num_rows > 0;
+        return true;
     }
 
-    /**
-     * Menyimpan data transaksi lamaran baru ke tabel candidate_apply_job
-     */
-    public static function kirimLamaran($conn, $candidate_id, $job_id, $catatan, $expert_bidang, $pengalaman_bidang)
+    public static function getCandidateHistory($conn, $user_id)
     {
-        // Default status_lamaran sesuai tipe ENUM di database lu: 'ADMINISTRASI'
-        $status_lamaran = 'ADMINISTRASI';
+        // 1. Dapatkan info kandidat dulu
+        $candidate = LamaranModel::getCandidateByUserId($conn, $user_id);
+        if (!$candidate) return null;
 
-        $query = "INSERT INTO candidate_apply_job (id_kandidat, id_lowongan, catatan, expert_bidang, pengalaman_bidang, status_lamaran, tanggal_melamar) 
-                  VALUES (?, ?, ?, ?, ?, ?, NOW())";
-
-        $stmt = $conn->prepare($query);
-        if (!$stmt) {
-            return false;
-        }
-
-        // 'iissss' -> id_kandidat(i), id_lowongan(i), catatan(s), expert_bidang(s), pengalaman_bidang(s), status_lamaran(s)
-        $stmt->bind_param('iissss', $candidate_id, $job_id, $catatan, $expert_bidang, $pengalaman_bidang, $status_lamaran);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-
-        return false;
+        // 2. Ambil riwayat lamaran menggunakan ID kandidat
+        return LamaranModel::getApplicationsByCandidateId($conn, $candidate['id']);
     }
 
     public static function getAppliedJobIds($conn, $candidate_id)
     {
-        $query = "SELECT id_lowongan FROM candidate_apply_job WHERE id_kandidat = ?";
-
-        $stmt = $conn->prepare($query);
-
-        if (!$stmt) {
-            return [];
-        }
-
-        $stmt->bind_param('i', $candidate_id);
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-
-        $ids = [];
-
-        while ($row = $result->fetch_assoc()) {
-            $ids[] = (int)$row['id_lowongan'];
-        }
-
-        return $ids;
+        return LamaranModel::getAppliedJobIds($conn, $candidate_id);
     }
 
-    public static function getLamaranSaya($conn, $candidateId)
+    public static function getCandidateData($conn, $user_id)
     {
-        $query = "
-        SELECT
-            caj.*,
-            jp.judul_job,
-            jp.lokasi,
-            jp.tipe_pekerjaan,
-            jp.gaji
+        return LamaranModel::getCandidateByUserId($conn, $user_id);
+    }
 
-        FROM candidate_apply_job caj
+    public static function checkExistingApply($conn, $candidate_id, $job_id)
+    {
+        return LamaranModel::checkExistingApply($conn, $candidate_id, $job_id);
+    }
 
-        JOIN job_posting jp
-            ON caj.id_lowongan = jp.id
+    public static function kirimLamaran($conn, $candidate_id, $job_id, $catatan, $expert_bidang, $pengalaman_bidang)
+    {
+        return LamaranModel::insertLamaran($conn, $candidate_id, $job_id, $catatan, $expert_bidang, $pengalaman_bidang);
+    }
 
-        WHERE caj.id_kandidat = ?
-
-        ORDER BY caj.tanggal_melamar DESC
-    ";
-
-        $stmt = $conn->prepare($query);
-
-        if (!$stmt) {
-            return [];
+    public static function prosesResponOffering($conn, $id_transaksi, $respon)
+    {
+        // Validasi sederhana: pastikan respon hanya DITERIMA atau DITOLAK
+        $validRespon = ['DITERIMA', 'DITOLAK'];
+        if (!in_array($respon, $validRespon)) {
+            return false;
         }
 
-        $stmt->bind_param("i", $candidateId);
-        $stmt->execute();
+        // Panggil model
+        return LamaranModel::updateOfferingResponse($conn, $id_transaksi, $respon);
+    }
 
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    public static function getInterviewList($conn)
+    {
+        $user_id = $_SESSION['user_id'];
+        $role = $_SESSION['role'];
+        $id_kandidat = null;
+
+        if ($role === 'candidate') {
+            $candidate = self::getCandidateData($conn, $user_id);
+            $id_kandidat = $candidate['id'];
+        }
+
+        return [
+            'upcoming' => LamaranModel::getInterviews($conn, $role, $id_kandidat, 'upcoming'),
+            'past' => LamaranModel::getInterviews($conn, $role, $id_kandidat, 'past')
+        ];
     }
 }

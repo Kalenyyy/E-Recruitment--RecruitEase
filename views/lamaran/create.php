@@ -4,13 +4,11 @@ require_once __DIR__ . '/../../init.php';
 require_once __DIR__ . '/../../controllers/LamaranController.php';
 require_once __DIR__ . '/../../controllers/LowonganPekerjaanController.php';
 
-// 1. PROTEKSI: Wajib login dan harus bertindak sebagai Candidate
 AuthController::requireLogin();
 if ($_SESSION['role'] !== 'candidate') {
-    die("Access denied. Halaman ini hanya dapat diakses oleh akun Candidate.");
+    die("Access denied.");
 }
 
-// 2. TANGKAP DATA ID JOB POSTING DARI URL
 $job_id = $_GET['job_id'] ?? null;
 $user_id = $_SESSION['user_id'];
 
@@ -19,33 +17,36 @@ if (!$job_id || !is_numeric($job_id)) {
     exit;
 }
 
-// 3. AMBIL ID KANDIDAT
-$queryKandidat = "SELECT id FROM candidates WHERE user_id = ?";
-$stmtKand = $conn->prepare($queryKandidat);
-$stmtKand->bind_param('i', $user_id);
-$stmtKand->execute();
-$resKand = $stmtKand->get_result()->fetch_assoc();
+// 1. AMBIL DATA KANDIDAT VIA CONTROLLER
+$candidate = LamaranController::getCandidateData($conn, $user_id);
 
-if (!$resKand) {
-    die("Error: Profil data kandidat Anda tidak ditemukan di sistem.");
+if (!$candidate) {
+    die("Error: Data kandidat tidak ditemukan.");
 }
-$candidate_id = $resKand['id'];
 
-// 4. VALIDASI LOGIKA LOWONGAN
+// 2. CEK KELENGKAPAN PROFIL
+if (!LamaranController::isProfileComplete($candidate)) {
+    // Jika tidak lengkap, arahkan ke halaman edit profile
+    // Kita arahkan ke profile/index.php atau edit profile sambil bawa pesan error
+    header("Location: " . BASE_URL . "views/candidate/profile.php?id=" . $candidate['id'] . "&msg=profile_incomplete");
+    exit;
+}
+
+$candidate_id = $candidate['id'];
+
+// 3. VALIDASI LOWONGAN VIA CONTROLLER
 $lowongan = LowonganPekerjaanController::getById($conn, $job_id);
 if (!$lowongan) {
     die("Lowongan pekerjaan tidak ditemukan.");
 }
 
-// 5. VALIDASI DUPLIKASI
-$sudahMelamar = LamaranController::checkExistingApply($conn, $candidate_id, $job_id);
-if ($sudahMelamar) {
-    // Dipindahkan langsung ke halaman utama dengan notice error agar form tidak jebol spam
+// 4. VALIDASI DUPLIKASI VIA CONTROLLER
+if (LamaranController::checkExistingApply($conn, $candidate_id, $job_id)) {
     header("Location: " . BASE_URL . "views/lowonganPekerjaan/index.php?error=already_applied");
     exit;
 }
 
-// 6. PROSES SUBMIT POST DATA FORM (Step 2)
+// 5. PROSES SUBMIT
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $expert_bidang = $_POST['expert_bidang'] ?? '';
     $pengalaman_bidang = $_POST['pengalaman_bidang'] ?? '';
@@ -54,11 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sukses = LamaranController::kirimLamaran($conn, $candidate_id, $job_id, $catatan, $expert_bidang, $pengalaman_bidang);
 
     if ($sukses) {
-        // PERUBAHAN DI SINI: Dialihkan ke halaman lowongan dan membawa penanda sukses melamar
         header("Location: " . BASE_URL . "views/lowonganPekerjaan/index.php?applied=success");
         exit;
     } else {
-        $error_msg = "Gagal memproses data lamaran ke dalam database.";
+        $error_msg = "Gagal memproses data lamaran.";
     }
 }
 

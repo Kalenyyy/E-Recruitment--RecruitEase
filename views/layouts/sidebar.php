@@ -89,14 +89,7 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 <span class="sidebar-text">Pelamar</span>
             </a>
 
-            <a href="/seleksi" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('seleksi') ?>">
-                <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="sidebar-text">Seleksi</span>
-            </a>
-
-            <a href="/jadwal" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('jadwal') ?>">
+            <a href="<?= BASE_URL ?>views/jadwalInterview/index.php" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('jadwal') ?>">
                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -172,7 +165,7 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 <span class="sidebar-text">Lamaran Saya</span>
             </a>
 
-            <a href="<?= rtrim(BASE_URL, '/') ?>/views/interview/index.php"
+            <a href="<?= rtrim(BASE_URL, '/') ?>/views/jadwalInterview/index.php"
                 class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('interview') ?>">
                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

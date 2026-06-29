@@ -14,9 +14,9 @@ ob_start();
 <!-- PAGE HEADER -->
 <div class="flex items-center justify-between mb-8">
     <div class="flex items-center gap-4">
-        <div class="inline-flex items-center justify-center rounded-2xl" style="width:52px;height:52px;background:linear-gradient(135deg,#1E3A8A,#2563EB);">
+        <!-- <div class="inline-flex items-center justify-center rounded-2xl" style="width:52px;height:52px;background:linear-gradient(135deg,#1E3A8A,#2563EB);">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-        </div>
+        </div> -->
         <div>
             <h1 class="text-2xl font-bold" style="color: #1E293B;">Daftar Pelamar Kerja</h1>
             <p class="text-sm mt-0.5" style="color: #64748B;">Memantau kandidat masuk pada lowongan aktif (Status: Open)</p>

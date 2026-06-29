@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../../init.php';
 require_once __DIR__ . '/../../controllers/PelamarPekerjaanController.php';
 
-// Proteksi Akses
 AuthController::requireLogin();
 AuthController::isHRD() or die("Access denied");
 
@@ -13,7 +12,6 @@ if (!$job_id || !is_numeric($job_id)) {
     exit;
 }
 
-// Ambil data detail lowongan dan daftar pelamarnya
 $jobDetails = PelamarPekerjaanController::getDetailJob($conn, $job_id);
 $applicants = PelamarPekerjaanController::getApplicants($conn, $job_id);
 
@@ -21,270 +19,579 @@ if (!$jobDetails) {
     die("Data lowongan tidak ditemukan.");
 }
 
+$statusConfig = [
+    'ADMINISTRASI' => ['bg' => '#FEF3C7', 'color' => '#B45309', 'label' => 'Administrasi'],
+    'INTERVIEW'    => ['bg' => '#DBEAFE', 'color' => '#1D4ED8', 'label' => 'Interview'],
+    'OFFERING'     => ['bg' => '#EDE9FE', 'color' => '#6D28D9', 'label' => 'Offering'],
+    'DITERIMA'     => ['bg' => '#D1FAE5', 'color' => '#065F46', 'label' => 'Diterima'],
+    'DITOLAK'      => ['bg' => '#FEE2E2', 'color' => '#991B1B', 'label' => 'Ditolak'],
+];
+
 ob_start();
 ?>
 
-<!-- BREADCRUMB & HEADER -->
-<div class="max-w-6xl mx-auto px-4 sm:px-6">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-            <nav class="flex items-center gap-2 text-sm text-slate-500 mb-2 font-medium">
-                <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php" class="hover:text-blue-700">Manajemen Lowongan</a>
-                <span>/</span>
-                <span class="text-slate-900">Daftar Pelamar</span>
-            </nav>
-            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Pelamar: <?= htmlspecialchars($jobDetails['judul_job']) ?></h1>
-            <p class="text-slate-500 font-medium">Total <span class="text-blue-600 font-bold"><?= count($applicants) ?></span> kandidat dalam database.</p>
-        </div>
-        <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition shadow-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+<!-- PAGE HEADER -->
+<div class="flex items-center justify-between mb-8">
+    <div class="flex items-center gap-4">
+        <!-- <div class="inline-flex items-center justify-center rounded-2xl"
+             style="width:52px;height:52px;background:linear-gradient(135deg,#1E3A8A,#2563EB);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-            Kembali
-        </a>
+        </div> -->
+        <div>
+            <nav class="flex items-center gap-1.5 text-xs font-semibold mb-1" style="color:#94A3B8;">
+                <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php"
+                   class="hover:underline" style="color:#3B82F6;">Manajemen Lowongan</a>
+                <span>/</span>
+                <span style="color:#64748B;">Daftar Pelamar</span>
+            </nav>
+            <h1 class="text-2xl font-bold" style="color:#1E293B;">
+                <?= htmlspecialchars($jobDetails['judul_job']) ?>
+            </h1>
+            <p class="text-sm mt-0.5" style="color:#64748B;">
+                Total <span style="color:#2563EB;font-weight:700;"><?= count($applicants) ?></span> kandidat dalam database
+            </p>
+        </div>
     </div>
 
-    <!-- MAIN LIST -->
-    <div class="space-y-4">
-        <?php if (empty($applicants)): ?>
-            <div class="bg-white border-2 border-dashed border-slate-200 rounded-[32px] p-20 text-center">
-                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300 text-4xl">👥</div>
-                <h3 class="text-xl font-bold text-slate-800">Belum Ada Pelamar</h3>
-                <p class="text-slate-500">Lowongan ini belum menerima lamaran dari kandidat manapun.</p>
-            </div>
-        <?php else: ?>
-            <?php foreach ($applicants as $app):
-                $status = $app['status_lamaran'];
-                $statusConfig = match ($status) {
-                    'ADMINISTRASI' => ['color' => 'bg-amber-100 text-amber-700 border-amber-200', 'label' => 'Administrasi', 'accent' => 'border-l-amber-500'],
-                    'INTERVIEW'    => ['color' => 'bg-blue-100 text-blue-700 border-blue-200', 'label' => 'Interview', 'accent' => 'border-l-blue-500'],
-                    'OFFERING'     => ['color' => 'bg-violet-100 text-violet-700 border-violet-200', 'label' => 'Offering', 'accent' => 'border-l-violet-500'],
-                    'DITERIMA'     => ['color' => 'bg-emerald-100 text-emerald-700 border-emerald-200', 'label' => 'Diterima', 'accent' => 'border-l-emerald-500'],
-                    'DITOLAK'      => ['color' => 'bg-rose-100 text-rose-700 border-rose-200', 'label' => 'Ditolak', 'accent' => 'border-l-rose-500'],
-                    default        => ['color' => 'bg-slate-100 text-slate-700 border-slate-200', 'label' => $status, 'accent' => 'border-l-slate-400']
-                };
-            ?>
-                <div class="bg-white border border-slate-200 border-l-4 <?= $statusConfig['accent'] ?> rounded-[24px] p-6 shadow-sm hover:shadow-md transition-all group">
-                    <div class="flex flex-col lg:flex-row gap-8 items-start lg:items-center">
-
-                        <!-- Profile Info -->
-                        <div class="flex items-center gap-5 flex-1 min-w-0">
-                            <div class="w-16 h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-2xl font-black shadow-lg shrink-0 uppercase">
-                                <?= substr($app['nama_lengkap'], 0, 1) ?>
-                            </div>
-                            <div class="min-w-0">
-                                <h3 class="text-lg font-extrabold text-slate-900 truncate group-hover:text-blue-700 transition-colors"><?= htmlspecialchars($app['nama_lengkap']) ?></h3>
-                                <p class="text-sm text-slate-400 font-medium mt-0.5 tracking-tight">Melamar pada <?= date('d M Y', strtotime($app['tanggal_melamar'])) ?></p>
-                                <div class="flex items-center gap-4 mt-2">
-                                    <span class="text-xs text-slate-500 flex items-center gap-1.5 font-semibold">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                        </svg>
-                                        <?= htmlspecialchars($app['email']) ?>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Qualification -->
-                        <div class="flex flex-wrap gap-3 lg:w-72">
-                            <div class="bg-slate-50 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold border border-slate-100 flex-1 text-center">
-                                <p class="text-[9px] uppercase opacity-60 mb-0.5 tracking-widest">Expertise</p>
-                                <?= htmlspecialchars($app['expert_bidang'] ?: '-') ?>
-                            </div>
-                            <div class="bg-slate-50 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold border border-slate-100 flex-1 text-center">
-                                <p class="text-[9px] uppercase opacity-60 mb-0.5 tracking-widest">Experience</p>
-                                <?= htmlspecialchars($app['pengalaman_bidang'] ?: '-') ?>
-                            </div>
-                        </div>
-
-                        <!-- Status & Actions -->
-                        <div class="flex flex-row lg:flex-col items-center lg:items-end gap-4 shrink-0 w-full lg:w-auto">
-                            <span class="px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase border <?= $statusConfig['color'] ?>">
-                                <?= $statusConfig['label'] ?>
-                            </span>
-
-                            <div class="flex items-center gap-2 ml-auto lg:ml-0">
-                                <a href="<?= BASE_URL ?>views/pelamarPekerjaan/riwayat_pelamar.php?id_transaksi=<?= $app['id_transaksi'] ?>" class="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-blue-600 hover:text-white transition shadow-sm" title="Lihat Profil Lengkap">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </a>
-
-                                <?php if ($status === 'ADMINISTRASI'): ?>
-                                    <button type="button" onclick="openStatusModal('INTERVIEW', '<?= $app['id_transaksi'] ?>', '<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">Lolos</button>
-                                    <button type="button" onclick="openStatusModal('DITOLAK', '<?= $app['id_transaksi'] ?>', '<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')" class="bg-rose-50 text-rose-600 px-5 py-2.5 rounded-xl text-xs font-bold border border-rose-100 hover:bg-rose-100 transition">Tolak</button>
-                                <?php endif; ?>
-
-                                <?php if ($status === 'INTERVIEW'): ?>
-                                    <button onclick="openOfferingModal('<?= $app['id_transaksi'] ?>','<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')" class="bg-violet-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-violet-700 transition shadow-lg shadow-violet-100 flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        Kirim Offering
-                                    </button>
-                                    <button onclick="openStatusModal('DITOLAK','<?= $app['id_transaksi'] ?>','<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')" class="bg-rose-50 text-rose-600 border border-rose-100 px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition">Gagal</button>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
+    <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php"
+       class="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition hover:opacity-90"
+       style="background:#F1F5F9;color:#334155;border:1px solid #E2E8F0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Kembali
+    </a>
 </div>
 
-<!-- MODAL KONFIRMASI STATUS -->
-<div id="statusModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-    <div class="bg-white rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden transform translate-y-10 transition-transform duration-300">
-        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-            <h2 id="modalTitle" class="text-xl font-black text-slate-900">Konfirmasi Seleksi</h2>
-            <button onclick="closeModal('statusModal')" class="p-2 text-slate-400 hover:text-slate-600">✕</button>
+<!-- MAIN CARD -->
+<div class="rounded-2xl overflow-hidden"
+     style="background:#FFFFFF;border:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(15,23,42,0.06);">
+
+    <!-- CARD HEADER -->
+    <div class="px-6 py-5 flex items-center gap-3"
+         style="border-bottom:1px solid #E2E8F0;background:linear-gradient(135deg,#1E3A8A,#2563EB);">
+        <span class="inline-flex items-center justify-center rounded-xl"
+              style="width:40px;height:40px;background:rgba(255,255,255,0.15);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </span>
+        <div>
+            <h2 class="font-bold text-base text-white">Daftar Pelamar</h2>
+            <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.65);">
+                <?= count($applicants) ?> pelamar tercatat
+            </p>
         </div>
-        <form id="modalForm" method="POST" class="p-8 space-y-6">
+    </div>
+
+    <?php if (empty($applicants)): ?>
+        <div class="text-center py-16">
+            <span class="inline-flex items-center justify-center mb-5 rounded-full"
+                  style="width:72px;height:72px;background:#F1F5F9;color:#94A3B8;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+            </span>
+            <p class="text-base font-bold text-slate-700">Belum Ada Pelamar</p>
+            <p class="text-sm text-slate-400 mt-2">Lowongan ini belum menerima lamaran dari kandidat manapun.</p>
+        </div>
+    <?php else: ?>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr style="background:#F8FAFC;border-bottom:2px solid #E2E8F0;">
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color:#64748B;">Kandidat</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color:#64748B;">Keahlian / Pengalaman</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color:#64748B;">Tanggal Melamar</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center" style="color:#64748B;">Status</th>
+                        <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center" style="color:#64748B;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($applicants as $app): ?>
+                        <?php
+                            $status  = strtoupper($app['status_lamaran']);
+                            $cfg     = $statusConfig[$status] ?? ['bg' => '#F1F5F9', 'color' => '#475569', 'label' => $app['status_lamaran']];
+                            $inisial = mb_strtoupper(mb_substr($app['nama_lengkap'], 0, 1));
+                        ?>
+                        <tr class="hover:bg-slate-50 transition" style="border-bottom:1px solid #F1F5F9;">
+
+                            <!-- KANDIDAT -->
+                            <td class="px-6 py-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="inline-flex items-center justify-center rounded-xl font-bold text-white text-base"
+                                         style="width:42px;height:42px;flex-shrink:0;
+                                                background:linear-gradient(135deg,#1E3A8A,#2563EB);">
+                                        <?= $inisial ?>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-slate-800" style="font-size:15px;">
+                                            <?= htmlspecialchars($app['nama_lengkap']) ?>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-xs mt-0.5" style="color:#64748B;">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                <polyline points="22,6 12,13 2,6"></polyline>
+                                            </svg>
+                                            <?= htmlspecialchars($app['email']) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- KEAHLIAN / PENGALAMAN -->
+                            <td class="px-6 py-5">
+                                <div class="text-xs space-y-1" style="color:#64748B;">
+                                    <div>
+                                        <span class="font-semibold text-slate-700">Keahlian:</span>
+                                        <?= htmlspecialchars($app['expert_bidang'] ?: '-') ?>
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-slate-700">Pengalaman:</span>
+                                        <?= htmlspecialchars($app['pengalaman_bidang'] ?: '-') ?>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- TANGGAL -->
+                            <td class="px-6 py-5 text-sm" style="color:#64748B;">
+                                <?= date('d M Y', strtotime($app['tanggal_melamar'])) ?>
+                            </td>
+
+                            <!-- STATUS -->
+                            <td class="px-6 py-5 text-center">
+                                <span class="inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider"
+                                      style="background:<?= $cfg['bg'] ?>;color:<?= $cfg['color'] ?>;">
+                                    <?= htmlspecialchars($cfg['label']) ?>
+                                </span>
+                            </td>
+
+                            <!-- AKSI -->
+                            <td class="px-6 py-5 text-center">
+                                <div class="inline-flex items-center justify-center gap-2">
+
+                                    <a href="<?= BASE_URL ?>views/pelamarPekerjaan/riwayat_pelamar.php?id_transaksi=<?= $app['id_transaksi'] ?>"
+                                       class="inline-flex items-center justify-center rounded-xl transition hover:opacity-90"
+                                       style="width:36px;height:36px;background:#F1F5F9;color:#475569;border:1px solid #E2E8F0;"
+                                       title="Lihat Profil">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </a>
+
+                                    <?php if ($status === 'ADMINISTRASI'): ?>
+                                        <button type="button"
+                                                onclick="openStatusModal('INTERVIEW', '<?= $app['id_transaksi'] ?>', '<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')"
+                                                class="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl text-white transition hover:opacity-90"
+                                                style="background:linear-gradient(135deg,#059669,#10B981);box-shadow:0 2px 6px rgba(5,150,105,0.25);">
+                                            Lolos
+                                        </button>
+                                        <button type="button"
+                                                onclick="openStatusModal('DITOLAK', '<?= $app['id_transaksi'] ?>', '<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')"
+                                                class="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl transition hover:bg-red-50"
+                                                style="background:#FFFFFF;color:#DC2626;border:1.5px solid #FECACA;">
+                                            Tolak
+                                        </button>
+                                    <?php endif; ?>
+
+                                    <?php if ($status === 'INTERVIEW'): ?>
+                                        <button type="button"
+                                                onclick="openOfferingModal('<?= $app['id_transaksi'] ?>', '<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')"
+                                                class="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl text-white transition hover:opacity-90"
+                                                style="background:linear-gradient(135deg,#1E3A8A,#2563EB);box-shadow:0 2px 6px rgba(37,99,235,0.25);">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M22 2 11 13"></path>
+                                                <path d="M22 2 15 22 11 13 2 9l20-7z"></path>
+                                            </svg>
+                                            Kirim Offering
+                                        </button>
+                                        <button type="button"
+                                                onclick="openStatusModal('DITOLAK', '<?= $app['id_transaksi'] ?>', '<?= htmlspecialchars($app['nama_lengkap'], ENT_QUOTES) ?>')"
+                                                class="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl transition hover:bg-red-50"
+                                                style="background:#FFFFFF;color:#DC2626;border:1.5px solid #FECACA;">
+                                            Gagal
+                                        </button>
+                                    <?php endif; ?>
+
+                                </div>
+                            </td>
+
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</div>
+
+
+<!-- ================================================================
+     MODAL KONFIRMASI STATUS (Lolos / Tolak + Alasan)
+     Desain netral / profesional — tidak memakai warna hijau/merah
+     mencolok. Aksen warna hanya pada border kiri tipis sebagai
+     indikator konteks (positif/negatif), selebihnya monokromatik.
+     ================================================================ -->
+<div id="statusModal"
+     style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;padding:1rem;
+            background:rgba(15,23,42,0.55);backdrop-filter:blur(5px);
+            opacity:0;transition:opacity 0.25s ease;"
+     onclick="if(event.target===this) closeModal('statusModal')">
+
+    <div style="background:#FFFFFF;border-radius:1rem;width:100%;max-width:460px;
+                box-shadow:0 25px 60px rgba(15,23,42,0.18);border:1px solid #E2E8F0;
+                transform:translateY(1.5rem);transition:transform 0.25s ease;">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:1.25rem 1.75rem;border-bottom:1px solid #F1F5F9;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div id="modalIcon"
+                     style="width:34px;height:34px;border-radius:0.625rem;flex-shrink:0;
+                            background:#F1F5F9;border:1px solid #E2E8F0;
+                            display:flex;align-items:center;justify-content:center;"></div>
+                <h2 id="modalTitle"
+                    style="font-size:1rem;font-weight:700;color:#0F172A;margin:0;"></h2>
+            </div>
+            <button onclick="closeModal('statusModal')"
+                    style="width:30px;height:30px;border-radius:0.5rem;border:1px solid #E2E8F0;
+                           background:#FFFFFF;color:#64748B;cursor:pointer;
+                           display:flex;align-items:center;justify-content:center;
+                           transition:background 0.15s;"
+                    onmouseover="this.style.background='#F8FAFC'"
+                    onmouseout="this.style.background='#FFFFFF'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <form id="modalForm" method="POST" style="padding:1.5rem 1.75rem 1.75rem;">
             <input type="hidden" name="status_lamaran" id="inputStatus">
-            <div id="modalInfoBox" class="p-5 rounded-2xl border-2 flex items-center gap-4">
-                <div id="modalIcon" class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 font-bold"></div>
+
+            <!-- Info Kandidat -->
+            <div id="modalInfoBox"
+                 style="display:flex;align-items:center;gap:0.875rem;
+                        padding:0.875rem 1rem;border-radius:0.75rem;margin-bottom:1.25rem;
+                        background:#F8FAFC;border:1px solid #E2E8F0;">
+                <div style="width:38px;height:38px;border-radius:0.625rem;flex-shrink:0;
+                            background:#1E293B;display:flex;align-items:center;justify-content:center;
+                            color:#FFFFFF;font-weight:700;font-size:13px;" id="modalAvatar"></div>
                 <div>
-                    <p id="modalKandidat" class="font-black text-slate-900 text-lg leading-tight"></p>
-                    <p id="modalSubtext" class="text-sm font-medium text-slate-500 mt-0.5"></p>
+                    <p id="modalKandidat"
+                       style="font-weight:700;color:#0F172A;font-size:14px;margin:0;"></p>
+                    <p id="modalSubtext"
+                       style="font-size:12px;color:#64748B;margin:3px 0 0;"></p>
                 </div>
             </div>
-            <div id="interviewFields" class="hidden animate-fadeIn">
-                <div class="p-6 bg-blue-50 rounded-2xl border border-blue-100 space-y-4">
-                    <label class="block text-[10px] font-black text-blue-600 uppercase tracking-widest">Jadwal Wawancara</label>
-                    <input type="datetime-local" name="tanggal_interview" id="tanggalInput" class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold focus:border-blue-600 outline-none">
-                    <textarea name="catatan" rows="2" placeholder="Catatan (Lokasi/Link Zoom)..." class="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm outline-none focus:border-blue-600 resize-none"></textarea>
+
+            <!-- Field Jadwal Interview (hanya saat LOLOS) -->
+            <div id="interviewFields" style="display:none;margin-bottom:1.25rem;">
+                <div style="padding:1.125rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:0.75rem;">
+                    <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
+                               text-transform:uppercase;color:#94A3B8;margin:0 0 0.75rem;">
+                        Jadwal Wawancara
+                    </p>
+                    <input type="datetime-local" name="tanggal_interview" id="tanggalInput"
+                           style="width:100%;padding:10px 14px;border-radius:0.625rem;
+                                  border:1px solid #E2E8F0;background:#FFFFFF;
+                                  font-size:13px;font-weight:600;color:#1E293B;
+                                  outline:none;margin-bottom:10px;box-sizing:border-box;"
+                           onfocus="this.style.borderColor='#1E293B'"
+                           onblur="this.style.borderColor='#E2E8F0'">
+                    <textarea name="catatan" rows="2" placeholder="Catatan (Lokasi / Link Zoom)..."
+                              style="width:100%;padding:10px 14px;border-radius:0.625rem;
+                                     border:1px solid #E2E8F0;background:#FFFFFF;
+                                     font-size:13px;color:#475569;resize:none;
+                                     outline:none;box-sizing:border-box;"
+                              onfocus="this.style.borderColor='#1E293B'"
+                              onblur="this.style.borderColor='#E2E8F0'"></textarea>
                 </div>
             </div>
-            <div class="flex gap-3">
-                <button type="button" onclick="closeModal('statusModal')" class="flex-1 px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl text-sm font-bold">Batal</button>
-                <button type="submit" id="submitBtn" class="flex-1 px-6 py-4 text-white rounded-2xl text-sm font-bold transition shadow-lg active:scale-95"></button>
+
+            <!-- Field Alasan Penolakan (hanya saat TOLAK) -->
+            <div id="alasanFields" style="display:none;margin-bottom:1.25rem;">
+                <div style="padding:1.125rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:0.75rem;">
+                    <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
+                               text-transform:uppercase;color:#94A3B8;margin:0 0 0.75rem;">
+                        Alasan Penolakan
+                    </p>
+                    <textarea name="alasan_tolak" id="alasanInput" rows="3"
+                              placeholder="Tuliskan alasan penolakan kandidat ini..."
+                              style="width:100%;padding:10px 14px;border-radius:0.625rem;
+                                     border:1px solid #E2E8F0;background:#FFFFFF;
+                                     font-size:13px;color:#1E293B;resize:none;
+                                     outline:none;box-sizing:border-box;"
+                              onfocus="this.style.borderColor='#1E293B'"
+                              onblur="this.style.borderColor='#E2E8F0'"></textarea>
+                </div>
+            </div>
+
+            <!-- Tombol -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button type="button" onclick="closeModal('statusModal')"
+                        style="padding:12px;border-radius:0.625rem;border:1px solid #E2E8F0;
+                               background:#FFFFFF;color:#475569;font-size:13px;font-weight:600;
+                               cursor:pointer;transition:background 0.15s;"
+                        onmouseover="this.style.background='#F8FAFC'"
+                        onmouseout="this.style.background='#FFFFFF'">
+                    Batal
+                </button>
+                <button type="submit" id="submitBtn"
+                        style="padding:12px;border-radius:0.625rem;border:none;
+                               background:#1E293B;color:#FFFFFF;font-size:13px;font-weight:700;
+                               cursor:pointer;transition:opacity 0.15s;"
+                        onmouseover="this.style.opacity='0.88'"
+                        onmouseout="this.style.opacity='1'">
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- MODAL OFFERING LETTER -->
-<div id="offeringModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-    <div class="bg-white rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden transform translate-y-10 transition-transform duration-300">
-        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-violet-50/50">
-            <h2 class="text-xl font-black text-violet-900 tracking-tight">Kirim Offering Letter</h2>
-            <button onclick="closeModal('offeringModal')" class="p-2 text-violet-400 hover:text-violet-600">✕</button>
+
+<!-- ================================================================
+     MODAL OFFERING LETTER
+     Header gradien biru pada versi lama diganti header netral
+     dengan teks gelap, garis bawah tipis, tanpa gradient.
+     ================================================================ -->
+<div id="offeringModal"
+     style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;padding:1rem;
+            background:rgba(15,23,42,0.55);backdrop-filter:blur(5px);
+            opacity:0;transition:opacity 0.25s ease;"
+     onclick="if(event.target===this) closeModal('offeringModal')">
+
+    <div style="background:#FFFFFF;border-radius:1rem;width:100%;max-width:460px;
+                box-shadow:0 25px 60px rgba(15,23,42,0.18);overflow:hidden;
+                border:1px solid #E2E8F0;
+                transform:translateY(1.5rem);transition:transform 0.25s ease;">
+
+        <!-- Header -->
+        <div style="padding:1.25rem 1.75rem;position:relative;border-bottom:1px solid #F1F5F9;background:#F8FAFC;">
+            <button onclick="closeModal('offeringModal')"
+                    style="position:absolute;top:1.1rem;right:1.1rem;
+                           width:30px;height:30px;border-radius:0.5rem;
+                           border:1px solid #E2E8F0;
+                           background:#FFFFFF;color:#64748B;cursor:pointer;
+                           display:flex;align-items:center;justify-content:center;
+                           transition:background 0.15s;"
+                    onmouseover="this.style.background='#F1F5F9'"
+                    onmouseout="this.style.background='#FFFFFF'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
+                       text-transform:uppercase;color:#94A3B8;margin:0 0 5px;">
+                Tahap Penawaran Kerja
+            </p>
+            <h2 style="font-size:1.05rem;font-weight:700;color:#0F172A;margin:0 0 0.875rem;padding-right:2.5rem;">
+                Kirim Offering Letter
+            </h2>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:32px;height:32px;border-radius:0.625rem;flex-shrink:0;
+                            background:#1E293B;
+                            display:flex;align-items:center;justify-content:center;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                         stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <p id="offering_kandidat_name"
+                   style="font-size:13px;font-weight:700;color:#0F172A;margin:0;"></p>
+            </div>
         </div>
 
-        <form action="<?= BASE_URL ?>public/actions/create_offering.php" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
+        <form action="<?= BASE_URL ?>public/actions/create_offering.php" method="POST"
+              enctype="multipart/form-data" style="padding:1.5rem 1.75rem 1.75rem;">
             <input type="hidden" name="id_transaksi" id="offering_id_transaksi">
 
-            <div class="flex items-center gap-4 p-4 bg-violet-50 rounded-2xl border border-violet-100">
-                <div class="w-12 h-12 bg-violet-600 text-white rounded-xl flex items-center justify-center text-xl">📄</div>
-                <div>
-                    <p id="offering_kandidat_name" class="font-bold text-slate-900"></p>
-                    <p class="text-xs text-violet-600 font-semibold uppercase tracking-wider">Tahap Penawaran Kerja</p>
+            <!-- Gaji -->
+            <div style="margin-bottom:1rem;">
+                <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
+                           text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
+                    Gaji yang Ditawarkan (IDR)
+                </p>
+                <div style="position:relative;">
+                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);
+                                 font-size:13px;font-weight:700;color:#94A3B8;">Rp</span>
+                    <input type="number" name="gaji_offering" required placeholder="Contoh: 5000000"
+                           style="width:100%;padding:12px 14px 12px 42px;border-radius:0.625rem;
+                                  border:1px solid #E2E8F0;background:#F8FAFC;
+                                  font-size:14px;font-weight:700;color:#1E293B;
+                                  outline:none;box-sizing:border-box;transition:border-color 0.15s,background 0.15s;"
+                           onfocus="this.style.borderColor='#1E293B';this.style.background='#FFFFFF'"
+                           onblur="this.style.borderColor='#E2E8F0';this.style.background='#F8FAFC'">
                 </div>
             </div>
 
-            <div class="space-y-4">
-                <div class="space-y-1.5">
-                    <label class="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Gaji yang Ditawarkan (IDR)</label>
-                    <div class="relative group">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 group-focus-within:text-violet-600">Rp</span>
-                        <input type="number" name="gaji_offering" required placeholder="Contoh: 5000000" class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl text-lg font-black text-slate-800 outline-none focus:border-violet-600 focus:bg-white transition-all">
+            <!-- Upload PDF -->
+            <div style="margin-bottom:1.5rem;">
+                <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
+                           text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
+                    Dokumen Surat Penawaran (PDF)
+                </p>
+                <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                              padding:1.5rem;border-radius:0.75rem;cursor:pointer;
+                              border:1.5px dashed #CBD5E1;background:#F8FAFC;
+                              transition:background 0.15s,border-color 0.15s;"
+                       onmouseover="this.style.background='#F1F5F9';this.style.borderColor='#94A3B8'"
+                       onmouseout="this.style.background='#F8FAFC';this.style.borderColor='#CBD5E1'">
+                    <div style="width:36px;height:36px;border-radius:0.625rem;margin-bottom:10px;
+                                background:#1E293B;
+                                display:flex;align-items:center;justify-content:center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                             stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
                     </div>
-                </div>
-
-                <div class="space-y-1.5">
-                    <label class="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Dokumen Surat Penawaran (PDF)</label>
-                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-[24px] cursor-pointer hover:bg-slate-50 hover:border-violet-400 transition-all">
-                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg class="w-8 h-8 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            <p class="text-sm text-slate-500 font-bold" id="fileNameDisplay">Klik untuk upload file PDF</p>
-                        </div>
-                        <input type="file" name="file_offering" class="hidden" accept=".pdf" required onchange="updateFileName(this)">
-                    </label>
-                </div>
+                    <p id="fileNameDisplay"
+                       style="font-size:13px;font-weight:600;color:#475569;margin:0;">
+                        Klik untuk upload file PDF
+                    </p>
+                    <p style="font-size:11px;color:#94A3B8;margin:4px 0 0;">Format: .pdf</p>
+                    <input type="file" name="file_offering" accept=".pdf" required
+                           onchange="updateFileName(this)" style="display:none;">
+                </label>
             </div>
 
-            <div class="flex gap-3 pt-2">
-                <button type="button" onclick="closeModal('offeringModal')" class="flex-1 px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl text-sm font-bold">Batal</button>
-                <button type="submit" class="flex-1 px-6 py-4 bg-violet-600 text-white rounded-2xl text-sm font-bold shadow-lg shadow-violet-100 hover:bg-violet-700 active:scale-95 transition">Kirim Penawaran</button>
+            <!-- Tombol -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button type="button" onclick="closeModal('offeringModal')"
+                        style="padding:12px;border-radius:0.625rem;border:1px solid #E2E8F0;
+                               background:#FFFFFF;color:#475569;font-size:13px;font-weight:600;
+                               cursor:pointer;transition:background 0.15s;"
+                        onmouseover="this.style.background='#F8FAFC'"
+                        onmouseout="this.style.background='#FFFFFF'">
+                    Batal
+                </button>
+                <button type="submit"
+                        style="padding:12px;border-radius:0.625rem;border:none;
+                               background:#1E293B;
+                               color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer;
+                               transition:opacity 0.15s;"
+                        onmouseover="this.style.opacity='0.88'"
+                        onmouseout="this.style.opacity='1'">
+                    Kirim Penawaran
+                </button>
             </div>
         </form>
     </div>
 </div>
 
+
 <script>
-    function openStatusModal(action, id_transaksi, name) {
-        const modal = document.getElementById('statusModal');
-        const modalBox = modal.querySelector('div');
-        const isLolos = action === 'INTERVIEW';
+(function () {
+    'use strict';
+
+    function openOverlay(el, boxEl) {
+        el.style.display = 'flex';
+        requestAnimationFrame(() => {
+            el.style.opacity      = '1';
+            boxEl.style.transform = 'translateY(0)';
+        });
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeOverlay(el, boxEl) {
+        el.style.opacity      = '0';
+        boxEl.style.transform = 'translateY(1.5rem)';
+        setTimeout(() => {
+            el.style.display             = 'none';
+            document.body.style.overflow = '';
+        }, 250);
+    }
+
+    window.openStatusModal = function (action, id_transaksi, name) {
+        const modal     = document.getElementById('statusModal');
+        const box       = modal.querySelector('div');
+        const isLolos   = action === 'INTERVIEW';
+        const icon      = document.getElementById('modalIcon');
+        const avatar    = document.getElementById('modalAvatar');
+        const submitBtn = document.getElementById('submitBtn');
+        const interviewFields = document.getElementById('interviewFields');
+        const alasanFields    = document.getElementById('alasanFields');
+        const alasanInput     = document.getElementById('alasanInput');
+        const tanggalInput    = document.getElementById('tanggalInput');
 
         document.getElementById('inputStatus').value = action;
-        document.getElementById('modalForm').action = `<?= BASE_URL ?>public/actions/update_status_interview.php?id_transaksi=${id_transaksi}`;
+        document.getElementById('modalForm').action  =
+            `<?= BASE_URL ?>public/actions/update_status_interview.php?id_transaksi=${id_transaksi}`;
         document.getElementById('modalKandidat').textContent = name;
+        avatar.textContent = name ? name.charAt(0).toUpperCase() : '?';
 
-        const infoBox = document.getElementById('modalInfoBox');
-        const iconDiv = document.getElementById('modalIcon');
-        const submitBtn = document.getElementById('submitBtn');
+        // Reset field
+        interviewFields.style.display = 'none';
+        alasanFields.style.display    = 'none';
+        tanggalInput.required         = false;
+        alasanInput.required          = false;
+        alasanInput.value             = '';
 
         if (isLolos) {
-            document.getElementById('modalTitle').textContent = 'Loloskan Tahap Seleksi';
+            document.getElementById('modalTitle').textContent   = 'Loloskan Tahap Seleksi';
             document.getElementById('modalSubtext').textContent = 'Kandidat akan lanjut ke tahap interview.';
-            infoBox.className = 'p-5 rounded-2xl border-2 border-emerald-100 bg-emerald-50 flex items-center gap-4 text-emerald-800';
-            iconDiv.className = 'w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center';
-            iconDiv.innerHTML = '✓';
-            submitBtn.className = 'flex-1 px-6 py-4 bg-emerald-600 text-white rounded-2xl text-sm font-bold hover:bg-emerald-700 transition';
-            submitBtn.textContent = 'Ya, Atur Jadwal';
-            document.getElementById('interviewFields').classList.remove('hidden');
-            document.getElementById('tanggalInput').required = true;
+            icon.innerHTML            = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline></svg>`;
+            submitBtn.textContent      = 'Ya, Atur Jadwal';
+            interviewFields.style.display = 'block';
+            tanggalInput.required         = true;
             setMinDate();
         } else {
-            document.getElementById('modalTitle').textContent = 'Tolak Kandidat';
-            document.getElementById('modalSubtext').textContent = 'Berikan keputusan untuk menolak pelamar ini.';
-            infoBox.className = 'p-5 rounded-2xl border-2 border-rose-100 bg-rose-50 flex items-center gap-4 text-rose-800';
-            iconDiv.className = 'w-12 h-12 rounded-xl bg-rose-600 text-white flex items-center justify-center';
-            iconDiv.innerHTML = '✕';
-            submitBtn.className = 'flex-1 px-6 py-4 bg-rose-600 text-white rounded-2xl text-sm font-bold hover:bg-rose-700 transition';
-            submitBtn.textContent = 'Ya, Tolak';
-            document.getElementById('interviewFields').classList.add('hidden');
-            document.getElementById('tanggalInput').required = false;
+            document.getElementById('modalTitle').textContent   = 'Tolak Kandidat';
+            document.getElementById('modalSubtext').textContent = 'Berikan alasan penolakan untuk kandidat ini.';
+            icon.innerHTML            = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+            submitBtn.textContent      = 'Ya, Tolak';
+            alasanFields.style.display = 'block';
+            alasanInput.required       = true;
         }
 
-        showModalUI(modal, modalBox);
-    }
+        box.style.transform = 'translateY(1.5rem)';
+        openOverlay(modal, box);
+    };
 
-    function openOfferingModal(id_transaksi, name) {
+    window.openOfferingModal = function (id_transaksi, name) {
         const modal = document.getElementById('offeringModal');
-        const modalBox = modal.querySelector('div');
-        document.getElementById('offering_id_transaksi').value = id_transaksi;
+        const box   = modal.querySelector('div');
+        document.getElementById('offering_id_transaksi').value       = id_transaksi;
         document.getElementById('offering_kandidat_name').textContent = name;
-        showModalUI(modal, modalBox);
-    }
+        box.style.transform = 'translateY(1.5rem)';
+        openOverlay(modal, box);
+    };
 
-    function showModalUI(modal, modalBox) {
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.classList.add('opacity-100');
-            modalBox.classList.remove('translate-y-10');
-        }, 10);
-    }
-
-    function closeModal(modalId) {
+    window.closeModal = function (modalId) {
         const modal = document.getElementById(modalId);
-        const modalBox = modal.querySelector('div');
-        modal.classList.remove('opacity-100');
-        modalBox.classList.add('translate-y-10');
-        setTimeout(() => modal.classList.add('hidden'), 300);
-    }
+        closeOverlay(modal, modal.querySelector('div'));
+    };
 
-    function updateFileName(input) {
-        const name = input.files[0] ? input.files[0].name : 'Klik untuk upload file PDF';
-        document.getElementById('fileNameDisplay').textContent = name;
-    }
+    window.updateFileName = function (input) {
+        document.getElementById('fileNameDisplay').textContent =
+            input.files[0] ? input.files[0].name : 'Klik untuk upload file PDF';
+    };
 
     function setMinDate() {
         const now = new Date();
@@ -292,28 +599,8 @@ ob_start();
         document.getElementById('tanggalInput').min = now.toISOString().slice(0, 16);
     }
 
-    window.onclick = (e) => {
-        if (e.target.id.includes('Modal')) closeModal(e.target.id);
-    }
+})();
 </script>
-
-<style>
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .animate-fadeIn {
-        animation: fadeIn 0.4s ease-out forwards;
-    }
-</style>
 
 <?php
 $content = ob_get_clean();

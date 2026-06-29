@@ -110,7 +110,8 @@ class Staff
     public static function delete($conn, $id)
     {
         $staff = self::find($conn, $id);
-        if (!$staff) return false;
+        if (!$staff)
+            return false;
 
         if (!empty($staff['foto'])) {
             $fotoPath = __DIR__ . "/../public/uploads/staff/" . $staff['foto'];
@@ -123,5 +124,85 @@ class Staff
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
         return $stmt->execute();
+    }
+
+    public static function updateProfile($conn, $id, $data)
+    {
+        $staff = self::find($conn, $id);
+
+        if (!$staff) {
+            return false;
+        }
+
+        if (!empty($data['foto'])) {
+
+            if (!empty($staff['foto'])) {
+                $old = __DIR__ . "/../public/uploads/staff/" . $staff['foto'];
+
+                if (file_exists($old)) {
+                    unlink($old);
+                }
+            }
+
+            $sql = "UPDATE staff
+                SET nama_staff=?,
+                    email=?,
+                    alamat=?,
+                    no_telp=?,
+                    foto=?
+                WHERE id=?";
+
+            $stmt = $conn->prepare($sql);
+
+            $stmt->bind_param(
+                "sssssi",
+                $data['nama_staff'],
+                $data['email'],
+                $data['alamat'],
+                $data['no_telp'],
+                $data['foto'],
+                $id
+            );
+
+        } else {
+
+            $sql = "UPDATE staff
+                SET nama_staff=?,
+                    email=?,
+                    alamat=?,
+                    no_telp=?
+                WHERE id=?";
+
+            $stmt = $conn->prepare($sql);
+
+            $stmt->bind_param(
+                "ssssi",
+                $data['nama_staff'],
+                $data['email'],
+                $data['alamat'],
+                $data['no_telp'],
+                $id
+            );
+        }
+
+        if (!$stmt->execute()) {
+            return false;
+        }
+
+        $sqlUser = "UPDATE users
+                SET username=?,
+                    email=?
+                WHERE id=?";
+
+        $stmtUser = $conn->prepare($sqlUser);
+
+        $stmtUser->bind_param(
+            "ssi",
+            $data['username'],
+            $data['email'],
+            $staff['user_id']
+        );
+
+        return $stmtUser->execute();
     }
 }

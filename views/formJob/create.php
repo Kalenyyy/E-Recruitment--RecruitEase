@@ -371,7 +371,7 @@ ob_start();
         <!-- FOOTER ACTIONS -->
         <div class="flex items-center justify-between px-6 py-4 rounded-2xl"
             style="background: #F8FAFC; border: 1px solid #E2E8F0;">
-            <a href="<?= BASE_URL ?>views/job/index.php"
+            <a href="<?= BASE_URL ?>views/formjob/index.php"
                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition hover:bg-slate-50"
                 style="background: #fff; color: #64748B; border: 1px solid #CBD5E1;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>

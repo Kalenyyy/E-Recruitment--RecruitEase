@@ -42,192 +42,206 @@ ob_start();
         backdrop-filter: blur(4px);
     }
 </style>
-<?php if (isset($_SESSION['success'])): ?>
-    <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down"
-        style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
 
-        <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center rounded-full flex-shrink-0"
-                style="width:40px;height:40px;background:#DCFCE7;border:1px solid #86EFAC;">
-                <span style="font-size:20px;">✅</span>
+<div >
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-xl border border-green-100 bg-green-50 text-green-800 shadow-sm animate-slide-down">
+            <div class="flex items-center gap-2.5">
+                <span class="text-xl">✅</span>
+                <div>
+                    <h4 class="font-bold text-sm tracking-tight">Berhasil!</h4>
+                    <p class="text-xs text-green-700 mt-0.5"><?= $_SESSION['success'] ?></p>
+                </div>
             </div>
+            <button onclick="document.getElementById('alert-success').remove()" class="text-green-500 hover:text-green-700 transition font-bold text-sm p-1">✕</button>
+        </div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
-            <div>
-                <h4 class="font-bold text-sm">Berhasil!</h4>
-                <p class="text-xs"><?= $_SESSION['success'] ?></p>
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-2xl font-bold" style="color: #1E293B">Job Posting</h1>
+            <p class="text-sm mt-0.5" style="color: #64748B;">Kelola dan pantau seluruh lowongan pekerjaan perusahaan Anda</p>
+        </div>
+        <a href="<?= BASE_URL ?>views/formJob/create.php"
+            class="inline-flex items-center gap-2 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition hover:opacity-90 shadow-xs active:scale-95 shrink-0"
+            style="background: linear-gradient(135deg,#1E3A8A,#2563EB);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Buat Lowongan Baru
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+
+        <div class="px-6 py-5 flex items-center justify-between" style="background: linear-gradient(135deg, #1E3A8A, #2563EB);">
+            <div class="flex items-center gap-4">
+                <div class="inline-flex items-center justify-center rounded-2xl" style="width:44px; height:44px; background: rgba(255,255,255,0.15);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-white tracking-tight">Daftar Lowongan Kerja</h2>
+                    <p class="text-xs text-blue-100 font-medium mt-0.5">Total <?= $totalData ?> data lowongan tersimpan</p>
+                </div>
             </div>
         </div>
 
-        <button onclick="document.getElementById('alert-success').remove()">
-            <span class="text-xl px-2">×</span>
-        </button>
-    </div>
+        <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-end gap-4">
+            <form id="searchForm" method="GET" class="flex items-center gap-2 max-w-md w-full md:w-auto">
+                <div class="relative flex-1 md:w-72 flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-blue-50 text-blue-700 border border-blue-100 shadow-inner font-bold shrink-0">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <input type="text" id="searchInput" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari judul lowongan..." autocomplete="off"
+                        oninput="doSearch()"
+                        class="w-full px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition placeholder-slate-400 bg-white shadow-inner">
+                </div>
+                <?php if (!empty($search)): ?>
+                    <a href="index.php" class="px-3 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition">
+                        Reset
+                    </a>
+                <?php endif; ?>
+            </form>
+        </div>
 
-    <?php unset($_SESSION['success']); ?>
-<?php endif; ?>
-
-<!-- HEADER -->
-<div class="flex items-center justify-between mb-6">
-    <div>
-        <h1 class="text-xl font-bold text-slate-800">Job Posting</h1>
-        <p class="text-sm text-slate-500">Kelola semua lowongan pekerjaan</p>
-    </div>
-
-    <a href="<?= BASE_URL ?>views/formJob/create.php"
-        class="inline-flex items-center gap-2 text-white text-sm font-semibold px-4 py-2 rounded-xl transition hover:opacity-90 shadow-md active:scale-95"
-        style="background:#1E3A8A;">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        Buat Lowongan
-    </a>
-</div>
-
-<!-- TABLE CARD -->
-<div class="rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm">
-    <!-- HEADER TABEL -->
-    <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-200">
-        <span class="text-sm font-bold text-slate-800">Daftar Lowongan</span>
-        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-            <?= $jobCountInPage ?> Total
-        </span>
-    </div>
-
-    <!-- TABLE -->
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left">
-            <thead class="bg-slate-50">
-                <tr class="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200">
-                    <th class="px-6 py-4 font-bold">Informasi Pekerjaan</th>
-                    <th class="px-6 py-4 font-bold">Lokasi & Tipe</th>
-                    <th class="px-6 py-4 font-bold">Fitur</th>
-                    <th class="px-6 py-4 font-bold">Status</th>
-                    <th class="px-6 py-4 font-bold">Tanggal Pembuatan</th>
-                    <th class="text-right px-6 py-4 font-bold">Aksi</th>
-                </tr>
-            </thead>
-
-            <tbody class="divide-y divide-slate-100">
-                <?php foreach ($jobList as $job): ?>
-                    <tr class="hover:bg-slate-50/80 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-slate-800 text-sm"><?= htmlspecialchars($job['judul_job']) ?></div>
-                            <div class="text-[10px] font-medium text-slate-400">ID: #<?= $job['id'] ?></div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-slate-700 font-medium"><?= htmlspecialchars($job['lokasi']) ?></div>
-                            <div class="text-[11px] text-slate-500 italic"><?= htmlspecialchars($job['tipe_pekerjaan']) ?></div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex flex-wrap gap-1">
-                                <?php if ($job['is_remote_work']): ?>
-                                    <span class="px-2 py-0.5 text-[9px] font-bold rounded bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase">Remote</span>
-                                <?php endif; ?>
-                                <?php if ($job['is_disabilitas']): ?>
-                                    <span class="px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase">Inklusif</span>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <?php if ($job['status'] === 'draft'): ?>
-                                <span class="px-2 py-1 text-[10px] font-bold rounded-full bg-amber-100 text-amber-700">DRAFT</span>
-                            <?php elseif ($job['status'] === 'open'): ?>
-                                <span class="px-2 py-1 text-[10px] font-bold rounded-full bg-green-100 text-green-700 uppercase">Open</span>
-                            <?php else: ?>
-                                <span class="px-2 py-1 text-[10px] font-bold rounded-full bg-red-100 text-red-700 uppercase">Closed</span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="px-6 py-4 text-slate-500 text-xs italic">
-                            <?= date('d/m/Y', strtotime($job['created_at'])) ?>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex justify-end items-center gap-2">
-                                <?php if ($job['status'] === 'draft'): ?>
-                                    <button onclick="openModal('status', <?= $job['id'] ?>, 'open')"
-                                        class="px-3 py-1 text-[11px] font-bold rounded bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm">
-                                        PUBLISH
-                                    </button>
-                                    <a href="edit.php?id=<?= $job['id'] ?>" class="p-1.5 text-slate-400 hover:text-amber-600 transition" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </a>
-                                    <button onclick="openModal('delete', <?= $job['id'] ?>)" class="p-1.5 text-slate-400 hover:text-red-600 transition" title="Hapus">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                <?php elseif ($job['status'] === 'open'): ?>
-                                    <button onclick="openModal('status', <?= $job['id'] ?>, 'closed')"
-                                        class="px-3 py-1 text-[11px] font-bold rounded border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition">
-                                        TUTUP LOKER
-                                    </button>
-                                <?php endif; ?>
-                                <a href="view.php?id=<?= $job['id'] ?>" class="p-1.5 text-slate-400 hover:text-blue-600 transition" title="Lihat Detail">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </a>
-                            </div>
-                        </td>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-slate-50/50 border-b border-slate-100 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                    <tr>
+                        <th class="px-6 py-4 font-bold">Informasi Pekerjaan</th>
+                        <th class="px-6 py-4 font-bold">Lokasi & Tipe</th>
+                        <th class="px-6 py-4 font-bold">Fitur Kerja</th>
+                        <th class="px-6 py-4 font-bold">Status</th>
+                        <th class="px-6 py-4 font-bold">Dibuat Pada</th>
+                        <th class="text-right px-6 py-4 font-bold">Aksi</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-    <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200">
-        <span class="text-xs text-slate-500">
-            Menampilkan <?= ($jobCountInPage > 0) ? (($page - 1) * $perPage) + 1 : 0 ?> - <?= ($page - 1) * $perPage + $jobCountInPage ?> dari <?= $totalData ?> data
-        </span>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-600 text-xs font-semibold">
+                    <?php foreach ($jobList as $job): ?>
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4.5">
+                                <div class="font-bold text-slate-800 text-sm tracking-tight"><?= htmlspecialchars($job['judul_job']) ?></div>
+                                <div class="text-[10px] text-slate-400 mt-1 font-medium">ID Lowongan: #<?= $job['id'] ?></div>
+                            </td>
+                            <td class="px-6 py-4.5">
+                                <div class="text-slate-700 font-bold"><?= htmlspecialchars($job['lokasi']) ?></div>
+                                <div class="text-[11px] text-slate-400 mt-0.5 font-medium"><?= htmlspecialchars($job['tipe_pekerjaan']) ?></div>
+                            </td>
+                            <td class="px-6 py-4.5">
+                                <div class="flex flex-wrap gap-1">
+                                    <?php if ($job['is_remote_work']): ?>
+                                        <span class="px-2 py-0.5 text-[9px] font-bold rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-wide">Remote</span>
+                                    <?php endif; ?>
+                                    <?php if ($job['is_disabilitas']): ?>
+                                        <span class="px-2 py-0.5 text-[9px] font-bold rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wide">Inklusif</span>
+                                    <?php endif; ?>
+                                    <?php if (!$job['is_remote_work'] && !$job['is_disabilitas']): ?>
+                                        <span class="text-slate-400 text-xs italic">-</span>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4.5">
+                                <?php if ($job['status'] === 'draft'): ?>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wide">Draft</span>
+                                <?php elseif ($job['status'] === 'open'): ?>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wide">Open</span>
+                                <?php else: ?>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-50 text-rose-700 border border-rose-200 uppercase tracking-wide">Closed</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4.5 text-slate-400 font-medium text-xs">
+                                <?= date('d M Y', strtotime($job['created_at'])) ?>
+                            </td>
+                            <td class="px-6 py-4.5 text-right">
+                                <div class="flex justify-end items-center gap-1.5">
+                                    <?php if ($job['status'] === 'draft'): ?>
+                                        <button onclick="openModal('status', <?= $job['id'] ?>, 'open')"
+                                            class="px-2.5 py-1 text-[11px] font-bold rounded-lg text-white bg-blue-800 hover:bg-blue-900 transition shadow-2xs active:scale-95">
+                                            PUBLISH
+                                        </button>
+                                        <a href="edit.php?id=<?= $job['id'] ?>" class="p-1.5 text-slate-400 hover:text-amber-600 border border-transparent hover:border-slate-100 hover:bg-slate-50 rounded-lg transition" title="Edit Data">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                        </a>
+                                        <button onclick="openModal('delete', <?= $job['id'] ?>)" class="p-1.5 text-slate-400 hover:text-red-600 border border-transparent hover:border-slate-100 hover:bg-slate-50 rounded-lg transition" title="Hapus Permanen">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                    <?php elseif ($job['status'] === 'open'): ?>
+                                        <button onclick="openModal('status', <?= $job['id'] ?>, 'closed')"
+                                            class="px-2.5 py-1 text-[11px] font-bold rounded-lg border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 transition active:scale-95">
+                                            TUTUP LOKER
+                                        </button>
+                                    <?php endif; ?>
+                                    <a href="view.php?id=<?= $job['id'] ?>" class="p-1.5 text-slate-400 hover:text-slate-700 border border-transparent hover:border-slate-100 hover:bg-slate-50 rounded-lg transition" title="Lihat Detail">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <?php if ($jobCountInPage === 0): ?>
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-xs text-slate-400 italic bg-slate-50/30 font-medium">
+                                Tidak ada data pekerjaan ditemukan pada halaman ini.
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
 
-        <div class="flex gap-1">
-            <?php $searchQuery = !empty($search) ? "&search=" . urlencode($search) : ""; ?>
-            <?php if ($page > 1): ?>
-                <a href="?page=<?= $page - 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">‹</a>
-            <?php endif; ?>
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 bg-slate-50/30">
+            <span class="text-xs font-medium text-slate-500">
+                Menampilkan <?= ($jobCountInPage > 0) ? (($page - 1) * $perPage) + 1 : 0 ?> - <?= ($page - 1) * $perPage + $jobCountInPage ?> dari <?= $totalData ?> data lowongan
+            </span>
 
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <a href="?page=<?= $i ?><?= $searchQuery ?>"
-                    class="px-3 py-1 text-xs rounded-lg font-semibold <?= $i == $page ? 'bg-blue-900 text-white' : 'border border-slate-200 hover:bg-slate-50' ?>">
-                    <?= $i ?>
-                </a>
-            <?php endfor; ?>
+            <div class="flex items-center gap-1">
+                <?php $searchQuery = !empty($search) ? "&search=" . urlencode($search) : ""; ?>
+                <?php if ($page > 1): ?>
+                    <a href="?page=<?= $page - 1 ?><?= $searchQuery ?>" class="px-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition font-bold">‹</a>
+                <?php endif; ?>
 
-            <?php if ($page < $totalPages): ?>
-                <a href="?page=<?= $page + 1 ?><?= $searchQuery ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 hover:bg-slate-50">›</a>
-            <?php endif; ?>
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="?page=<?= $i ?><?= $searchQuery ?>"
+                        class="px-2.5 py-1 text-xs rounded-lg font-bold transition <?= $i == $page ? 'bg-blue-800 text-white shadow-2xs' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($page < $totalPages): ?>
+                    <a href="?page=<?= $page + 1 ?><?= $searchQuery ?>" class="px-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition font-bold">›</a>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- MODAL KONFIRMASI (FIXED TOP) -->
-<div id="confirmModal" class="hidden fixed inset-0 z-[999] flex justify-center items-start p-4 modal-backdrop">
-    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-slide-down overflow-hidden mt-2 border border-slate-100">
-        <!-- Progress Bar Indicator (Hiasan) -->
+<div id="confirmModal" class="hidden fixed inset-0 z-[999] flex justify-center items-center p-4 modal-backdrop">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-xl animate-slide-down overflow-hidden border border-slate-100">
+        
         <div id="modalAccent" class="h-1.5 w-full bg-blue-600"></div>
 
         <div class="p-6">
-            <div class="flex items-start gap-4">
-                <div id="modalIcon" class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-inner">
+            <div class="flex gap-4">
+                <div id="modalIcon" class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-100 shadow-inner font-bold text-xl">
+                    🚀
                 </div>
                 <div class="flex-1">
-                    <h3 id="modalTitle" class="text-lg font-bold text-slate-800 mb-1">Konfirmasi</h3>
-                    <p id="modalDesc" class="text-sm text-slate-500 leading-relaxed">Apakah anda yakin ingin melakukan tindakan ini?</p>
+                    <h3 id="modalTitle" class="text-base font-bold text-slate-800 tracking-tight">Publish Lowongan Pekerjaan?</h3>
+                    <p id="modalDesc" class="text-xs text-slate-500 leading-relaxed mt-1">Lowongan akan segera di-publish secara meluas ke publik. Pelamar kerja akan bisa melihat dan mengirimkan lamaran mereka ke posisi ini.</p>
                 </div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
             </div>
 
-            <div class="flex justify-end gap-3 mt-8">
-                <button onclick="closeModal()" class="px-5 py-2 text-sm font-semibold text-slate-600 bg-slate-50 rounded-xl hover:bg-slate-100 transition border border-slate-200">
+            <div class="flex justify-end gap-2.5 mt-6 pt-4 border-t border-slate-100">
+                <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 border border-slate-200 bg-white hover:bg-slate-50 transition">
                     Batal
                 </button>
-                <a id="modalConfirmBtn" href="#" class="px-5 py-2 text-sm font-semibold text-white rounded-xl transition shadow-md active:scale-95">
-                    Ya, Lanjutkan
+                <a id="modalConfirmBtn" href="#" class="px-5 py-2 text-xs font-bold text-white rounded-xl bg-blue-800 hover:bg-blue-900 transition shadow-md active:scale-95">
+                    Ya, Konfirmasi
                 </a>
             </div>
         </div>
@@ -235,30 +249,50 @@ ob_start();
 </div>
 
 <script>
+    // Fitur Debounce pencarian: otomatis kirim form setelah 400ms berhenti ngetik
+    let timeout = null;
+    function doSearch() {
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            document.getElementById('searchForm').submit();
+        }, 400);
+    }
+
+    // Mempertahankan fokus kursor teks di inputan setelah submit/reload halaman
+    window.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('searchInput');
+        if(input.value !== '') {
+            input.focus();
+            const val = input.value;
+            input.value = '';
+            input.value = val;
+        }
+    });
+
     function openModal(type, id, extra = '') {
         const modal = document.getElementById('confirmModal');
         const title = document.getElementById('modalTitle');
         const desc = document.getElementById('modalDesc');
-        const btn = document.getElementById('modalConfirmBtn');
         const icon = document.getElementById('modalIcon');
         const accent = document.getElementById('modalAccent');
+        const btn = document.getElementById('modalConfirmBtn');
 
         if (type === 'status') {
             if (extra === 'open') {
-                title.innerText = 'Publish Lowongan?';
-                desc.innerText = 'Lowongan akan dipublikasikan. Pelamar akan dapat melihat dan mengirimkan lamaran mereka segera.';
+                title.innerText = 'Publish Lowongan Pekerjaan?';
+                desc.innerText = 'Lowongan akan segera di-publish secara meluas ke publik. Pelamar kerja akan bisa melihat dan mengirimkan lamaran mereka ke posisi ini.';
                 icon.innerText = '🚀';
                 icon.className = 'flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-100 shadow-inner';
                 accent.className = 'h-1.5 w-full bg-blue-600';
-                btn.className = 'px-5 py-2 text-sm font-semibold text-white rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-md active:scale-95';
+                btn.className = 'px-5 py-2 text-xs font-bold text-white rounded-xl bg-blue-800 hover:bg-blue-900 transition shadow-md active:scale-95';
                 btn.href = "<?= BASE_URL ?>public/actions/handle_update_delete_job.php?status_id=" + id + "&to=open";
-            } else {
-                title.innerText = 'Tutup Lowongan?';
-                desc.innerText = 'Kandidat tidak akan bisa lagi melihat atau melamar pada posisi ini jika Anda menutup loker.';
+            } else if (extra === 'closed') {
+                title.innerText = 'Tutup Lowongan Kerja?';
+                desc.innerText = 'Lowongan akan dihentikan dan diarsipkan. Pelamar tidak akan dapat lagi melihat posisi ini atau mengirimkan berkas lamaran baru.';
                 icon.innerText = '🔒';
-                icon.className = 'flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-orange-50 text-orange-600 border border-orange-100 shadow-inner';
-                accent.className = 'h-1.5 w-full bg-orange-500';
-                btn.className = 'px-5 py-2 text-sm font-semibold text-white rounded-xl bg-orange-600 hover:bg-orange-700 transition shadow-md active:scale-95';
+                icon.className = 'flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-amber-50 text-amber-600 border border-amber-100 shadow-inner';
+                accent.className = 'h-1.5 w-full bg-amber-500';
+                btn.className = 'px-5 py-2 text-xs font-bold text-white rounded-xl bg-amber-600 hover:bg-amber-700 transition shadow-md active:scale-95';
                 btn.href = "<?= BASE_URL ?>public/actions/handle_update_delete_job.php?status_id=" + id + "&to=closed";
             }
         } else if (type === 'delete') {
@@ -267,12 +301,11 @@ ob_start();
             icon.innerText = '🗑️';
             icon.className = 'flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-red-50 text-red-600 border border-red-100 shadow-inner';
             accent.className = 'h-1.5 w-full bg-red-600';
-            btn.className = 'px-5 py-2 text-sm font-semibold text-white rounded-xl bg-red-600 hover:bg-red-700 transition shadow-md active:scale-95';
+            btn.className = 'px-5 py-2 text-xs font-bold text-white rounded-xl bg-red-600 hover:bg-red-700 transition shadow-md active:scale-95';
             btn.href = "<?= BASE_URL ?>public/actions/handle_update_delete_job.php?delete_id=" + id;
         }
 
         modal.classList.remove('hidden');
-        // Prevent body scroll
         document.body.style.overflow = 'hidden';
     }
 
@@ -281,7 +314,6 @@ ob_start();
         document.body.style.overflow = 'auto';
     }
 
-    // Menutup modal jika klik di luar area modal
     window.onclick = function(event) {
         const modal = document.getElementById('confirmModal');
         if (event.target == modal) {

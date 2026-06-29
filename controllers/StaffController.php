@@ -84,4 +84,11 @@ class StaffController
         $userDeleted = User::delete($conn, $id);
         return $staffDeleted && $userDeleted;
     }
+
+    public static function updateProfile($conn, $id, $data)
+{
+    return Staff::updateProfile($conn, $id, $data);
+}
+
+
 }

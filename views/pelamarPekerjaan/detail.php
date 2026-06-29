@@ -33,7 +33,7 @@ ob_start();
 <!-- PAGE HEADER -->
 <div class="flex items-center justify-between mb-8">
     <div class="flex items-center gap-4">
-        <div class="inline-flex items-center justify-center rounded-2xl"
+        <!-- <div class="inline-flex items-center justify-center rounded-2xl"
              style="width:52px;height:52px;background:linear-gradient(135deg,#1E3A8A,#2563EB);">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                  stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -42,7 +42,7 @@ ob_start();
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-        </div>
+        </div> -->
         <div>
             <nav class="flex items-center gap-1.5 text-xs font-semibold mb-1" style="color:#94A3B8;">
                 <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php"
@@ -242,6 +242,9 @@ ob_start();
 
 <!-- ================================================================
      MODAL KONFIRMASI STATUS (Lolos / Tolak + Alasan)
+     Desain netral / profesional — tidak memakai warna hijau/merah
+     mencolok. Aksen warna hanya pada border kiri tipis sebagai
+     indikator konteks (positif/negatif), selebihnya monokromatik.
      ================================================================ -->
 <div id="statusModal"
      style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;padding:1rem;
@@ -249,23 +252,29 @@ ob_start();
             opacity:0;transition:opacity 0.25s ease;"
      onclick="if(event.target===this) closeModal('statusModal')">
 
-    <div style="background:#FFFFFF;border-radius:1.75rem;width:100%;max-width:480px;
-                box-shadow:0 25px 60px rgba(15,23,42,0.18);
+    <div style="background:#FFFFFF;border-radius:1rem;width:100%;max-width:460px;
+                box-shadow:0 25px 60px rgba(15,23,42,0.18);border:1px solid #E2E8F0;
                 transform:translateY(1.5rem);transition:transform 0.25s ease;">
 
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;
-                    padding:1.5rem 2rem;border-bottom:1px solid #F1F5F9;">
-            <h2 id="modalTitle"
-                style="font-size:1.1rem;font-weight:700;color:#0F172A;margin:0;"></h2>
+                    padding:1.25rem 1.75rem;border-bottom:1px solid #F1F5F9;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div id="modalIcon"
+                     style="width:34px;height:34px;border-radius:0.625rem;flex-shrink:0;
+                            background:#F1F5F9;border:1px solid #E2E8F0;
+                            display:flex;align-items:center;justify-content:center;"></div>
+                <h2 id="modalTitle"
+                    style="font-size:1rem;font-weight:700;color:#0F172A;margin:0;"></h2>
+            </div>
             <button onclick="closeModal('statusModal')"
-                    style="width:34px;height:34px;border-radius:50%;border:1px solid #E2E8F0;
-                           background:#F8FAFC;color:#64748B;cursor:pointer;
+                    style="width:30px;height:30px;border-radius:0.5rem;border:1px solid #E2E8F0;
+                           background:#FFFFFF;color:#64748B;cursor:pointer;
                            display:flex;align-items:center;justify-content:center;
                            transition:background 0.15s;"
-                    onmouseover="this.style.background='#F1F5F9'"
-                    onmouseout="this.style.background='#F8FAFC'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    onmouseover="this.style.background='#F8FAFC'"
+                    onmouseout="this.style.background='#FFFFFF'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -273,79 +282,80 @@ ob_start();
             </button>
         </div>
 
-        <form id="modalForm" method="POST" style="padding:1.5rem 2rem 2rem;">
+        <form id="modalForm" method="POST" style="padding:1.5rem 1.75rem 1.75rem;">
             <input type="hidden" name="status_lamaran" id="inputStatus">
 
             <!-- Info Kandidat -->
             <div id="modalInfoBox"
-                 style="display:flex;align-items:center;gap:1rem;
-                        padding:1rem 1.25rem;border-radius:1rem;margin-bottom:1.25rem;">
-                <div id="modalIcon"
-                     style="width:44px;height:44px;border-radius:0.875rem;flex-shrink:0;
-                            display:flex;align-items:center;justify-content:center;"></div>
+                 style="display:flex;align-items:center;gap:0.875rem;
+                        padding:0.875rem 1rem;border-radius:0.75rem;margin-bottom:1.25rem;
+                        background:#F8FAFC;border:1px solid #E2E8F0;">
+                <div style="width:38px;height:38px;border-radius:0.625rem;flex-shrink:0;
+                            background:#1E293B;display:flex;align-items:center;justify-content:center;
+                            color:#FFFFFF;font-weight:700;font-size:13px;" id="modalAvatar"></div>
                 <div>
                     <p id="modalKandidat"
-                       style="font-weight:700;color:#0F172A;font-size:15px;margin:0;"></p>
+                       style="font-weight:700;color:#0F172A;font-size:14px;margin:0;"></p>
                     <p id="modalSubtext"
-                       style="font-size:12px;color:#64748B;margin:4px 0 0;"></p>
+                       style="font-size:12px;color:#64748B;margin:3px 0 0;"></p>
                 </div>
             </div>
 
             <!-- Field Jadwal Interview (hanya saat LOLOS) -->
             <div id="interviewFields" style="display:none;margin-bottom:1.25rem;">
-                <div style="padding:1.25rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1rem;">
-                    <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
-                               text-transform:uppercase;color:#94A3B8;margin:0 0 0.875rem;">
+                <div style="padding:1.125rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:0.75rem;">
+                    <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
+                               text-transform:uppercase;color:#94A3B8;margin:0 0 0.75rem;">
                         Jadwal Wawancara
                     </p>
                     <input type="datetime-local" name="tanggal_interview" id="tanggalInput"
-                           style="width:100%;padding:10px 14px;border-radius:0.75rem;
+                           style="width:100%;padding:10px 14px;border-radius:0.625rem;
                                   border:1px solid #E2E8F0;background:#FFFFFF;
                                   font-size:13px;font-weight:600;color:#1E293B;
                                   outline:none;margin-bottom:10px;box-sizing:border-box;"
-                           onfocus="this.style.borderColor='#2563EB'"
+                           onfocus="this.style.borderColor='#1E293B'"
                            onblur="this.style.borderColor='#E2E8F0'">
                     <textarea name="catatan" rows="2" placeholder="Catatan (Lokasi / Link Zoom)..."
-                              style="width:100%;padding:10px 14px;border-radius:0.75rem;
+                              style="width:100%;padding:10px 14px;border-radius:0.625rem;
                                      border:1px solid #E2E8F0;background:#FFFFFF;
                                      font-size:13px;color:#475569;resize:none;
                                      outline:none;box-sizing:border-box;"
-                              onfocus="this.style.borderColor='#2563EB'"
+                              onfocus="this.style.borderColor='#1E293B'"
                               onblur="this.style.borderColor='#E2E8F0'"></textarea>
                 </div>
             </div>
 
             <!-- Field Alasan Penolakan (hanya saat TOLAK) -->
             <div id="alasanFields" style="display:none;margin-bottom:1.25rem;">
-                <div style="padding:1.25rem;background:#FEF2F2;border:1px solid #FECACA;border-radius:1rem;">
-                    <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
-                               text-transform:uppercase;color:#DC2626;margin:0 0 0.875rem;">
+                <div style="padding:1.125rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:0.75rem;">
+                    <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
+                               text-transform:uppercase;color:#94A3B8;margin:0 0 0.75rem;">
                         Alasan Penolakan
                     </p>
                     <textarea name="alasan_tolak" id="alasanInput" rows="3"
                               placeholder="Tuliskan alasan penolakan kandidat ini..."
-                              style="width:100%;padding:10px 14px;border-radius:0.75rem;
-                                     border:1px solid #FECACA;background:#FFFFFF;
-                                     font-size:13px;color:#7F1D1D;resize:none;
+                              style="width:100%;padding:10px 14px;border-radius:0.625rem;
+                                     border:1px solid #E2E8F0;background:#FFFFFF;
+                                     font-size:13px;color:#1E293B;resize:none;
                                      outline:none;box-sizing:border-box;"
-                              onfocus="this.style.borderColor='#DC2626'"
-                              onblur="this.style.borderColor='#FECACA'"></textarea>
+                              onfocus="this.style.borderColor='#1E293B'"
+                              onblur="this.style.borderColor='#E2E8F0'"></textarea>
                 </div>
             </div>
 
             <!-- Tombol -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <button type="button" onclick="closeModal('statusModal')"
-                        style="padding:12px;border-radius:0.875rem;border:1px solid #E2E8F0;
-                               background:#FFFFFF;color:#64748B;font-size:13px;font-weight:600;
+                        style="padding:12px;border-radius:0.625rem;border:1px solid #E2E8F0;
+                               background:#FFFFFF;color:#475569;font-size:13px;font-weight:600;
                                cursor:pointer;transition:background 0.15s;"
                         onmouseover="this.style.background='#F8FAFC'"
                         onmouseout="this.style.background='#FFFFFF'">
                     Batal
                 </button>
                 <button type="submit" id="submitBtn"
-                        style="padding:12px;border-radius:0.875rem;border:none;
-                               color:#FFFFFF;font-size:13px;font-weight:700;
+                        style="padding:12px;border-radius:0.625rem;border:none;
+                               background:#1E293B;color:#FFFFFF;font-size:13px;font-weight:700;
                                cursor:pointer;transition:opacity 0.15s;"
                         onmouseover="this.style.opacity='0.88'"
                         onmouseout="this.style.opacity='1'">
@@ -358,6 +368,8 @@ ob_start();
 
 <!-- ================================================================
      MODAL OFFERING LETTER
+     Header gradien biru pada versi lama diganti header netral
+     dengan teks gelap, garis bawah tipis, tanpa gradient.
      ================================================================ -->
 <div id="offeringModal"
      style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;padding:1rem;
@@ -365,56 +377,57 @@ ob_start();
             opacity:0;transition:opacity 0.25s ease;"
      onclick="if(event.target===this) closeModal('offeringModal')">
 
-    <div style="background:#FFFFFF;border-radius:1.75rem;width:100%;max-width:480px;
+    <div style="background:#FFFFFF;border-radius:1rem;width:100%;max-width:460px;
                 box-shadow:0 25px 60px rgba(15,23,42,0.18);overflow:hidden;
+                border:1px solid #E2E8F0;
                 transform:translateY(1.5rem);transition:transform 0.25s ease;">
 
-        <!-- Header Gradien -->
-        <div style="background:linear-gradient(135deg,#1E3A8A,#2563EB);padding:1.5rem 2rem;position:relative;">
+        <!-- Header -->
+        <div style="padding:1.25rem 1.75rem;position:relative;border-bottom:1px solid #F1F5F9;background:#F8FAFC;">
             <button onclick="closeModal('offeringModal')"
-                    style="position:absolute;top:1.25rem;right:1.25rem;
-                           width:34px;height:34px;border-radius:50%;
-                           border:1.5px solid rgba(255,255,255,0.3);
-                           background:rgba(255,255,255,0.15);color:#FFFFFF;cursor:pointer;
+                    style="position:absolute;top:1.1rem;right:1.1rem;
+                           width:30px;height:30px;border-radius:0.5rem;
+                           border:1px solid #E2E8F0;
+                           background:#FFFFFF;color:#64748B;cursor:pointer;
                            display:flex;align-items:center;justify-content:center;
                            transition:background 0.15s;"
-                    onmouseover="this.style.background='rgba(255,255,255,0.25)'"
-                    onmouseout="this.style.background='rgba(255,255,255,0.15)'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    onmouseover="this.style.background='#F1F5F9'"
+                    onmouseout="this.style.background='#FFFFFF'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
-            <p style="font-size:10px;font-weight:700;letter-spacing:0.14em;
-                       text-transform:uppercase;color:rgba(255,255,255,0.6);margin:0 0 5px;">
+            <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
+                       text-transform:uppercase;color:#94A3B8;margin:0 0 5px;">
                 Tahap Penawaran Kerja
             </p>
-            <h2 style="font-size:1.2rem;font-weight:700;color:#FFFFFF;margin:0 0 0.875rem;padding-right:2.5rem;">
+            <h2 style="font-size:1.05rem;font-weight:700;color:#0F172A;margin:0 0 0.875rem;padding-right:2.5rem;">
                 Kirim Offering Letter
             </h2>
             <div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:34px;height:34px;border-radius:0.75rem;flex-shrink:0;
-                            background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);
+                <div style="width:32px;height:32px;border-radius:0.625rem;flex-shrink:0;
+                            background:#1E293B;
                             display:flex;align-items:center;justify-content:center;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                          stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </div>
                 <p id="offering_kandidat_name"
-                   style="font-size:14px;font-weight:700;color:#FFFFFF;margin:0;"></p>
+                   style="font-size:13px;font-weight:700;color:#0F172A;margin:0;"></p>
             </div>
         </div>
 
         <form action="<?= BASE_URL ?>public/actions/create_offering.php" method="POST"
-              enctype="multipart/form-data" style="padding:1.5rem 2rem 2rem;">
+              enctype="multipart/form-data" style="padding:1.5rem 1.75rem 1.75rem;">
             <input type="hidden" name="id_transaksi" id="offering_id_transaksi">
 
             <!-- Gaji -->
             <div style="margin-bottom:1rem;">
-                <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
+                <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
                            text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
                     Gaji yang Ditawarkan (IDR)
                 </p>
@@ -422,31 +435,31 @@ ob_start();
                     <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);
                                  font-size:13px;font-weight:700;color:#94A3B8;">Rp</span>
                     <input type="number" name="gaji_offering" required placeholder="Contoh: 5000000"
-                           style="width:100%;padding:12px 14px 12px 42px;border-radius:0.875rem;
+                           style="width:100%;padding:12px 14px 12px 42px;border-radius:0.625rem;
                                   border:1px solid #E2E8F0;background:#F8FAFC;
-                                  font-size:15px;font-weight:700;color:#1E293B;
+                                  font-size:14px;font-weight:700;color:#1E293B;
                                   outline:none;box-sizing:border-box;transition:border-color 0.15s,background 0.15s;"
-                           onfocus="this.style.borderColor='#2563EB';this.style.background='#FFFFFF'"
+                           onfocus="this.style.borderColor='#1E293B';this.style.background='#FFFFFF'"
                            onblur="this.style.borderColor='#E2E8F0';this.style.background='#F8FAFC'">
                 </div>
             </div>
 
             <!-- Upload PDF -->
             <div style="margin-bottom:1.5rem;">
-                <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
+                <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
                            text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
                     Dokumen Surat Penawaran (PDF)
                 </p>
                 <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                              padding:1.5rem;border-radius:1rem;cursor:pointer;
-                              border:1.5px dashed #BFDBFE;background:#F8FAFC;
+                              padding:1.5rem;border-radius:0.75rem;cursor:pointer;
+                              border:1.5px dashed #CBD5E1;background:#F8FAFC;
                               transition:background 0.15s,border-color 0.15s;"
-                       onmouseover="this.style.background='#EFF6FF';this.style.borderColor='#2563EB'"
-                       onmouseout="this.style.background='#F8FAFC';this.style.borderColor='#BFDBFE'">
-                    <div style="width:40px;height:40px;border-radius:0.75rem;margin-bottom:10px;
-                                background:linear-gradient(135deg,#1E3A8A,#2563EB);
+                       onmouseover="this.style.background='#F1F5F9';this.style.borderColor='#94A3B8'"
+                       onmouseout="this.style.background='#F8FAFC';this.style.borderColor='#CBD5E1'">
+                    <div style="width:36px;height:36px;border-radius:0.625rem;margin-bottom:10px;
+                                background:#1E293B;
                                 display:flex;align-items:center;justify-content:center;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                              stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
@@ -466,18 +479,18 @@ ob_start();
             <!-- Tombol -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <button type="button" onclick="closeModal('offeringModal')"
-                        style="padding:12px;border-radius:0.875rem;border:1px solid #E2E8F0;
-                               background:#FFFFFF;color:#64748B;font-size:13px;font-weight:600;
+                        style="padding:12px;border-radius:0.625rem;border:1px solid #E2E8F0;
+                               background:#FFFFFF;color:#475569;font-size:13px;font-weight:600;
                                cursor:pointer;transition:background 0.15s;"
                         onmouseover="this.style.background='#F8FAFC'"
                         onmouseout="this.style.background='#FFFFFF'">
                     Batal
                 </button>
                 <button type="submit"
-                        style="padding:12px;border-radius:0.875rem;border:none;
-                               background:linear-gradient(135deg,#1E3A8A,#2563EB);
+                        style="padding:12px;border-radius:0.625rem;border:none;
+                               background:#1E293B;
                                color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer;
-                               box-shadow:0 2px 8px rgba(37,99,235,0.3);transition:opacity 0.15s;"
+                               transition:opacity 0.15s;"
                         onmouseover="this.style.opacity='0.88'"
                         onmouseout="this.style.opacity='1'">
                     Kirim Penawaran
@@ -514,8 +527,8 @@ ob_start();
         const modal     = document.getElementById('statusModal');
         const box       = modal.querySelector('div');
         const isLolos   = action === 'INTERVIEW';
-        const infoBox   = document.getElementById('modalInfoBox');
         const icon      = document.getElementById('modalIcon');
+        const avatar    = document.getElementById('modalAvatar');
         const submitBtn = document.getElementById('submitBtn');
         const interviewFields = document.getElementById('interviewFields');
         const alasanFields    = document.getElementById('alasanFields');
@@ -526,6 +539,7 @@ ob_start();
         document.getElementById('modalForm').action  =
             `<?= BASE_URL ?>public/actions/update_status_interview.php?id_transaksi=${id_transaksi}`;
         document.getElementById('modalKandidat').textContent = name;
+        avatar.textContent = name ? name.charAt(0).toUpperCase() : '?';
 
         // Reset field
         interviewFields.style.display = 'none';
@@ -537,13 +551,9 @@ ob_start();
         if (isLolos) {
             document.getElementById('modalTitle').textContent   = 'Loloskan Tahap Seleksi';
             document.getElementById('modalSubtext').textContent = 'Kandidat akan lanjut ke tahap interview.';
-            infoBox.style.background  = '#F0FDF4';
-            infoBox.style.border      = '1px solid #BBF7D0';
-            icon.style.background     = '#059669';
-            icon.innerHTML            = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            icon.innerHTML            = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"></polyline></svg>`;
-            submitBtn.style.background = '#059669';
             submitBtn.textContent      = 'Ya, Atur Jadwal';
             interviewFields.style.display = 'block';
             tanggalInput.required         = true;
@@ -551,14 +561,10 @@ ob_start();
         } else {
             document.getElementById('modalTitle').textContent   = 'Tolak Kandidat';
             document.getElementById('modalSubtext').textContent = 'Berikan alasan penolakan untuk kandidat ini.';
-            infoBox.style.background  = '#FFF1F2';
-            infoBox.style.border      = '1px solid #FECDD3';
-            icon.style.background     = '#DC2626';
-            icon.innerHTML            = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            icon.innerHTML            = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
-            submitBtn.style.background = '#DC2626';
             submitBtn.textContent      = 'Ya, Tolak';
             alasanFields.style.display = 'block';
             alasanInput.required       = true;

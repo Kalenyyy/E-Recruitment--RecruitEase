@@ -42,7 +42,7 @@ ob_start();
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-        </div>
+        </div> -->
         <div>
             <nav class="flex items-center gap-1.5 text-xs font-semibold mb-1" style="color:#94A3B8;">
                 <a href="<?= BASE_URL ?>views/pelamarPekerjaan/index.php"
@@ -242,6 +242,9 @@ ob_start();
 
 <!-- ================================================================
      MODAL KONFIRMASI STATUS (Lolos / Tolak + Alasan)
+     Desain netral / profesional — tidak memakai warna hijau/merah
+     mencolok. Aksen warna hanya pada border kiri tipis sebagai
+     indikator konteks (positif/negatif), selebihnya monokromatik.
      ================================================================ -->
 <div id="statusModal"
     style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;padding:1rem;
@@ -249,15 +252,21 @@ ob_start();
             opacity:0;transition:opacity 0.25s ease;"
     onclick="if(event.target===this) closeModal('statusModal')">
 
-    <div style="background:#FFFFFF;border-radius:1.75rem;width:100%;max-width:480px;
-                box-shadow:0 25px 60px rgba(15,23,42,0.18);
+    <div style="background:#FFFFFF;border-radius:1rem;width:100%;max-width:460px;
+                box-shadow:0 25px 60px rgba(15,23,42,0.18);border:1px solid #E2E8F0;
                 transform:translateY(1.5rem);transition:transform 0.25s ease;">
 
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;
-                    padding:1.5rem 2rem;border-bottom:1px solid #F1F5F9;">
-            <h2 id="modalTitle"
-                style="font-size:1.1rem;font-weight:700;color:#0F172A;margin:0;"></h2>
+                    padding:1.25rem 1.75rem;border-bottom:1px solid #F1F5F9;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div id="modalIcon"
+                     style="width:34px;height:34px;border-radius:0.625rem;flex-shrink:0;
+                            background:#F1F5F9;border:1px solid #E2E8F0;
+                            display:flex;align-items:center;justify-content:center;"></div>
+                <h2 id="modalTitle"
+                    style="font-size:1rem;font-weight:700;color:#0F172A;margin:0;"></h2>
+            </div>
             <button onclick="closeModal('statusModal')"
                 style="width:34px;height:34px;border-radius:50%;border:1px solid #E2E8F0;
                            background:#F8FAFC;color:#64748B;cursor:pointer;
@@ -273,7 +282,7 @@ ob_start();
             </button>
         </div>
 
-        <form id="modalForm" method="POST" style="padding:1.5rem 2rem 2rem;">
+        <form id="modalForm" method="POST" style="padding:1.5rem 1.75rem 1.75rem;">
             <input type="hidden" name="status_lamaran" id="inputStatus">
 
             <!-- Info Kandidat -->
@@ -293,9 +302,9 @@ ob_start();
 
             <!-- Field Jadwal Interview (hanya saat LOLOS) -->
             <div id="interviewFields" style="display:none;margin-bottom:1.25rem;">
-                <div style="padding:1.25rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1rem;">
-                    <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
-                               text-transform:uppercase;color:#94A3B8;margin:0 0 0.875rem;">
+                <div style="padding:1.125rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:0.75rem;">
+                    <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
+                               text-transform:uppercase;color:#94A3B8;margin:0 0 0.75rem;">
                         Jadwal Wawancara
                     </p>
                     <input type="datetime-local" name="tanggal_interview" id="tanggalInput"
@@ -317,9 +326,9 @@ ob_start();
 
             <!-- Field Alasan Penolakan (hanya saat TOLAK) -->
             <div id="alasanFields" style="display:none;margin-bottom:1.25rem;">
-                <div style="padding:1.25rem;background:#FEF2F2;border:1px solid #FECACA;border-radius:1rem;">
-                    <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
-                               text-transform:uppercase;color:#DC2626;margin:0 0 0.875rem;">
+                <div style="padding:1.125rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:0.75rem;">
+                    <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
+                               text-transform:uppercase;color:#94A3B8;margin:0 0 0.75rem;">
                         Alasan Penolakan
                     </p>
                     <textarea name="alasan_tolak" id="alasanInput" rows="3"
@@ -358,6 +367,8 @@ ob_start();
 
 <!-- ================================================================
      MODAL OFFERING LETTER
+     Header gradien biru pada versi lama diganti header netral
+     dengan teks gelap, garis bawah tipis, tanpa gradient.
      ================================================================ -->
 <div id="offeringModal"
     style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;padding:1rem;
@@ -365,12 +376,13 @@ ob_start();
             opacity:0;transition:opacity 0.25s ease;"
     onclick="if(event.target===this) closeModal('offeringModal')">
 
-    <div style="background:#FFFFFF;border-radius:1.75rem;width:100%;max-width:480px;
+    <div style="background:#FFFFFF;border-radius:1rem;width:100%;max-width:460px;
                 box-shadow:0 25px 60px rgba(15,23,42,0.18);overflow:hidden;
+                border:1px solid #E2E8F0;
                 transform:translateY(1.5rem);transition:transform 0.25s ease;">
 
-        <!-- Header Gradien -->
-        <div style="background:linear-gradient(135deg,#1E3A8A,#2563EB);padding:1.5rem 2rem;position:relative;">
+        <!-- Header -->
+        <div style="padding:1.25rem 1.75rem;position:relative;border-bottom:1px solid #F1F5F9;background:#F8FAFC;">
             <button onclick="closeModal('offeringModal')"
                 style="position:absolute;top:1.25rem;right:1.25rem;
                            width:34px;height:34px;border-radius:50%;
@@ -386,16 +398,16 @@ ob_start();
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
-            <p style="font-size:10px;font-weight:700;letter-spacing:0.14em;
-                       text-transform:uppercase;color:rgba(255,255,255,0.6);margin:0 0 5px;">
+            <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
+                       text-transform:uppercase;color:#94A3B8;margin:0 0 5px;">
                 Tahap Penawaran Kerja
             </p>
-            <h2 style="font-size:1.2rem;font-weight:700;color:#FFFFFF;margin:0 0 0.875rem;padding-right:2.5rem;">
+            <h2 style="font-size:1.05rem;font-weight:700;color:#0F172A;margin:0 0 0.875rem;padding-right:2.5rem;">
                 Kirim Offering Letter
             </h2>
             <div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:34px;height:34px;border-radius:0.75rem;flex-shrink:0;
-                            background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);
+                <div style="width:32px;height:32px;border-radius:0.625rem;flex-shrink:0;
+                            background:#1E293B;
                             display:flex;align-items:center;justify-content:center;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -433,13 +445,13 @@ ob_start();
 
             <!-- Upload PDF -->
             <div style="margin-bottom:1.5rem;">
-                <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
+                <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
                            text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
                     Dokumen Surat Penawaran (PDF)
                 </p>
                 <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                              padding:1.5rem;border-radius:1rem;cursor:pointer;
-                              border:1.5px dashed #BFDBFE;background:#F8FAFC;
+                              padding:1.5rem;border-radius:0.75rem;cursor:pointer;
+                              border:1.5px dashed #CBD5E1;background:#F8FAFC;
                               transition:background 0.15s,border-color 0.15s;"
                     onmouseover="this.style.background='#EFF6FF';this.style.borderColor='#2563EB'"
                     onmouseout="this.style.background='#F8FAFC';this.style.borderColor='#BFDBFE'">

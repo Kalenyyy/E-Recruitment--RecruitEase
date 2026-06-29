@@ -52,6 +52,19 @@ class CandidateSkill
             ->fetch_all(MYSQLI_ASSOC);
     }
 
+    public static function getPopularSkills($conn, $limit = 15)
+    {
+        $stmt = $conn->prepare("
+        SELECT id_skill, nama_skill 
+        FROM skills 
+        ORDER BY nama_skill ASC 
+        LIMIT ?
+    ");
+        $stmt->bind_param("i", $limit);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
     public static function getByCandidateId($conn, $candidateId)
     {
         $stmt = $conn->prepare("

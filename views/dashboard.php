@@ -5,990 +5,533 @@ $title = "Dashboard";
 AuthController::requireLogin();
 
 $role = $_SESSION['role'];
-$userData = StaffController::show($conn, $_SESSION['user_id'] ?? null);
-$candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] ?? null);
+$dashboardData = [];
+$candidateDashboard = [];
+
+if ($role === 'hr' || $role === 'admin') {
+    $userData = StaffController::getStaffByUserId($conn, $_SESSION['user_id'] ?? null);
+    $dashboardData = DashboardController::getHRDashboardData($conn);
+}
+
+$candidate = null;
+$isProfileComplete = true;
+$missing = [];
+
+if ($role === 'candidate') {
+    $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] ?? null);
+    if ($candidateData && isset($candidateData['id'])) {
+        $candidateId = $candidateData['id'];
+        // Hapus tanda komentar di bawah jika ingin mengaktifkan fitur deteksi profil otomatis
+        // $isProfileComplete = ProfileHelper::isComplete($conn, $candidateId);
+        // $missing = ProfileHelper::getMissingFields($conn, $candidateId);
+
+        $candidateDashboard = DashboardController::getCandidateDashboardData($conn, $candidateId);
+    }
+}
+
 ob_start();
 ?>
 
-<style>
-    .page-bg {
-        background: #F8FAFC;
-        min-height: 100vh;
-    }
+<div class="bg-[#F8FAFC] min-h-screen p-4 md:p-6 font-sans antialiased text-slate-800">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <?php if ($role === 'candidate' && !$isProfileComplete): ?>
+                <div id="profileAlert" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4 flex justify-between items-start shadow-sm transition-all">
+                    <div class="flex gap-3">
+                        <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <h3 class="font-semibold text-amber-900 text-sm">Profil Belum Lengkap</h3>
+                            <p class="text-xs text-amber-700 mt-1">Lengkapi data berikut sebelum melamar pekerjaan:</p>
+                            <div class="mt-2 text-xs text-amber-800 space-y-1">
+                                <?php if (!empty($missing)): ?>
+                                    <?php foreach ($missing as $section => $items): ?>
+                                        <div>
+                                            <span class="font-semibold"><?= ucfirst($section) ?>:</span>
+                                            <ul class="list-disc ml-5 mt-0.5 space-y-0.5">
+                                                <?php foreach ($items as $item): ?>
+                                                    <li><?= htmlspecialchars($item) ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p class="text-amber-700">Data tidak lengkap, detail tidak tersedia.</p>
+                                <?php endif; ?>
+                            </div>
+                            <a href="<?= BASE_URL ?>views/candidate/profile.php?id=<?= $candidateData['id'] ?>" class="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
+                                Lengkapi Sekarang
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('profileAlert').remove()" class="text-amber-400 hover:text-amber-600 transition-colors p-1 rounded-lg">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+            <?php endif; ?>
 
-    /* Stat Cards */
-    .stat-card {
-        background: #ffffff;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 20px 22px;
-        transition: all 0.25s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 32px rgba(30, 58, 138, 0.10);
-        border-color: #BFDBFE;
-    }
-
-    .stat-card::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        opacity: 0.06;
-        transform: translate(20px, -20px);
-    }
-
-    .stat-card.blue::after {
-        background: #1E3A8A;
-    }
-
-    .stat-card.green::after {
-        background: #059669;
-    }
-
-    .stat-card.amber::after {
-        background: #D97706;
-    }
-
-    .stat-card.rose::after {
-        background: #E11D48;
-    }
-
-    .stat-icon-wrap {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .stat-icon-wrap.blue {
-        background: #EFF6FF;
-        color: #1E3A8A;
-    }
-
-    .stat-icon-wrap.green {
-        background: #ECFDF5;
-        color: #059669;
-    }
-
-    .stat-icon-wrap.amber {
-        background: #FFFBEB;
-        color: #D97706;
-    }
-
-    .stat-icon-wrap.rose {
-        background: #FFF1F2;
-        color: #E11D48;
-    }
-
-    .stat-trend-up {
-        background: #ECFDF5;
-        color: #059669;
-        font-size: 11px;
-        font-weight: 600;
-        padding: 2px 8px;
-        border-radius: 999px;
-    }
-
-    .stat-trend-down {
-        background: #FFF1F2;
-        color: #E11D48;
-        font-size: 11px;
-        font-weight: 600;
-        padding: 2px 8px;
-        border-radius: 999px;
-    }
-
-    /* Chart Cards */
-    .chart-card {
-        background: #ffffff;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 22px;
-    }
-
-    .chart-card-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #1E293B;
-    }
-
-    .chart-card-subtitle {
-        font-size: 12px;
-        color: #94A3B8;
-    }
-
-    /* Filter Pills */
-    .filter-pill {
-        font-size: 11px;
-        font-weight: 600;
-        padding: 4px 12px;
-        border-radius: 999px;
-        border: 1px solid #E2E8F0;
-        color: #64748B;
-        background: transparent;
-        cursor: pointer;
-        transition: all 0.15s ease;
-    }
-
-    .filter-pill:hover,
-    .filter-pill.active {
-        background: #EFF6FF;
-        color: #1E3A8A;
-        border-color: #BFDBFE;
-    }
-
-    /* Table */
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .data-table th {
-        font-size: 11px;
-        font-weight: 700;
-        color: #94A3B8;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        padding: 10px 16px;
-        text-align: left;
-        border-bottom: 1px solid #F1F5F9;
-    }
-
-    .data-table td {
-        padding: 14px 16px;
-        font-size: 13.5px;
-        color: #334155;
-        border-bottom: 1px solid #F8FAFC;
-    }
-
-    .data-table tr:hover td {
-        background: #F8FAFC;
-    }
-
-    .data-table tr:last-child td {
-        border-bottom: none;
-    }
-
-    /* Status Badges */
-    .badge {
-        font-size: 11px;
-        font-weight: 600;
-        padding: 3px 10px;
-        border-radius: 999px;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .badge::before {
-        content: '';
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-    }
-
-    .badge-review {
-        background: #FFFBEB;
-        color: #B45309;
-    }
-
-    .badge-review::before {
-        background: #D97706;
-    }
-
-    .badge-interview {
-        background: #EFF6FF;
-        color: #1D4ED8;
-    }
-
-    .badge-interview::before {
-        background: #3B82F6;
-    }
-
-    .badge-diterima {
-        background: #ECFDF5;
-        color: #065F46;
-    }
-
-    .badge-diterima::before {
-        background: #10B981;
-    }
-
-    .badge-ditolak {
-        background: #FFF1F2;
-        color: #9F1239;
-    }
-
-    .badge-ditolak::before {
-        background: #F43F5E;
-    }
-
-    /* Activity Feed */
-    .activity-item {
-        display: flex;
-        gap: 12px;
-        padding: 12px 0;
-        border-bottom: 1px solid #F1F5F9;
-    }
-
-    .activity-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-
-    .activity-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        margin-top: 5px;
-        flex-shrink: 0;
-    }
-
-    /* Progress Bar */
-    .progress-bar-bg {
-        height: 6px;
-        background: #F1F5F9;
-        border-radius: 999px;
-        overflow: hidden;
-    }
-
-    .progress-bar-fill {
-        height: 100%;
-        border-radius: 999px;
-        transition: width 1s ease;
-    }
-
-    /* Legend dots */
-    .legend-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 2px;
-        flex-shrink: 0;
-    }
-</style>
-
-<!-- Page Header -->
-<div class="flex items-center justify-between mb-6">
-    <div>
-        <h1 class="text-xl font-bold text-[#1E293B] tracking-tight">Dashboard</h1>
-        <p class="text-sm text-[#64748B] mt-0.5">Selamat datang kembali, <span class="font-semibold text-[#1E3A8A]">
-            <?php if($_SESSION['role'] == 'admin'): ?>
-                    <?= $_SESSION['username'] ?? 'User' ?>
-                <?php elseif($_SESSION['role'] == 'hr'): ?>
-                    <?= $userData['nama_staff'] ?? 'User' ?>
-                <?php else: ?>
-                    <?= $candidateData['nama_lengkap'] ?? 'User' ?>
-                <?php endif; ?>
-        </span> 👋</p>
-    </div>
-    <div class="flex items-center gap-2">
-        <div class="flex items-center gap-2 bg-white border border-[#E2E8F0] rounded-xl px-3 py-2 text-sm text-[#475569]">
-            <svg class="w-4 h-4 text-[#94A3B8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <?= date('d M Y') ?>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Selamat datang kembali, <span class="font-semibold text-blue-700">
+                    <?php if ($_SESSION['role'] == 'admin'): ?>
+                        <?= $_SESSION['username'] ?? 'User' ?>
+                    <?php elseif ($_SESSION['role'] == 'hr'): ?>
+                        <?= $userData['nama_staff'] ?? 'User' ?>
+                    <?php else: ?>
+                        <?= $candidateData['nama_lengkap'] ?? 'User' ?>
+                    <?php endif; ?>
+                </span></p>
         </div>
-        <?php if($_SESSION['role'] !== 'candidate'): ?>
-        <button class="flex items-center gap-2 bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors duration-200">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Buat Lowongan
-        </button>
-        <?php endif; ?>
-    </div>
-</div>
-
-<!-- ====================================== -->
-<!-- DASHBOARD UNTUK HR & ADMIN -->
-<!-- ====================================== -->
-<?php if($_SESSION['role'] !== 'candidate'): ?>
-
-<!-- Stat Cards -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
-    <div class="stat-card blue">
-        <div class="flex items-start justify-between mb-3">
-            <div class="stat-icon-wrap blue">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-            </div>
-            <span class="stat-trend-up">↑ 12%</span>
-        </div>
-        <p class="text-2xl font-bold text-[#1E293B]">24</p>
-        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Lowongan Aktif</p>
-    </div>
-
-    <div class="stat-card green">
-        <div class="flex items-start justify-between mb-3">
-            <div class="stat-icon-wrap green">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-            </div>
-            <span class="stat-trend-up">↑ 8%</span>
-        </div>
-        <p class="text-2xl font-bold text-[#1E293B]">348</p>
-        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Total Pelamar</p>
-    </div>
-
-    <div class="stat-card amber">
-        <div class="flex items-start justify-between mb-3">
-            <div class="stat-icon-wrap amber">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 shadow-sm">
+                <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
+                <?= date('d M Y') ?>
             </div>
-            <span class="stat-trend-up">↑ 5%</span>
-        </div>
-        <p class="text-2xl font-bold text-[#1E293B]">18</p>
-        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Interview Minggu Ini</p>
-    </div>
-
-    <div class="stat-card rose">
-        <div class="flex items-start justify-between mb-3">
-            <div class="stat-icon-wrap rose">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <span class="stat-trend-down">↓ 3%</span>
-        </div>
-        <p class="text-2xl font-bold text-[#1E293B]">42</p>
-        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Diterima Bulan Ini</p>
-    </div>
-
-</div>
-
-<!-- Charts Row -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-
-    <!-- Bar Chart - 2/3 width -->
-    <div class="chart-card lg:col-span-2">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <p class="chart-card-title">Grafik Pelamar Masuk</p>
-                <p class="chart-card-subtitle">Tren pelamar 7 hari terakhir</p>
-            </div>
-            <div class="flex gap-1.5">
-                <button class="filter-pill active" onclick="setFilter(this,'7')">7 Hari</button>
-                <button class="filter-pill" onclick="setFilter(this,'30')">30 Hari</button>
-            </div>
-        </div>
-        <!-- Legend -->
-        <div class="flex gap-4 mb-3">
-            <span class="flex items-center gap-1.5 text-xs text-[#64748B]">
-                <span class="legend-dot" style="background:#3B82F6"></span> Pelamar Masuk
-            </span>
-            <span class="flex items-center gap-1.5 text-xs text-[#64748B]">
-                <span class="legend-dot" style="background:#10B981"></span> Diterima
-            </span>
-        </div>
-        <div style="position:relative; width:100%; height:260px;">
-            <canvas id="barChart" role="img" aria-label="Grafik pelamar masuk dan diterima per hari">Data pelamar harian.</canvas>
+            <?php if ($_SESSION['role'] !== 'candidate'): ?>
+                <a href="<?= BASE_URL ?>views/formJob/create.php">
+                    <button class="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Buat Lowongan
+                    </button>
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 
-    <!-- Donut Chart - 1/3 width -->
-    <div class="chart-card flex flex-col">
-        <div class="mb-4">
-            <p class="chart-card-title">Status Pelamar</p>
-            <p class="chart-card-subtitle">Distribusi per status</p>
-        </div>
-        <div style="position:relative; width:100%; height:200px;">
-            <canvas id="donutChart" role="img" aria-label="Distribusi status pelamar">Data status pelamar.</canvas>
-        </div>
-        <div class="flex flex-col gap-2.5 mt-4">
-            <div class="flex items-center justify-between">
-                <span class="flex items-center gap-2 text-xs text-[#64748B]">
-                    <span class="legend-dot rounded-full" style="background:#3B82F6"></span> Review
-                </span>
-                <span class="text-xs font-semibold text-[#1E293B]">42%</span>
-            </div>
-            <div class="flex items-center justify-between">
-                <span class="flex items-center gap-2 text-xs text-[#64748B]">
-                    <span class="legend-dot rounded-full" style="background:#F59E0B"></span> Interview
-                </span>
-                <span class="text-xs font-semibold text-[#1E293B]">28%</span>
-            </div>
-            <div class="flex items-center justify-between">
-                <span class="flex items-center gap-2 text-xs text-[#64748B]">
-                    <span class="legend-dot rounded-full" style="background:#10B981"></span> Diterima
-                </span>
-                <span class="text-xs font-semibold text-[#1E293B]">18%</span>
-            </div>
-            <div class="flex items-center justify-between">
-                <span class="flex items-center gap-2 text-xs text-[#64748B]">
-                    <span class="legend-dot rounded-full" style="background:#F43F5E"></span> Ditolak
-                </span>
-                <span class="text-xs font-semibold text-[#1E293B]">12%</span>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<!-- Bottom Row: Table + Activity -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-    <!-- Recent Applicants Table -->
-    <div class="chart-card lg:col-span-2">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <p class="chart-card-title">Pelamar Terbaru</p>
-                <p class="chart-card-subtitle">5 pelamar paling baru</p>
-            </div>
-            <a href="/pelamar" class="text-xs font-semibold text-[#3B82F6] hover:text-[#1E3A8A] transition-colors">Lihat semua →</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Nama</th>
-                        <th>Posisi</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold flex-shrink-0">AR</div>
-                                <span class="font-medium text-[#1E293B]">Andi Rahmawan</span>
-                            </div>
-                        </td>
-                        <td class="text-[#64748B]">Frontend Developer</td>
-                        <td class="text-[#94A3B8]">12 Jan 2025</td>
-                        <td><span class="badge badge-interview">Interview</span></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold flex-shrink-0">SP</div>
-                                <span class="font-medium text-[#1E293B]">Siti Permata</span>
-                            </div>
-                        </td>
-                        <td class="text-[#64748B]">HR Manager</td>
-                        <td class="text-[#94A3B8]">11 Jan 2025</td>
-                        <td><span class="badge badge-diterima">Diterima</span></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold flex-shrink-0">BP</div>
-                                <span class="font-medium text-[#1E293B]">Budi Pratama</span>
-                            </div>
-                        </td>
-                        <td class="text-[#64748B]">Backend Developer</td>
-                        <td class="text-[#94A3B8]">10 Jan 2025</td>
-                        <td><span class="badge badge-review">Review</span></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-bold flex-shrink-0">DK</div>
-                                <span class="font-medium text-[#1E293B]">Dewi Kartika</span>
-                            </div>
-                        </td>
-                        <td class="text-[#64748B]">UI/UX Designer</td>
-                        <td class="text-[#94A3B8]">10 Jan 2025</td>
-                        <td><span class="badge badge-ditolak">Ditolak</span></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-7 h-7 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center text-xs font-bold flex-shrink-0">MF</div>
-                                <span class="font-medium text-[#1E293B]">Muhammad Farhan</span>
-                            </div>
-                        </td>
-                        <td class="text-[#64748B]">Data Analyst</td>
-                        <td class="text-[#94A3B8]">09 Jan 2025</td>
-                        <td><span class="badge badge-review">Review</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Right Column -->
-    <div class="flex flex-col gap-4">
-
-        <!-- Top Positions -->
-        <div class="chart-card">
-            <p class="chart-card-title mb-1">Posisi Paling Diminati</p>
-            <p class="chart-card-subtitle mb-4">Berdasarkan jumlah pelamar</p>
-            <div class="flex flex-col gap-3">
-                <?php
-                $positions = [
-                    ['name' => 'Frontend Developer', 'count' => 87, 'pct' => 87],
-                    ['name' => 'Backend Developer', 'count' => 65, 'pct' => 65],
-                    ['name' => 'UI/UX Designer', 'count' => 52, 'pct' => 52],
-                    ['name' => 'Data Analyst', 'count' => 38, 'pct' => 38],
-                ];
-                $barColors = ['#3B82F6', '#6366F1', '#10B981', '#F59E0B'];
-                foreach ($positions as $i => $pos): ?>
-                    <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-xs font-medium text-[#475569]"><?= $pos['name'] ?></span>
-                            <span class="text-xs font-bold text-[#1E293B]"><?= $pos['count'] ?></span>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width:<?= $pos['pct'] ?>%; background:<?= $barColors[$i] ?>;"></div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-
-        <!-- Activity Feed -->
-        <div class="chart-card flex-1">
-            <p class="chart-card-title mb-4">Aktivitas Terbaru</p>
-            <div class="flex flex-col">
-                <div class="activity-item">
-                    <div class="activity-dot bg-[#3B82F6]"></div>
-                    <div>
-                        <p class="text-xs font-semibold text-[#1E293B]">Pelamar baru masuk</p>
-                        <p class="text-[11px] text-[#94A3B8] mt-0.5">Andi Rahmawan – Frontend Dev</p>
-                        <p class="text-[10px] text-[#CBD5E1] mt-0.5">2 menit lalu</p>
+    <?php if ($_SESSION['role'] !== 'candidate'): ?>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Lowongan Aktif</p>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-50 text-blue-600">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
                     </div>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-dot bg-[#10B981]"></div>
-                    <div>
-                        <p class="text-xs font-semibold text-[#1E293B]">Pelamar diterima</p>
-                        <p class="text-[11px] text-[#94A3B8] mt-0.5">Siti Permata – HR Manager</p>
-                        <p class="text-[10px] text-[#CBD5E1] mt-0.5">1 jam lalu</p>
+                <p class="text-2xl font-bold text-slate-900"><?= number_format($dashboardData['stats']['active_jobs'] ?? 0) ?></p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Total Pelamar</p>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50 text-emerald-600">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
                     </div>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-dot bg-[#F59E0B]"></div>
-                    <div>
-                        <p class="text-xs font-semibold text-[#1E293B]">Jadwal interview dibuat</p>
-                        <p class="text-[11px] text-[#94A3B8] mt-0.5">3 kandidat – 15 Jan 2025</p>
-                        <p class="text-[10px] text-[#CBD5E1] mt-0.5">3 jam lalu</p>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-dot bg-[#F43F5E]"></div>
-                    <div>
-                        <p class="text-xs font-semibold text-[#1E293B]">Lowongan dibuka</p>
-                        <p class="text-[11px] text-[#94A3B8] mt-0.5">Data Analyst – Dept. IT</p>
-                        <p class="text-[10px] text-[#CBD5E1] mt-0.5">5 jam lalu</p>
-                    </div>
-                </div>
+                <p class="text-2xl font-bold text-slate-900"><?= number_format($dashboardData['stats']['total_pelamar'] ?? 0) ?></p>
             </div>
-        </div>
 
-    </div>
-</div>
-
-<!-- Chart.js Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const data7 = {
-        labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
-        pelamar: [22, 35, 28, 47, 31, 18, 42],
-        diterima: [5, 8, 6, 12, 7, 4, 10]
-    };
-
-    const data30 = {
-        labels: Array.from({
-            length: 30
-        }, (_, i) => i + 1 + ''),
-        pelamar: [12, 18, 25, 30, 22, 35, 28, 47, 31, 18, 42, 38, 29, 44, 52, 35, 27, 40, 33, 48, 20, 36, 41, 28, 55, 39, 24, 46, 31, 58],
-        diterima: [3, 4, 6, 8, 5, 9, 7, 12, 8, 4, 10, 9, 7, 11, 13, 9, 6, 10, 8, 12, 5, 9, 10, 7, 14, 10, 6, 12, 8, 15]
-    };
-
-    let barChartInstance;
-
-    function buildBarChart(days) {
-        const d = days === '7' ? data7 : data30;
-        if (barChartInstance) barChartInstance.destroy();
-        barChartInstance = new Chart(document.getElementById('barChart'), {
-            type: 'bar',
-            data: {
-                labels: d.labels,
-                datasets: [{
-                        label: 'Pelamar Masuk',
-                        data: d.pelamar,
-                        backgroundColor: 'rgba(59,130,246,0.85)',
-                        borderRadius: 6,
-                        barPercentage: 0.55
-                    },
-                    {
-                        label: 'Diterima',
-                        data: d.diterima,
-                        backgroundColor: 'rgba(16,185,129,0.85)',
-                        borderRadius: 6,
-                        barPercentage: 0.55
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: {
-                                size: 11
-                            },
-                            color: '#94A3B8',
-                            autoSkip: days === '30',
-                            maxRotation: days === '30' ? 45 : 0
-                        }
-                    },
-                    y: {
-                        grid: {
-                            color: 'rgba(148,163,184,0.12)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            font: {
-                                size: 11
-                            },
-                            color: '#94A3B8'
-                        },
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-    function buildDonutChart() {
-        new Chart(document.getElementById('donutChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Review', 'Interview', 'Diterima', 'Ditolak'],
-                datasets: [{
-                    data: [42, 28, 18, 12],
-                    backgroundColor: ['#3B82F6', '#F59E0B', '#10B981', '#F43F5E'],
-                    borderWidth: 3,
-                    borderColor: '#ffffff',
-                    hoverOffset: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => ' ' + ctx.label + ': ' + ctx.parsed + '%'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function setFilter(btn, days) {
-        document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        buildBarChart(days);
-    }
-
-    buildBarChart('7');
-    buildDonutChart();
-</script>
-
-<?php endif; // End of HR/Admin Dashboard ?>
-
-<!-- ====================================== -->
-<!-- DASHBOARD UNTUK CANDIDATE -->
-<!-- ====================================== -->
-<?php if($_SESSION['role'] === 'candidate'): ?>
-
-<!-- Status Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
-    <!-- Total Applications -->
-    <div class="stat-card blue">
-        <div class="flex items-start justify-between mb-3">
-            <div class="stat-icon-wrap blue">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-            </div>
-            <span class="stat-trend-up">↑ 2</span>
-        </div>
-        <p class="text-2xl font-bold text-[#1E293B]">8</p>
-        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Total Lamaran</p>
-    </div>
-
-    <!-- Under Review -->
-    <div class="stat-card amber">
-        <div class="flex items-start justify-between mb-3">
-            <div class="stat-icon-wrap amber">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-            </div>
-        </div>
-        <p class="text-2xl font-bold text-[#1E293B]">3</p>
-        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Sedang Direviu</p>
-    </div>
-
-    <!-- Interviews -->
-    <div class="stat-card blue">
-        <div class="flex items-start justify-between mb-3">
-            <div class="stat-icon-wrap blue">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-        </div>
-        <p class="text-2xl font-bold text-[#1E293B]">2</p>
-        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Interview Dijadwalkan</p>
-    </div>
-
-    <!-- Accepted -->
-    <div class="stat-card green">
-        <div class="flex items-start justify-between mb-3">
-            <div class="stat-icon-wrap green">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-        </div>
-        <p class="text-2xl font-bold text-[#1E293B]">1</p>
-        <p class="text-xs text-[#64748B] mt-0.5 font-medium">Diterima</p>
-    </div>
-
-</div>
-
-<!-- Main Content - 2 Columns -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-
-    <!-- Applied Positions -->
-    <div class="chart-card lg:col-span-2">
-        <div class="mb-4">
-            <p class="chart-card-title">Posisi yang Dilamar</p>
-            <p class="chart-card-subtitle">Riwayat lamaran Anda</p>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Posisi</th>
-                        <th>Perusahaan</th>
-                        <th>Tanggal Lamar</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="font-medium text-[#1E293B]">Frontend Developer</span></td>
-                        <td class="text-[#64748B]">PT Tech Innovasi</td>
-                        <td class="text-[#94A3B8]">12 Jan 2025</td>
-                        <td><span class="badge badge-interview">Interview</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="font-medium text-[#1E293B]">UI/UX Designer</span></td>
-                        <td class="text-[#64748B]">PT Creative Studio</td>
-                        <td class="text-[#94A3B8]">10 Jan 2025</td>
-                        <td><span class="badge badge-diterima">Diterima</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="font-medium text-[#1E293B]">Backend Developer</span></td>
-                        <td class="text-[#64748B]">PT Digital Solution</td>
-                        <td class="text-[#94A3B8]">08 Jan 2025</td>
-                        <td><span class="badge badge-review">Review</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="font-medium text-[#1E293B]">Data Analyst</span></td>
-                        <td class="text-[#64748B]">PT Analytics Pro</td>
-                        <td class="text-[#94A3B8]">05 Jan 2025</td>
-                        <td><span class="badge badge-interview">Interview</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="font-medium text-[#1E293B]">DevOps Engineer</span></td>
-                        <td class="text-[#64748B]">PT Cloud Systems</td>
-                        <td class="text-[#94A3B8]">03 Jan 2025</td>
-                        <td><span class="badge badge-review">Review</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Right Column -->
-    <div class="flex flex-col gap-4">
-
-        <!-- Profile Status -->
-        <div class="chart-card">
-            <p class="chart-card-title mb-3">Status Profil</p>
-            <div class="flex flex-col gap-3.5">
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">
-                            <span class="text-lg">📄</span> CV
-                        </span>
-                        <span class="text-xs font-bold text-[#059669]">✓ Ada</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width:100%; background:#059669;"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">
-                            <span class="text-lg">🖼️</span> Foto Profil
-                        </span>
-                        <span class="text-xs font-bold text-[#059669]">✓ Ada</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width:100%; background:#059669;"></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <span class="text-xs font-medium text-[#475569] flex items-center gap-1.5">
-                            <span class="text-lg">✍️</span> Deskripsi Bio
-                        </span>
-                        <span class="text-xs font-bold text-[#D97706]">75%</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width:75%; background:#D97706;"></div>
-                    </div>
-                </div>
-            </div>
-            <button class="w-full mt-4 bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">
-                Edit Profil
-            </button>
-        </div>
-
-        <!-- Upcoming Interviews -->
-        <div class="chart-card flex-1">
-            <p class="chart-card-title mb-3">Interview Mendatang</p>
-            <div class="flex flex-col gap-2.5">
-                <div class="p-3 border border-[#E2E8F0] rounded-lg bg-[#F8FAFC]">
-                    <p class="text-xs font-semibold text-[#1E293B]">Frontend Developer</p>
-                    <p class="text-[11px] text-[#64748B] mt-0.5">PT Tech Innovasi</p>
-                    <div class="flex items-center gap-2 text-[10px] text-[#3B82F6] font-semibold mt-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Status Interview</p>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-50 text-amber-600">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        15 Jan 2025 • 10:00
                     </div>
                 </div>
-                <div class="p-3 border border-[#E2E8F0] rounded-lg bg-[#F8FAFC]">
-                    <p class="text-xs font-semibold text-[#1E293B]">Data Analyst</p>
-                    <p class="text-[11px] text-[#64748B] mt-0.5">PT Analytics Pro</p>
-                    <div class="flex items-center gap-2 text-[10px] text-[#3B82F6] font-semibold mt-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <p class="text-2xl font-bold text-slate-900"><?= number_format($dashboardData['stats']['total_interview'] ?? 0) ?></p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md relative overflow-hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Total Diterima</p>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-50 text-rose-600">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        18 Jan 2025 • 14:30
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-900"><?= number_format($dashboardData['stats']['total_hired'] ?? 0) ?></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 lg:col-span-2 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-900">Grafik Pelamar Masuk</h3>
+                        <p class="text-xs text-slate-400">Tren 7 hari terakhir</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 mb-3">
+                    <span class="flex items-center gap-1.5 text-xs text-slate-500">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Pelamar Masuk
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-slate-500">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Diterima
+                    </span>
+                </div>
+                <div class="relative w-full h-[260px]">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col shadow-sm">
+                <div class="mb-4">
+                    <h3 class="text-sm font-semibold text-slate-900">Status Pelamar</h3>
+                    <p class="text-xs text-slate-400">Distribusi per status</p>
+                </div>
+                <div class="relative w-full h-[200px] flex items-center justify-center">
+                    <canvas id="donutChart"></canvas>
+                </div>
+                <div id="donutLegend" class="flex flex-col gap-2 mt-4 overflow-y-auto max-h-[120px] pr-1">
+                    </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const weeklyData = <?= json_encode($dashboardData['chart_weekly'] ?? []) ?>;
+            const statusDist = <?= json_encode($dashboardData['chart_status'] ?? []) ?>;
+
+            function buildBarChart() {
+                const ctx = document.getElementById('barChart');
+                if (!ctx) return;
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: weeklyData.labels || [],
+                        datasets: [{
+                                label: 'Pelamar',
+                                data: weeklyData.pelamar || [],
+                                backgroundColor: '#3b82f6',
+                                borderRadius: 4,
+                                barPercentage: 0.5
+                            },
+                            {
+                                label: 'Diterima',
+                                data: weeklyData.diterima || [],
+                                backgroundColor: '#10b981',
+                                borderRadius: 4,
+                                barPercentage: 0.5
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#94a3b8' } },
+                            y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 }, color: '#94a3b8' }, beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            function buildDonutChart() {
+                const ctx = document.getElementById('donutChart');
+                if (!ctx) return;
+
+                const labels = statusDist.map(item => item.status);
+                const counts = statusDist.map(item => item.jumlah);
+                const colors = ['#3b82f6', '#f59e0b', '#10b981', '#f43f5e', '#8b5cf6'];
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: counts,
+                            backgroundColor: colors,
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '75%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+
+                const legendContainer = document.getElementById('donutLegend');
+                const total = counts.reduce((a, b) => a + b, 0);
+                legendContainer.innerHTML = '';
+                labels.forEach((label, i) => {
+                    const percent = total > 0 ? Math.round((counts[i] / total) * 100) : 0;
+                    legendContainer.innerHTML += `
+                        <div class="flex items-center justify-between py-0.5 border-b border-slate-50">
+                            <span class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${colors[i % colors.length]}"></span> ${label}
+                            </span>
+                            <span class="text-xs font-semibold text-slate-700">${percent}%</span>
+                        </div>
+                    `;
+                });
+            }
+
+            buildBarChart();
+            buildDonutChart();
+        </script>
+    <?php endif; ?>
+
+    <?php if ($_SESSION['role'] === 'candidate'): ?>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Total Lamaran</p>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-50 text-blue-600">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-900"><?= $candidateDashboard['stats']['total_apply'] ?? 0 ?></p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Sedang Direviu</p>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-50 text-amber-600">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-900"><?= $candidateDashboard['stats']['review'] ?? 0 ?></p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Interview</p>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-indigo-50 text-indigo-600">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-900"><?= $candidateDashboard['stats']['interview'] ?? 0 ?></p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Diterima</p>
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-50 text-emerald-600">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-slate-900"><?= $candidateDashboard['stats']['diterima'] ?? 0 ?></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 lg:col-span-2 shadow-sm flex flex-col">
+                <div class="mb-4">
+                    <h3 class="text-sm font-semibold text-slate-900">Posisi yang Dilamar</h3>
+                    <p class="text-xs text-slate-400">Riwayat lamaran terbaru Anda</p>
+                </div>
+                <div class="overflow-x-auto -mx-5 flex-1">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/75">
+                                <th class="text-[10px] font-bold text-slate-400 uppercase tracking-wider p-4 text-left border-b border-slate-100">Posisi</th>
+                                <th class="text-[10px] font-bold text-slate-400 uppercase tracking-wider p-4 text-left border-b border-slate-100">Tanggal Lamar</th>
+                                <th class="text-[10px] font-bold text-slate-400 uppercase tracking-wider p-4 text-left border-b border-slate-100">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <?php if (!empty($candidateDashboard['applications'])): ?>
+                                <?php foreach ($candidateDashboard['applications'] as $app): ?>
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="p-4 text-xs font-semibold text-slate-700"><?= htmlspecialchars($app['judul_job']) ?></td>
+                                        <td class="p-4 text-xs text-slate-400"><?= date('d M Y', strtotime($app['tanggal_melamar'])) ?></td>
+                                        <td class="p-4">
+                                            <?php
+                                            $status = $app['status_lamaran'];
+                                            $class = "bg-slate-100 text-slate-600";
+                                            if ($status == 'INTERVIEW') $class = "bg-blue-50 text-blue-700";
+                                            if ($status == 'DITERIMA') $class = "bg-emerald-50 text-emerald-700";
+                                            if ($status == 'ADMINISTRASI') $class = "bg-amber-50 text-amber-700";
+                                            if ($status == 'DITOLAK') $class = "bg-rose-50 text-rose-700";
+                                            ?>
+                                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-md inline-block uppercase tracking-wide <?= $class ?>">
+                                                <?= $status ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="3" class="p-8 text-center text-xs text-slate-400">Belum ada lamaran terkirim.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-6">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <h3 class="text-sm font-semibold text-slate-900 mb-4">Kelengkapan Profil (<?= $candidateDashboard['profile_pct']['total_pct'] ?>%)</h3>
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-medium text-slate-600 flex items-center gap-1.5">Curriculum Vitae (CV)</span>
+                                <span class="text-[11px] font-bold <?= $candidateDashboard['profile_pct']['has_cv'] ? 'text-emerald-600' : 'text-amber-600' ?>">
+                                    <?= $candidateDashboard['profile_pct']['has_cv'] ? 'Lengkap' : 'Belum Ada' ?>
+                                </span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: <?= $candidateDashboard['profile_pct']['has_cv'] ? '100%' : '0%' ?>"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-medium text-slate-600 flex items-center gap-1.5">Foto Profil</span>
+                                <span class="text-[11px] font-bold <?= $candidateDashboard['profile_pct']['has_foto'] ? 'text-emerald-600' : 'text-amber-600' ?>">
+                                    <?= $candidateDashboard['profile_pct']['has_foto'] ? 'Lengkap' : 'Belum Ada' ?>
+                                </span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: <?= $candidateDashboard['profile_pct']['has_foto'] ? '100%' : '0%' ?>"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-medium text-slate-600 flex items-center gap-1.5">Riwayat Pendidikan</span>
+                                <span class="text-[11px] font-bold <?= $candidateDashboard['profile_pct']['has_edu'] ? 'text-emerald-600' : 'text-amber-600' ?>">
+                                    <?= $candidateDashboard['profile_pct']['has_edu'] ? 'Lengkap' : 'Belum Ada' ?>
+                                </span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: <?= $candidateDashboard['profile_pct']['has_edu'] ? '100%' : '0%' ?>"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="<?= BASE_URL ?>views/candidate/profile.php?id=<?= $candidateData['id'] ?>" class="block w-full mt-5">
+                        <button class="w-full bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold py-2 rounded-xl transition-colors shadow-sm">Perbarui Profil</button>
+                    </a>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 flex-1 shadow-sm">
+                    <h3 class="text-sm font-semibold text-slate-900 mb-3">Interview Mendatang</h3>
+                    <div class="flex flex-col gap-3">
+                        <?php if (!empty($candidateDashboard['interviews'])): ?>
+                            <?php foreach ($candidateDashboard['interviews'] as $iv): ?>
+                                <div class="p-3.5 border border-slate-100 rounded-xl bg-slate-50/50 hover:border-blue-200 hover:bg-white transition-all shadow-2xs">
+                                    <div class="flex items-start gap-3">
+                                        <div class="flex flex-col items-center justify-center bg-white border border-slate-200 rounded-xl p-1.5 min-w-[48px] shadow-2xs">
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider"><?= date('M', strtotime($iv['tanggal_interview'])) ?></span>
+                                            <span class="text-sm font-bold text-slate-800 leading-none mt-0.5"><?= date('d', strtotime($iv['tanggal_interview'])) ?></span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-xs font-semibold text-slate-800 truncate"><?= htmlspecialchars($iv['judul_job']) ?></h4>
+                                            <p class="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1">
+                                                <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" />
+                                                </svg>
+                                                <?= date('H:i', strtotime($iv['tanggal_interview'])) ?> WIB
+                                            </p>
+                                            <?php if (!empty($iv['catatan'])): ?>
+                                                <div class="mt-2 p-2 bg-blue-50/60 border border-blue-100/50 rounded-lg">
+                                                    <p class="text-[10px] text-blue-700 leading-relaxed">
+                                                        <span class="font-semibold">Catatan:</span> <?= htmlspecialchars($iv['catatan']) ?>
+                                                    </p>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="p-6 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 text-center">
+                                <p class="text-[11px] text-slate-400 font-medium">Belum ada jadwal interview terdekat.</p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
 
-    </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-900">Rekomendasi Posisi</h3>
+                    <p class="text-xs text-slate-400">Disesuaikan dengan kompetensi dan fleksibilitas Anda</p>
+                </div>
+                <a href="<?= BASE_URL ?>views/formJob/index.php" class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">Lihat Semua →</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <?php if (!empty($candidateDashboard['recommendations'])): ?>
+                    <?php foreach ($candidateDashboard['recommendations'] as $job): ?>
+                        <div class="group bg-white border border-slate-200 rounded-xl p-4 transition-all duration-200 hover:border-blue-200 hover:bg-slate-50/40 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start gap-2 mb-3">
+                                    <div class="min-w-0">
+                                        <h4 class="text-sm font-bold text-slate-800 truncate leading-tight group-hover:text-blue-700 transition-colors">
+                                            <?= htmlspecialchars($job['judul_job']) ?>
+                                        </h4>
+                                        <p class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2" />
+                                            </svg>
+                                            <?= htmlspecialchars($job['lokasi']) ?>
+                                        </p>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded shrink-0">
+                                        <?= round($job['match_percent']) ?>% Match
+                                    </span>
+                                </div>
 
+                                <div class="flex flex-wrap gap-1.5 mb-4">
+                                    <span class="text-[10px] font-medium px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+                                        <?= $job['tipe_pekerjaan'] ?>
+                                    </span>
+
+                                    <?php if ($job['is_remote_work']): ?>
+                                        <span class="text-[10px] font-medium px-2 py-0.5 bg-blue-50 text-blue-700 rounded flex items-center gap-1">
+                                            Remote
+                                        </span>
+                                    <?php endif; ?>
+
+                                    <?php if ($job['is_disabilitas']): ?>
+                                        <span class="text-[10px] font-medium px-2 py-0.5 bg-purple-50 text-purple-700 rounded flex items-center gap-1">
+                                            Akses Disabilitas
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-100 mt-2">
+                                <div class="min-w-0">
+                                    <?php if (!empty($job['gaji'])): ?>
+                                        <p class="text-xs font-bold text-slate-800 truncate">Rp <?= number_format($job['gaji'], 0, ',', '.') ?></p>
+                                    <?php else: ?>
+                                        <p class="text-[11px] text-slate-400 italic">Gaji Kompetitif</p>
+                                    <?php endif; ?>
+                                </div>
+
+                                <a href="<?= BASE_URL ?>views/formJob/detail.php?id=<?= $job['id'] ?>" class="text-xs font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1 whitespace-nowrap">
+                                    Detail
+                                    <svg class="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path d="M9 5l7 7-7 7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-span-full p-6 text-center border-2 border-dashed border-slate-200 rounded-xl">
+                        <p class="text-xs text-slate-400">Belum ada rekomendasi yang sesuai dengan profil Anda.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
-
-<!-- Recommended Positions -->
-<div class="chart-card">
-    <div class="flex items-center justify-between mb-4">
-        <div>
-            <p class="chart-card-title">Posisi Rekomendasi Untuk Anda</p>
-            <p class="chart-card-subtitle">Berdasarkan profil Anda</p>
-        </div>
-        <a href="/lowongan" class="text-xs font-semibold text-[#3B82F6] hover:text-[#1E3A8A] transition-colors">Lihat semua →</a>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="border border-[#E2E8F0] rounded-lg p-4 hover:border-[#BFDBFE] hover:shadow-md transition-all">
-            <div class="flex items-start justify-between mb-2">
-                <div>
-                    <p class="text-sm font-semibold text-[#1E293B]">Senior Frontend Developer</p>
-                    <p class="text-xs text-[#64748B] mt-0.5">PT Tech Enterprise</p>
-                </div>
-                <span class="text-xs font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-1 rounded-lg">95% Match</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs text-[#64748B] mb-3">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                </svg>
-                Jakarta, Indonesia
-            </div>
-            <button class="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">
-                Lihat Detail
-            </button>
-        </div>
-
-        <div class="border border-[#E2E8F0] rounded-lg p-4 hover:border-[#BFDBFE] hover:shadow-md transition-all">
-            <div class="flex items-start justify-between mb-2">
-                <div>
-                    <p class="text-sm font-semibold text-[#1E293B]">Fullstack Developer</p>
-                    <p class="text-xs text-[#64748B] mt-0.5">PT Digital Innovation</p>
-                </div>
-                <span class="text-xs font-bold text-[#059669] bg-[#ECFDF5] px-2 py-1 rounded-lg">88% Match</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs text-[#64748B] mb-3">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                </svg>
-                Bandung, Indonesia
-            </div>
-            <button class="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">
-                Lihat Detail
-            </button>
-        </div>
-
-        <div class="border border-[#E2E8F0] rounded-lg p-4 hover:border-[#BFDBFE] hover:shadow-md transition-all">
-            <div class="flex items-start justify-between mb-2">
-                <div>
-                    <p class="text-sm font-semibold text-[#1E293B]">Product Designer</p>
-                    <p class="text-xs text-[#64748B] mt-0.5">PT Creative Agency</p>
-                </div>
-                <span class="text-xs font-bold text-[#F59E0B] bg-[#FFFBEB] px-2 py-1 rounded-lg">72% Match</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs text-[#64748B] mb-3">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                </svg>
-                Surabaya, Indonesia
-            </div>
-            <button class="w-full bg-[#1E3A8A] hover:bg-[#1e40af] text-white text-xs font-semibold py-2 rounded-lg transition-colors">
-                Lihat Detail
-            </button>
-        </div>
-    </div>
-</div>
-
-<?php endif; ?>
 
 <?php
 $content = ob_get_clean();

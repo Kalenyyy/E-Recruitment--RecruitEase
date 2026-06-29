@@ -23,7 +23,11 @@ require_once __DIR__ . '/controllers/PosisiController.php';
 require_once __DIR__ . '/controllers/PengalamanKerjaController.php';
 require_once __DIR__ . '/controllers/SertifikasiController.php';
 require_once __DIR__ . '/controllers/PendidikanController.php'; // Tambahkan controller Pendidikan
-
+require_once __DIR__ . '/controllers/JobFormController.php'; 
+require_once __DIR__ . '/controllers/LowonganPekerjaanController.php'; 
+require_once __DIR__ . '/controllers/LamaranController.php'; 
+require_once __DIR__ . '/controllers/DashboardController.php';
+require_once __DIR__ . '/controllers/PelamarPekerjaanController.php';
 // 5. MODEL
 require_once __DIR__ . '/models/User.php'; 
 require_once __DIR__ . '/models/Candidate.php'; 
@@ -36,4 +40,11 @@ require_once __DIR__ . '/models/Skill.php';
 require_once __DIR__ . '/models/PengalamanKerja.php';
 require_once __DIR__ . '/models/Sertifikasi.php';
 require_once __DIR__ . '/models/Pendidikan.php'; // Tambahkan model Pendidikan
+require_once __DIR__ . '/models/JobForm.php';
+require_once __DIR__ . '/models/LowonganPekerjaan.php';
+require_once __DIR__ . '/models/Lamaran.php';
+require_once __DIR__ . '/models/Dashboard.php';
+
+//helper
+require_once __DIR__ . '/views/helpers/ProfileHelper.php';
 

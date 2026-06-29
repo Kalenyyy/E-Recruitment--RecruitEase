@@ -115,7 +115,6 @@ ob_start();
         selected.set(id, name);
 
         const chip = document.createElement('div');
-        // Tailwind classes for Chip
         chip.className = 'cs-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold bg-blue-100 text-blue-900';
         chip.dataset.skillId = id;
 
@@ -144,17 +143,18 @@ ob_start();
             return;
         }
 
+        const keyword = searchInput.value.trim();
         const groupAlready = skills.filter(s => alreadyIds.has(Number(s.id_skill)));
         const groupSelected = skills.filter(s => !alreadyIds.has(Number(s.id_skill)) && selected.has(Number(s.id_skill)));
         const groupNew = skills.filter(s => !alreadyIds.has(Number(s.id_skill)) && !selected.has(Number(s.id_skill)));
 
         let html = '';
-
-        // Helper untuk Divider dan Option
         const renderDivider = (text) => `<div class="text-[11px] font-semibold tracking-wider uppercase text-slate-400 px-3.5 py-1.5 bg-slate-50 border-b border-slate-200">${text}</div>`;
 
         if (groupNew.length) {
-            html += renderDivider('Tersedia');
+            // Berikan label berbeda jika sedang mencari atau hanya rekomendasi awal
+            const label = keyword.length > 0 ? 'Tersedia' : 'Rekomendasi Skill';
+            html += renderDivider(label);
             groupNew.forEach(skill => {
                 html += `
                 <div class="cs-skill-opt px-3.5 py-2.5 text-[13px] cursor-pointer flex items-center justify-between text-slate-800 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors" data-id="${skill.id_skill}" data-name="${skill.nama_skill}">
@@ -191,26 +191,33 @@ ob_start();
         dropdown.style.display = 'block';
     }
 
+    // Fungsi fetch data dari API
+    async function loadSkills(keyword = '') {
+        try {
+            const response = await fetch('<?= BASE_URL ?>public/actions/search_skill.php?q=' + encodeURIComponent(keyword));
+            const data = await response.json();
+            renderDropdown(data);
+        } catch (error) {
+            dropdown.innerHTML = `<div class="p-3.5 text-[13px] text-slate-400">Gagal mengambil data</div>`;
+            dropdown.style.display = 'block';
+        }
+    }
+
     let debounceTimer;
     searchInput.addEventListener('input', function() {
         clearTimeout(debounceTimer);
         const keyword = this.value.trim();
 
-        if (keyword.length < 2) {
-            dropdown.style.display = 'none';
-            return;
-        }
-
-        debounceTimer = setTimeout(async () => {
-            try {
-                const response = await fetch('<?= BASE_URL ?>public/actions/search_skill.php?q=' + encodeURIComponent(keyword));
-                const data = await response.json();
-                renderDropdown(data);
-            } catch (error) {
-                dropdown.innerHTML = `<div class="p-3.5 text-[13px] text-slate-400">Gagal mengambil data</div>`;
-                dropdown.style.display = 'block';
-            }
+        // Tetap mencari meskipun keyword pendek (atau kosong) agar daftar rekomendasi muncul kembali
+        debounceTimer = setTimeout(() => {
+            loadSkills(keyword);
         }, 250);
+    });
+
+    // BARU: Saat input diklik/fokus, langsung ambil data (rekomendasi)
+    searchInput.addEventListener('focus', function() {
+        const keyword = this.value.trim();
+        loadSkills(keyword);
     });
 
     dropdown.addEventListener('click', function(e) {
@@ -219,7 +226,8 @@ ob_start();
 
         addChip(option.dataset.id, option.dataset.name);
         searchInput.value = '';
-        dropdown.style.display = 'none';
+        // Setelah pilih, tampilkan lagi daftar rekomendasi
+        loadSkills('');
         searchInput.focus();
     });
 

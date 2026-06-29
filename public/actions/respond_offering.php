@@ -2,8 +2,9 @@
 require_once __DIR__ . '/../../init.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_transaksi = $_POST['id_transaksi'] ?? null;
-    $respon = $_POST['respon'] ?? null;
+    $id_transaksi = $_POST['id_transaksi']   ?? null;
+    $respon       = $_POST['respon']          ?? null;
+    $alasan_tolak = $_POST['tolak_candidate'] ?? null; // ← tambahan
 
     if (!$id_transaksi || !$respon) {
         $_SESSION['error'] = "Data tidak valid.";
@@ -11,17 +12,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Panggil Controller untuk memproses
-    $result = LamaranController::prosesResponOffering($conn, $id_transaksi, $respon);
+    // Teruskan alasan ke controller
+    $result = LamaranController::prosesResponOffering($conn, $id_transaksi, $respon, $alasan_tolak);
 
     if ($result) {
-        $pesan = ($respon === 'DITERIMA') ? "Selamat! Anda menerima penawaran ini." : "Anda telah menolak penawaran ini.";
+        $pesan = ($respon === 'DITERIMA')
+            ? "Selamat! Anda menerima penawaran ini."
+            : "Anda telah menolak penawaran ini.";
         $_SESSION['success'] = $pesan;
     } else {
         $_SESSION['error'] = "Terjadi kesalahan saat memproses data.";
     }
 
-    // Redirect kembali ke halaman riwayat lamaran
     header("Location: " . $_SERVER['HTTP_REFERER']);
     exit;
 } else {

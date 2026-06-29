@@ -56,8 +56,14 @@ class PelamarPekerjaanController
         return JobPostingModel::getApplicationById($conn, $id_transaksi);
     }
 
-    public static function ubahStatus($conn, $id_transaksi, $status_baru, $tanggal_interview = null, $catatan = null)
-    {
+    public static function ubahStatus(
+        $conn,
+        $id_transaksi,
+        $status_baru,
+        $tanggal_interview = null,
+        $catatan = null,
+        $alasan = null
+    ) {
         $app = self::getApplication($conn, $id_transaksi);
         $id_kandidat = $app['id_kandidat'];
 
@@ -65,7 +71,12 @@ class PelamarPekerjaanController
             // Kirim $catatan ke model
             return JobPostingModel::moveKandidatKeInterview($conn, $id_transaksi, $id_kandidat, $tanggal_interview, $catatan);
         } else {
-            return JobPostingModel::updateApplicationStatus($conn, $id_transaksi, $status_baru);
+            return JobPostingModel::updateApplicationStatus(
+                $conn,
+                $id_transaksi,
+                $status_baru,
+                $alasan
+            );
         }
     }
 

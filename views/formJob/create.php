@@ -36,7 +36,7 @@ ob_start();
         <h1 class="text-xl font-bold" style="color: #1E293B;">Buat Job Posting</h1>
         <p class="text-sm" style="color: #64748B;">Lengkapi data untuk mempublikasikan lowongan baru</p>
     </div>
-    <a href="<?= BASE_URL ?>views/job/index.php"
+    <a href="<?= BASE_URL ?>views/formJob/index.php"
         class="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition hover:bg-slate-100"
         style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>

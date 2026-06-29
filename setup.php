@@ -282,7 +282,8 @@ CREATE TABLE IF NOT EXISTS job_posting (
 
     tipe_pekerjaan ENUM('Full Time', 'Part Time', 'Contract', 'Internship', 'Freelance') NOT NULL,
 
-    gaji DECIMAL(15,2) DEFAULT NULL,
+    gaji_min DECIMAL(15,2) DEFAULT NULL,
+    gaji_max DECIMAL(15,2) DEFAULT NULL,
 
     status ENUM('open', 'closed', 'draft') DEFAULT 'draft',
 

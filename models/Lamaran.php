@@ -30,7 +30,8 @@ class LamaranModel
                 jp.judul_job,
                 jp.lokasi,
                 jp.tipe_pekerjaan,
-                jp.gaji,
+                jp.gaji_min,
+                jp.gaji_max,
                 ol.gaji_offering,
                 ol.file_offering,
                 ol.status AS status_respon_offering

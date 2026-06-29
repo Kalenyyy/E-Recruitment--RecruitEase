@@ -63,15 +63,6 @@ ob_start();
     </div>
 <?php endif; ?>
 
-<!-- STAT -->
-<div class="mb-6">
-    <div class="inline-flex flex-col px-5 py-3 rounded-2xl"
-        style="background:#EFF6FF;border:1px solid #BFDBFE;">
-        <span class="text-xs font-bold uppercase tracking-wider" style="color:#3B82F6;">Total Lamaran</span>
-        <span class="text-2xl font-bold mt-0.5" style="color:#1E3A8A;"><?= $totalLamaran ?></span>
-    </div>
-</div>
-
 <!-- MAIN CARD -->
 <div class="rounded-2xl overflow-hidden"
     style="background:#FFFFFF;border:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(15,23,42,0.06);">
@@ -167,47 +158,36 @@ ob_start();
                             </td>
 
                             <!-- AKSI -->
-                            <td class="px-6 py-5 text-center">
-                                <?php if ($statusUpper === 'OFFERING'): ?>
-                                    <button
-                                        onclick='bukaModalDetail(<?= json_encode($item, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
-                                        class="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl text-white transition-all hover:opacity-90 hover:shadow-lg"
-                                        style="background:linear-gradient(135deg,#1E3A8A,#2563EB);box-shadow:0 2px 8px rgba(37,99,235,0.25);">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                        </svg>
-                                        Lihat Detail
-                                    </button>
+                            <td class="px-6 py-5">
+                                <div class="flex items-center justify-center gap-2">
 
-                                <?php elseif ($statusUpper === 'DITOLAK'): ?>
-                                    <button
-                                        onclick='bukaModalDetail(<?= json_encode($item, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
-                                        class="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl text-white transition-all hover:opacity-90"
-                                        style="background:#DC2626;box-shadow:0 2px 8px rgba(220,38,38,0.25);">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                        </svg>
-                                        Lihat Alasan
-                                    </button>
+                                    <a href="<?= BASE_URL ?>views/lowonganPekerjaan/detailById.php?id=<?= $item['id_lowongan'] ?>"
+                                        class="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all"
+                                        title="Lihat Detail Lowongan">
+                                        <i class="fa-solid fa-eye text-sm"></i>
+                                    </a>
 
-                                <?php elseif ($statusUpper === 'DITERIMA'): ?>
-                                    <button
-                                        onclick='bukaModalDetail(<?= json_encode($item, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
-                                        class="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl text-white transition-all hover:opacity-90"
-                                        style="background:linear-gradient(135deg,#059669,#10B981);box-shadow:0 2px 8px rgba(5,150,105,0.25);">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                        Lihat Detail
-                                    </button>
+                                    <!-- TOMBOL AKSI KHUSUS (Berdasarkan Status) -->
+                                    <?php if ($statusUpper === 'OFFERING'): ?>
+                                        <button onclick='bukaModalDetail(<?= json_encode($item, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
+                                            class="h-9 px-4 flex items-center gap-2 rounded-xl bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20">
+                                            <i class="fa-solid fa-file-signature text-xs"></i> Offering
+                                        </button>
 
-                                <?php else: ?>
-                                    <span style="color:#CBD5E1;font-size:18px;line-height:1;">—</span>
-                                <?php endif; ?>
+                                    <?php elseif ($statusUpper === 'DITOLAK'): ?>
+                                        <button onclick='bukaModalDetail(<?= json_encode($item, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
+                                            class="h-9 px-4 flex items-center gap-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-100 text-[11px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all">
+                                            <i class="fa-solid fa-circle-question text-xs"></i> Alasan
+                                        </button>
+
+                                    <?php elseif ($statusUpper === 'DITERIMA'): ?>
+                                        <button onclick='bukaModalDetail(<?= json_encode($item, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
+                                            class="h-9 px-4 flex items-center gap-2 rounded-xl bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-md shadow-emerald-600/20">
+                                            <i class="fa-solid fa-circle-check text-xs"></i> Detail
+                                        </button>
+                                    <?php endif; ?>
+
+                                </div>
                             </td>
 
                         </tr>

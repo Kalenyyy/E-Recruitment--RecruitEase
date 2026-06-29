@@ -60,26 +60,39 @@ ob_start();
     <div class="flex flex-col gap-5">
 
         <!-- ===== CARD 1: INFORMASI UTAMA ===== -->
-        <div class="rounded-2xl" style="background: #FFFFFF; border: 1px solid #E2E8F0;">
-            <div class="px-6 py-4 flex items-center gap-2" style="border-bottom: 1px solid #F1F5F9;">
-                <span style="font-size:16px;">📋</span>
+        <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
+            <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
+                <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </span>
                 <h2 class="font-bold text-sm" style="color: #1E293B;">Informasi Utama</h2>
             </div>
             <div class="p-6 grid grid-cols-2 gap-4">
+
                 <!-- JUDUL JOB -->
                 <div class="col-span-2 flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Judul Pekerjaan <span style="color:#EF4444;">*</span></label>
+                    <label class="text-xs font-semibold" style="color: #475569;">Judul Pekerjaan <span style="color:#EF4444;">*</span></label>
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">💼</span>
-                        <input type="text" name="judul_job" required class="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-300 outline-none focus:border-blue-500 bg-slate-50"
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                        </span>
+                        <input type="text" name="judul_job" required class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50 text-slate-800"
                             value="<?= htmlspecialchars($_POST['judul_job'] ?? $job['judul_job']) ?>">
                     </div>
                 </div>
 
                 <!-- POSISI -->
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Posisi <span style="color:#EF4444;">*</span></label>
-                    <select name="posisi_id" required class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 outline-none bg-slate-50">
+                    <label class="text-xs font-semibold" style="color: #475569;">Posisi <span style="color:#EF4444;">*</span></label>
+                    <select name="posisi_id" required class="w-full px-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50 text-slate-800 appearance-none">
                         <?php foreach ($posisiList as $posisi): ?>
                             <option value="<?= $posisi['id'] ?>" <?= (($_POST['posisi_id'] ?? $job['posisi_id']) == $posisi['id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($posisi['nama_posisi']) ?>
@@ -90,17 +103,17 @@ ob_start();
 
                 <!-- LOKASI -->
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Lokasi <span style="color:#EF4444;">*</span></label>
-                    <input type="text" name="lokasi" required class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 outline-none bg-slate-50"
+                    <label class="text-xs font-semibold" style="color: #475569;">Lokasi <span style="color:#EF4444;">*</span></label>
+                    <input type="text" name="lokasi" required class="w-full px-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50 text-slate-800"
                         value="<?= htmlspecialchars($_POST['lokasi'] ?? $job['lokasi']) ?>">
                 </div>
 
                 <!-- TIPE PEKERJAAN -->
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Tipe Pekerjaan <span style="color:#EF4444;">*</span></label>
-                    <select name="tipe_pekerjaan" required class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 outline-none bg-slate-50">
+                    <label class="text-xs font-semibold" style="color: #475569;">Tipe Pekerjaan <span style="color:#EF4444;">*</span></label>
+                    <select name="tipe_pekerjaan" required class="w-full px-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50 text-slate-800 appearance-none">
                         <?php
-                        $tipeList = ['Full Time' => '⏰ Full Time', 'Part Time' => '🕐 Part Time', 'Internship' => '🎓 Magang', 'Freelance' => '💻 Freelance', 'Contract' => '📄 Kontrak'];
+                        $tipeList = ['Full Time' => 'Full Time', 'Part Time' => 'Part Time', 'Internship' => 'Magang', 'Freelance' => 'Freelance', 'Contract' => 'Kontrak'];
                         $selectedTipe = $_POST['tipe_pekerjaan'] ?? $job['tipe_pekerjaan'];
                         foreach ($tipeList as $val => $label): ?>
                             <option value="<?= $val ?>" <?= $selectedTipe === $val ? 'selected' : '' ?>><?= $label ?></option>
@@ -108,26 +121,39 @@ ob_start();
                     </select>
                 </div>
 
-                <!-- GAJI -->
+                <!-- RENTANG GAJI -->
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Gaji (opsional)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
-                        <input type="number" name="gaji" class="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-300 outline-none bg-slate-50"
-                            value="<?= htmlspecialchars($_POST['gaji'] ?? $job['gaji']) ?>">
+                    <label class="text-xs font-semibold" style="color: <?= isset($errors['gaji']) ? '#EF4444' : '#475569' ?>;">
+                        Rentang Gaji <span class="font-normal" style="color:#94A3B8;">(opsional)</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold" style="color:#94A3B8;">Rp</span>
+                            <input type="text" name="gaji_min" id="gaji_min" placeholder="Min"
+                                class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50 gaji-input"
+                                value="<?= htmlspecialchars($_POST['gaji_min'] ?? number_format($job['gaji_min'] ?? 0, 0, ',', '.')) ?>">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold" style="color:#94A3B8;">Rp</span>
+                            <input type="text" name="gaji_max" id="gaji_max" placeholder="Max"
+                                class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50 gaji-input"
+                                value="<?= htmlspecialchars($_POST['gaji_max'] ?? number_format($job['gaji_max'] ?? 0, 0, ',', '.')) ?>">
+                        </div>
                     </div>
+                    <?php if (isset($errors['gaji'])): ?>
+                        <p class="text-[10px] font-bold" style="color:#EF4444;"><?= $errors['gaji'] ?></p>
+                    <?php endif; ?>
                 </div>
 
                 <!-- DESKRIPSI -->
                 <div class="col-span-2 flex flex-col gap-1">
-                    <label class="text-xs font-semibold text-slate-500">Deskripsi Pekerjaan <span style="color:#EF4444;">*</span></label>
-                    <textarea name="deskripsi" rows="5" required class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 outline-none bg-slate-50"><?= htmlspecialchars($_POST['deskripsi'] ?? $job['deskripsi']) ?></textarea>
+                    <label class="text-xs font-semibold" style="color: #475569;">Deskripsi Pekerjaan <span style="color:#EF4444;">*</span></label>
+                    <textarea name="deskripsi" rows="5" required class="w-full px-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50 text-slate-800 resize-none"><?= htmlspecialchars($_POST['deskripsi'] ?? $job['deskripsi']) ?></textarea>
                 </div>
             </div>
         </div>
 
         <!-- ===== CARD 2: SKILLS (Tampilan Floating Dropdown) ===== -->
-        <!-- PENTING: Jangan gunakan overflow-hidden di sini agar dropdown bisa melayang keluar card -->
         <div class="bg-white border border-slate-200 rounded-2xl shadow-sm relative">
             <div class="p-6">
                 <div class="flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase text-slate-400 mb-3.5 after:content-[''] after:flex-1 after:h-[0.5px] after:bg-slate-200">
@@ -164,23 +190,28 @@ ob_start();
         </div>
 
         <!-- ===== CARD 3: OPSI KERJA ===== -->
-        <div class="rounded-2xl bg-white border border-slate-200 overflow-hidden">
-            <div class="px-6 py-4 flex items-center gap-2" style="border-bottom: 1px solid #F1F5F9;">
-                <span style="font-size:16px;">⚙️</span>
+        <div class="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-sm">
+            <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
+                <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+                    </svg>
+                </span>
                 <h2 class="font-bold text-sm" style="color: #1E293B;">Opsi Pekerjaan</h2>
             </div>
             <div class="p-6 flex flex-col gap-4">
                 <?php
                 $toggleOptions = [
-                    'is_remote_work'      => ['icon' => '🏠', 'label' => 'Remote Work',        'desc' => 'Pekerjaan bisa dilakukan dari rumah'],
-                    'is_remote_interview' => ['icon' => '💬', 'label' => 'Remote Interview',   'desc' => 'Proses wawancara dilakukan secara online'],
+                    'is_remote_work'      => ['icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>', 'label' => 'Remote Work', 'desc' => 'Pekerjaan bisa dilakukan dari rumah'],
+                    'is_remote_interview' => ['icon' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>', 'label' => 'Remote Interview', 'desc' => 'Proses wawancara dilakukan secara online'],
                 ];
                 foreach ($toggleOptions as $fieldName => $opt):
                     $isChecked = (isset($_POST[$fieldName]) ? (bool)$_POST[$fieldName] : (bool)$job[$fieldName]);
                 ?>
                     <div class="flex items-center justify-between py-1">
                         <div class="flex items-center gap-3">
-                            <span style="font-size:20px;"><?= $opt['icon'] ?></span>
+                            <span class="inline-flex items-center justify-center" style="width:38px;height:38px;border-radius:10px;background:#F1F5F9;color:#1E3A8A;"><?= $opt['icon'] ?></span>
                             <div>
                                 <p class="text-sm font-semibold" style="color:#1E293B;"><?= $opt['label'] ?></p>
                                 <p class="text-xs" style="color:#64748B;"><?= $opt['desc'] ?></p>
@@ -188,8 +219,7 @@ ob_start();
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="hidden" name="<?= $fieldName ?>" value="0">
-                            <input type="checkbox" name="<?= $fieldName ?>" value="1"
-                                class="sr-only peer" <?= $isChecked ? 'checked' : '' ?>>
+                            <input type="checkbox" name="<?= $fieldName ?>" value="1" class="sr-only peer" <?= $isChecked ? 'checked' : '' ?>>
                             <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-blue-800 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
                         </label>
                     </div>
@@ -198,9 +228,16 @@ ob_start();
         </div>
 
         <!-- ===== CARD 4: DISABILITAS ===== -->
-        <div class="rounded-2xl bg-white border border-slate-200 overflow-hidden">
-            <div class="px-6 py-4 flex items-center gap-2" style="border-bottom: 1px solid #F1F5F9;">
-                <span style="font-size:16px;">♿</span>
+        <div class="rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-sm">
+            <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
+                <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="5" r="1.5"></circle>
+                        <path d="M9 9h6l-1 4 4 2v6"></path>
+                        <path d="M7 21h10"></path>
+                        <path d="M9 13a4 4 0 0 0 4 6"></path>
+                    </svg>
+                </span>
                 <h2 class="font-bold text-sm" style="color: #1E293B;">Aksesibilitas & Disabilitas</h2>
             </div>
             <div class="p-6 flex flex-col gap-4">
@@ -212,15 +249,13 @@ ob_start();
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="hidden" name="is_disabilitas" value="0">
                         <?php $isDisActive = (isset($_POST['is_disabilitas']) ? $_POST['is_disabilitas'] : $job['is_disabilitas']) == '1'; ?>
-                        <input type="checkbox" id="toggleDisabilitas" name="is_disabilitas" value="1"
-                            class="sr-only peer" <?= $isDisActive ? 'checked' : '' ?>
-                            onchange="toggleDisabilitasSection(this.checked)">
+                        <input type="checkbox" id="toggleDisabilitas" name="is_disabilitas" value="1" class="sr-only peer" <?= $isDisActive ? 'checked' : '' ?> onchange="toggleDisabilitasSection(this.checked)">
                         <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-blue-800 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
                     </label>
                 </div>
 
                 <div id="disabilitasSection" class="flex flex-col gap-4 <?= $isDisActive ? '' : 'hidden' ?>">
-                    <div class="flex flex-col gap-2">
+                    <div class="grid grid-cols-1 gap-2">
                         <?php
                         $jenisDisabilitas = [
                             'visual' => ['label' => 'Visual', 'desc' => 'Tunanetra, low vision'],
@@ -232,20 +267,19 @@ ob_start();
                         ];
                         $selectedDisabilityTypes = $_POST['disability_types'] ?? $job['disability_types'] ?? [];
                         foreach ($jenisDisabilitas as $key => $info): ?>
-                            <div class="flex items-center justify-between px-4 py-3 rounded-xl border border-slate-100 bg-slate-50/50">
+                            <div class="flex items-center justify-between px-4 py-3 rounded-xl border border-slate-100 bg-slate-50">
                                 <div>
                                     <p class="text-sm font-semibold" style="color:#1E293B;"><?= $info['label'] ?></p>
-                                    <p class="text-[11px] text-slate-500"><?= $info['desc'] ?></p>
+                                    <p class="text-xs text-slate-500"><?= $info['desc'] ?></p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="disability_types[]" value="<?= $key ?>"
-                                        class="sr-only peer" <?= in_array($key, $selectedDisabilityTypes) ? 'checked' : '' ?>>
+                                    <input type="checkbox" name="disability_types[]" value="<?= $key ?>" class="sr-only peer" <?= in_array($key, $selectedDisabilityTypes) ? 'checked' : '' ?>>
                                     <div class="w-10 h-5 bg-slate-200 rounded-full peer peer-checked:bg-blue-800 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
                                 </label>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <textarea name="additional_support" rows="3" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50 outline-none" placeholder="Dukungan tambahan..."><?= htmlspecialchars($_POST['additional_support'] ?? $job['additional_support']) ?></textarea>
+                    <textarea name="additional_support" rows="3" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-slate-50 outline-none resize-none" placeholder="Dukungan tambahan..."><?= htmlspecialchars($_POST['additional_support'] ?? $job['additional_support']) ?></textarea>
                 </div>
             </div>
         </div>
@@ -261,6 +295,34 @@ ob_start();
 <script>
     function toggleDisabilitasSection(isChecked) {
         document.getElementById('disabilitasSection').classList.toggle('hidden', !isChecked);
+    }
+
+    const gajiInputs = document.querySelectorAll('.gaji-input');
+
+    gajiInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            let rawValue = this.value.replace(/\D/g, '');
+            if (rawValue.length > 9) {
+                rawValue = rawValue.substring(0, 9);
+            }
+            if (rawValue !== "") {
+                this.value = formatRupiah(rawValue);
+            } else {
+                this.value = "";
+            }
+        });
+    });
+
+    function formatRupiah(angka) {
+        let number_string = angka.toString(),
+            sisa = number_string.length % 3,
+            rupiah = number_string.substr(0, sisa),
+            ribuan = number_string.substr(sisa).match(/\d{3}/g);
+        if (ribuan) {
+            let separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+        return rupiah;
     }
 
     /* === JAVASCRIPT SKILL DINAMIS === */

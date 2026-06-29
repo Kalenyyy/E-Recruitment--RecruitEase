@@ -21,22 +21,27 @@ class JobFormController
     {
         $errors = [];
 
-        // Validasi sederhana
+        // Bersihkan format titik untuk validasi angka
+        $gmin = (int)str_replace('.', '', $postData['gaji_min'] ?? 0);
+        $gmax = (int)str_replace('.', '', $postData['gaji_max'] ?? 0);
+
         if (empty($postData['judul_job'])) $errors['judul_job'] = "Judul wajib diisi";
-        if (empty($postData['posisi_id'])) $errors['posisi_id'] = "Posisi wajib dipilih";
+
+        // Validasi Gaji
+        if ($gmin > 999999999 || $gmax > 999999999) {
+            $errors['gaji'] = "Gaji tidak boleh mencapai 1 Miliar";
+        }
+        if ($gmin > 0 && $gmax > 0 && $gmax < $gmin) {
+            $errors['gaji'] = "Gaji maksimal harus lebih besar dari minimal";
+        }
 
         if (!empty($errors)) {
             return ['status' => false, 'errors' => $errors];
         }
 
-        // Panggil model untuk menyimpan (Model akan menangani 3 tabel sekaligus)
-        $result = JobForm::create($conn, $postData, $staff_id);
-
-        if ($result) {
-            return ['status' => true];
-        } else {
-            return ['status' => false, 'errors' => ['umum' => 'Terjadi kesalahan sistem saat menyimpan data.']];
-        }
+        return JobForm::create($conn, $postData, $staff_id)
+            ? ['status' => true]
+            : ['status' => false, 'errors' => ['umum' => 'Terjadi kesalahan sistem.']];
     }
 
     public static function show($conn, $id)

@@ -10,7 +10,8 @@ if (!AuthController::isHRD()) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_transaksi  = $_POST['id_transaksi'] ?? null;
-    $gaji_offering = $_POST['gaji_offering'] ?? null;
+    $gaji_raw = $_POST['gaji_offering'] ?? null;
+    $gaji_offering = preg_replace('/[^0-9]/', '', $gaji_raw);
     $file_offering = $_FILES['file_offering'] ?? null;
 
     // 1. Validasi Input Dasar

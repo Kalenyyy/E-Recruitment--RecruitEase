@@ -201,14 +201,48 @@ class JobPostingModel
     }
 
     // 2. Fungsi update status biasa (untuk DITOLAK atau status lain tanpa jadwal)
-    public static function updateApplicationStatus($conn, $id_transaksi, $status_baru)
-    {
-        $query = "UPDATE candidate_apply_job SET status_lamaran = ? WHERE id = ?";
-        $stmt = $conn->prepare($query);
-        if ($stmt) {
-            $stmt->bind_param('si', $status_baru, $id_transaksi);
-            return $stmt->execute();
+    public static function updateApplicationStatus(
+        $conn,
+        $id_transaksi,
+        $status_baru,
+        $alasan = null
+    ) {
+
+        if ($status_baru == "DITOLAK") {
+
+            $query = "
+        UPDATE candidate_apply_job
+        SET
+            status_lamaran = ?,
+            tolak_hr = ?
+        WHERE id = ?
+        ";
+
+            $stmt = $conn->prepare($query);
+
+            $stmt->bind_param(
+                "ssi",
+                $status_baru,
+                $alasan,
+                $id_transaksi
+            );
+        } else {
+
+            $query = "
+        UPDATE candidate_apply_job
+        SET status_lamaran = ?
+        WHERE id = ?
+        ";
+
+            $stmt = $conn->prepare($query);
+
+            $stmt->bind_param(
+                "si",
+                $status_baru,
+                $id_transaksi
+            );
         }
-        return false;
+
+        return $stmt->execute();
     }
 }

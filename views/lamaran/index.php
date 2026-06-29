@@ -182,22 +182,34 @@ ob_start();
                                     </button>
 
                                 <?php elseif ($statusUpper === 'DITOLAK'): ?>
-                                    <span style="display:inline-flex;align-items:center;gap:5px;
-                                        padding:5px 12px;border-radius:999px;
-                                        background:#FEE2E2;color:#991B1B;
-                                        font-size:11px;font-weight:700;letter-spacing:0.06em;">
-                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    <button
+                                        onclick='bukaModalDetail(<?= json_encode($item, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
+                                        class="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl text-white transition-all hover:opacity-90"
+                                        style="background:#DC2626;box-shadow:0 2px 8px rgba(220,38,38,0.25);">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                         </svg>
-                                        Ditolak
-                                    </span>
+                                        Lihat Alasan
+                                    </button>
+
+                                <?php elseif ($statusUpper === 'DITERIMA'): ?>
+                                    <button
+                                        onclick='bukaModalDetail(<?= json_encode($item, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
+                                        class="inline-flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl text-white transition-all hover:opacity-90"
+                                        style="background:linear-gradient(135deg,#059669,#10B981);box-shadow:0 2px 8px rgba(5,150,105,0.25);">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Lihat Detail
+                                    </button>
 
                                 <?php else: ?>
                                     <span style="color:#CBD5E1;font-size:18px;line-height:1;">—</span>
                                 <?php endif; ?>
                             </td>
+
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -237,19 +249,15 @@ ob_start();
                 max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(15,23,42,0.2);
                 transform:translateY(1.5rem);transition:transform 0.25s ease;">
 
-        <!-- ── Header Gradien Biru ── -->
-        <div style="background:linear-gradient(135deg,#1E3A8A,#2563EB);
-                    border-radius:1.75rem 1.75rem 0 0;
-                    padding:1.75rem 2rem 1.75rem;
-                    position:relative;">
-
-            <!-- Tombol Close -->
+        <!-- Header Gradien -->
+        <div id="modal-header"
+            style="border-radius:1.75rem 1.75rem 0 0;padding:1.75rem 2rem;position:relative;
+                    background:linear-gradient(135deg,#1E3A8A,#2563EB);">
             <button onclick="tutupModalDetail()"
                 style="position:absolute;top:1.25rem;right:1.25rem;
                            width:34px;height:34px;border-radius:50%;
                            border:1.5px solid rgba(255,255,255,0.3);
-                           background:rgba(255,255,255,0.15);
-                           color:#FFFFFF;cursor:pointer;
+                           background:rgba(255,255,255,0.15);color:#FFFFFF;cursor:pointer;
                            display:flex;align-items:center;justify-content:center;
                            transition:background 0.15s;"
                 onmouseover="this.style.background='rgba(255,255,255,0.25)'"
@@ -260,54 +268,37 @@ ob_start();
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
-
-            <!-- Label -->
             <p style="font-size:10px;font-weight:700;letter-spacing:0.14em;
                        text-transform:uppercase;color:rgba(255,255,255,0.6);margin:0 0 5px;">
                 Detail Lamaran
             </p>
-
-            <!-- Judul Pekerjaan -->
             <h2 id="m-judul-job"
-                style="font-size:1.3rem;font-weight:700;color:#FFFFFF;margin:0 0 1rem;line-height:1.3;
-                       padding-right:2.5rem;">
-            </h2>
-
-            <!-- Status Badge -->
+                style="font-size:1.3rem;font-weight:700;color:#FFFFFF;margin:0 0 1rem;
+                       line-height:1.3;padding-right:2.5rem;"></h2>
             <span id="m-status-badge"
                 style="display:inline-block;padding:4px 14px;border-radius:999px;
                          font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
                          background:rgba(255,255,255,0.2);color:#FFFFFF;
-                         border:1px solid rgba(255,255,255,0.35);">
-            </span>
+                         border:1px solid rgba(255,255,255,0.35);"></span>
         </div>
 
-        <!-- ── Body ── -->
+        <!-- Body -->
         <div style="padding:1.5rem 2rem 2rem;">
 
-            <!-- SEKSI OFFERING -->
+            <!-- ── KONTEN OFFERING ── -->
             <div id="section-offering" style="display:none;">
-
-                <!-- Kartu Gaji -->
-                <!-- Kartu Gaji — SESUDAH -->
                 <div style="padding:1.25rem 1.5rem;border-radius:1.25rem;margin-bottom:1rem;
-            background:linear-gradient(135deg,#EFF6FF,#DBEAFE);
-            border:1px solid #BFDBFE;">
+                            background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1px solid #BFDBFE;">
                     <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
-               text-transform:uppercase;color:#3B82F6;margin:0 0 5px;">
-                        Gaji Ditawarkan
-                    </p>
+                               text-transform:uppercase;color:#3B82F6;margin:0 0 5px;">Gaji Ditawarkan</p>
                     <p id="m-gaji-offering"
-                        style="font-size:1.8rem;font-weight:700;color:#1E3A8A;margin:0;line-height:1;">
-                    </p>
+                        style="font-size:1.8rem;font-weight:700;color:#1E3A8A;margin:0;line-height:1;"></p>
                 </div>
 
-                <!-- Tombol Download -->
                 <a id="m-download-pdf" href="#" target="_blank"
-                    style="display:flex;align-items:center;gap:12px;
-                          padding:0.875rem 1.25rem;border-radius:1rem;margin-bottom:1.25rem;
-                          border:1px solid #E2E8F0;background:#F8FAFC;
-                          color:#334155;font-size:13px;font-weight:600;
+                    style="display:flex;align-items:center;gap:12px;padding:0.875rem 1.25rem;
+                          border-radius:1rem;margin-bottom:1.25rem;border:1px solid #E2E8F0;
+                          background:#F8FAFC;color:#334155;font-size:13px;font-weight:600;
                           text-decoration:none;transition:all 0.15s;"
                     onmouseover="this.style.background='#EFF6FF';this.style.borderColor='#BFDBFE';this.style.color='#1D4ED8'"
                     onmouseout="this.style.background='#F8FAFC';this.style.borderColor='#E2E8F0';this.style.color='#334155'">
@@ -332,69 +323,119 @@ ob_start();
                     </svg>
                 </a>
 
-                <!-- Divider -->
                 <div style="border-top:1px solid #F1F5F9;margin-bottom:1.25rem;"></div>
 
-                <!-- Aksi Terima / Tolak -->
-                <div id="offering-actions"
-                    style="display:none;grid-template-columns:1fr 1fr;gap:10px;">
+                <div id="offering-actions" style="display:none;grid-template-columns:1fr 1fr;gap:10px;">
                     <button type="button" onclick="bukaConfirm('DITERIMA')"
                         style="padding:13px;border-radius:0.875rem;border:none;
                                    background:linear-gradient(135deg,#1E3A8A,#2563EB);
                                    color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer;
-                                   box-shadow:0 2px 8px rgba(37,99,235,0.3);
-                                   transition:opacity 0.15s;"
+                                   box-shadow:0 2px 8px rgba(37,99,235,0.3);transition:opacity 0.15s;"
                         onmouseover="this.style.opacity='0.88'"
                         onmouseout="this.style.opacity='1'">
                         Terima Penawaran
                     </button>
                     <button type="button" onclick="bukaConfirm('DITOLAK')"
-                        style="padding:13px;border-radius:0.875rem;
-                                   border:1.5px solid #FECACA;background:#FFFFFF;
-                                   color:#DC2626;font-size:13px;font-weight:700;cursor:pointer;
-                                   transition:background 0.15s,border-color 0.15s;"
+                        style="padding:13px;border-radius:0.875rem;border:1.5px solid #FECACA;
+                                   background:#FFFFFF;color:#DC2626;font-size:13px;font-weight:700;
+                                   cursor:pointer;transition:background 0.15s,border-color 0.15s;"
                         onmouseover="this.style.background='#FEF2F2';this.style.borderColor='#FCA5A5'"
                         onmouseout="this.style.background='#FFFFFF';this.style.borderColor='#FECACA'">
                         Tolak
                     </button>
                 </div>
 
-                <!-- Sudah direspon -->
                 <p id="offering-responded"
                     style="display:none;text-align:center;font-size:12px;font-weight:600;
                           color:#2563EB;background:#EFF6FF;border:1px solid #BFDBFE;
                           border-radius:0.875rem;padding:12px 0;">
                     Penawaran sudah direspon
                 </p>
+            </div>
+
+            <!-- ── KONTEN DITOLAK ── -->
+            <div id="section-ditolak" style="display:none;">
+
+                <!-- Badge pihak penolak -->
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;">
+                    <div style="width:32px;height:32px;border-radius:0.625rem;flex-shrink:0;
+                                background:#FEE2E2;display:flex;align-items:center;justify-content:center;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                            stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <p style="font-size:12px;font-weight:700;color:#0F172A;margin:0;">Lamaran Ditolak</p>
+                        <p id="m-pihak-penolak"
+                            style="font-size:11px;color:#64748B;margin:2px 0 0;font-weight:500;"></p>
+                    </div>
+                </div>
+
+                <!-- Kotak alasan -->
+                <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:1rem;padding:1.25rem;">
+                    <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
+                               text-transform:uppercase;color:#DC2626;margin:0 0 8px;">
+                        Alasan Penolakan
+                    </p>
+                    <p id="m-alasan-ditolak"
+                        style="font-size:13px;color:#7F1D1D;line-height:1.7;margin:0;font-weight:500;"></p>
+                </div>
+            </div>
+
+            <!-- ── KONTEN DITERIMA ── -->
+            <div id="section-diterima" style="display:none;">
+
+                <!-- Badge diterima -->
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;">
+                    <div style="width:32px;height:32px;border-radius:0.625rem;flex-shrink:0;
+                                background:#D1FAE5;display:flex;align-items:center;justify-content:center;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                            stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        <p style="font-size:12px;font-weight:700;color:#0F172A;margin:0;">Lamaran Diterima</p>
+                        <p style="font-size:11px;color:#64748B;margin:2px 0 0;font-weight:500;">
+                            Selamat! Anda berhasil lolos seleksi
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Kotak info diterima -->
+                <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:1rem;padding:1.25rem;">
+                    <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
+                               text-transform:uppercase;color:#059669;margin:0 0 8px;">
+                        Informasi
+                    </p>
+                    <p style="font-size:13px;color:#065F46;line-height:1.7;margin:0;font-weight:500;">
+                        Anda telah resmi diterima. Silakan menunggu informasi lebih lanjut dari tim HRD mengenai jadwal onboarding.
+                    </p>
+                </div>
 
             </div>
 
-            <!-- DETAIL LAMARAN (non-offering) -->
-            <div id="detail-lamaran">
+            <!-- ── KONTEN DETAIL BIASA (administrasi / interview) ── -->
+            <div id="detail-lamaran" style="display:none;">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
                     <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1rem;padding:1rem;">
                         <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
-                                   text-transform:uppercase;color:#94A3B8;margin:0 0 6px;">
-                            Keahlian
-                        </p>
+                                   text-transform:uppercase;color:#94A3B8;margin:0 0 6px;">Keahlian</p>
                         <p id="m-expert" style="font-size:14px;font-weight:600;color:#1E293B;margin:0;"></p>
                     </div>
                     <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1rem;padding:1rem;">
                         <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
-                                   text-transform:uppercase;color:#94A3B8;margin:0 0 6px;">
-                            Pengalaman
-                        </p>
+                                   text-transform:uppercase;color:#94A3B8;margin:0 0 6px;">Pengalaman</p>
                         <p id="m-pengalaman" style="font-size:14px;font-weight:600;color:#1E293B;margin:0;"></p>
                     </div>
                 </div>
-
                 <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1rem;padding:1rem;">
                     <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
-                               text-transform:uppercase;color:#94A3B8;margin:0 0 6px;">
-                        Catatan Lamaran
-                    </p>
-                    <p id="m-catatan"
-                        style="font-size:13px;color:#475569;line-height:1.65;margin:0;"></p>
+                               text-transform:uppercase;color:#94A3B8;margin:0 0 6px;">Catatan Lamaran</p>
+                    <p id="m-catatan" style="font-size:13px;color:#475569;line-height:1.65;margin:0;"></p>
                 </div>
             </div>
 
@@ -404,23 +445,22 @@ ob_start();
 
 
 <!-- ================================================================
-     MODAL KONFIRMASI
+     MODAL KONFIRMASI OFFERING (Terima / Tolak + Alasan)
      ================================================================ -->
 <div id="confirmModal"
     style="display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;padding:1rem;
             background:rgba(15,23,42,0.65);backdrop-filter:blur(6px);
             opacity:0;transition:opacity 0.2s ease;">
 
-    <div style="background:#FFFFFF;border-radius:1.75rem;width:100%;max-width:380px;padding:2rem;
+    <div style="background:#FFFFFF;border-radius:1.75rem;width:100%;max-width:400px;padding:2rem;
                 box-shadow:0 30px 70px rgba(15,23,42,0.2);
                 transform:scale(0.93);transition:transform 0.2s ease;">
 
         <div id="confirmIcon"
             style="width:56px;height:56px;border-radius:1rem;margin:0 auto 1.25rem;
-                    display:flex;align-items:center;justify-content:center;">
-        </div>
+                    display:flex;align-items:center;justify-content:center;"></div>
 
-        <div style="text-align:center;margin-bottom:1.75rem;">
+        <div style="text-align:center;margin-bottom:1.5rem;">
             <h3 id="confirmTitle"
                 style="font-size:1.1rem;font-weight:700;color:#0F172A;margin:0 0 8px;"></h3>
             <p id="confirmText"
@@ -430,6 +470,23 @@ ob_start();
         <form action="<?= BASE_URL ?>public/actions/respond_offering.php" method="POST">
             <input type="hidden" name="id_transaksi" id="confirm-id">
             <input type="hidden" name="respon" id="confirm-respon">
+
+            <!-- Field alasan (hanya muncul saat DITOLAK) -->
+            <div id="field-alasan-kandidat" style="display:none;margin-bottom:1rem;">
+                <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
+                           text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
+                    Alasan Penolakan
+                </p>
+                <textarea name="tolak_candidate" rows="3"
+                    placeholder="Tuliskan alasan Anda menolak penawaran ini..."
+                    style="width:100%;padding:10px 14px;border-radius:0.875rem;
+                                 border:1px solid #E2E8F0;background:#F8FAFC;
+                                 font-size:13px;color:#475569;resize:none;
+                                 outline:none;box-sizing:border-box;transition:border-color 0.15s;"
+                    onfocus="this.style.borderColor='#DC2626';this.style.background='#FFFFFF'"
+                    onblur="this.style.borderColor='#E2E8F0';this.style.background='#F8FAFC'"></textarea>
+            </div>
+
             <button type="submit" id="confirmBtn"
                 style="width:100%;padding:13px;border-radius:0.875rem;border:none;
                            color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer;
@@ -484,6 +541,15 @@ ob_start();
             },
         };
 
+        // Header warna per status
+        const headerGradient = {
+            offering: 'linear-gradient(135deg,#1E3A8A,#2563EB)',
+            ditolak: 'linear-gradient(135deg,#991B1B,#DC2626)',
+            diterima: 'linear-gradient(135deg,#065F46,#059669)',
+            administrasi: 'linear-gradient(135deg,#1E3A8A,#2563EB)',
+            interview: 'linear-gradient(135deg,#1E3A8A,#2563EB)',
+        };
+
         function showEl(id) {
             document.getElementById(id).style.display = '';
         }
@@ -524,45 +590,75 @@ ob_start();
 
             const modal = document.getElementById('modalDetailLamaran');
             const box = modal.querySelector('div');
+            const header = document.getElementById('modal-header');
 
+            // Reset semua seksi
             hideEl('section-offering');
             hideEl('offering-actions');
             hideEl('offering-responded');
-            showEl('detail-lamaran');
+            hideEl('section-ditolak');
+            hideEl('section-diterima');
+            hideEl('detail-lamaran');
 
             setText('m-judul-job', data.judul_job);
 
-            // Status badge (di dalam header biru — pakai warna putih transparan)
-            const badge = document.getElementById('m-status-badge');
             const key = (data.status_lamaran || '').toLowerCase();
             const cfg = statusConfig[key] || {
                 label: data.status_lamaran
             };
+
+            // Warna header sesuai status
+            header.style.background = headerGradient[key] || headerGradient.administrasi;
+
+            // Badge status
+            const badge = document.getElementById('m-status-badge');
             badge.textContent = cfg.label;
             badge.style.background = 'rgba(255,255,255,0.2)';
             badge.style.color = '#FFFFFF';
             badge.style.border = '1px solid rgba(255,255,255,0.35)';
 
             if (key === 'offering') {
-                hideEl('detail-lamaran');
                 showEl('section-offering');
-
                 document.getElementById('m-download-pdf').href =
                     `<?= BASE_URL ?>public/uploads/offering/${data.file_offering}`;
-
                 const gaji = new Intl.NumberFormat('id-ID', {
                     style: 'currency',
                     currency: 'IDR',
                     minimumFractionDigits: 0
                 }).format(data.gaji_offering || 0);
                 setText('m-gaji-offering', gaji);
-
                 if (data.status_respon_offering) {
                     showEl('offering-responded');
                 } else {
                     gridEl('offering-actions');
                 }
+
+            } else if (key === 'ditolak') {
+                showEl('section-ditolak');
+
+                let alasan = '';
+                let pihak = '';
+
+                if (data.tolak_hr && data.tolak_hr.trim() !== '') {
+                    alasan = data.tolak_hr;
+                    pihak = 'Penolakan dilakukan oleh HRD';
+                } else if (data.tolak_candidate && data.tolak_candidate.trim() !== '') {
+                    alasan = data.tolak_candidate;
+                    pihak = 'Penolakan dilakukan oleh Pelamar';
+                } else {
+                    alasan = 'Tidak ada alasan yang diberikan.';
+                    pihak = 'Sumber penolakan tidak diketahui';
+                }
+
+                setText('m-alasan-ditolak', alasan);
+                setText('m-pihak-penolak', pihak);
+
+            } else if (key === 'diterima') {
+                showEl('section-diterima');
+
             } else {
+                // administrasi / interview
+                showEl('detail-lamaran');
                 setText('m-expert', data.expert_bidang || '-');
                 setText('m-pengalaman', data.pengalaman_bidang || '-');
                 setText('m-catatan', data.catatan || 'Tidak ada catatan khusus.');
@@ -577,16 +673,17 @@ ob_start();
             closeOverlay(modal, modal.querySelector('div'), 'translateY(1.5rem)');
         };
 
-        // ── Modal Konfirmasi ──
+        // ── Modal Konfirmasi Offering ──
         window.bukaConfirm = function(type) {
             const modal = document.getElementById('confirmModal');
             const box = modal.querySelector('div');
+            const icon = document.getElementById('confirmIcon');
+            const btn = document.getElementById('confirmBtn');
+            const fieldAlasan = document.getElementById('field-alasan-kandidat');
+            const textarea = fieldAlasan.querySelector('textarea');
 
             document.getElementById('confirm-id').value = currentData.id;
             document.getElementById('confirm-respon').value = type;
-
-            const icon = document.getElementById('confirmIcon');
-            const btn = document.getElementById('confirmBtn');
 
             if (type === 'DITERIMA') {
                 icon.style.background = '#D1FAE5';
@@ -594,9 +691,12 @@ ob_start();
                 stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"></polyline></svg>`;
                 setText('confirmTitle', 'Terima Penawaran Kerja?');
-                setText('confirmText', 'Pastikan Anda telah membaca seluruh syarat dalam Offering Letter sebelum menerima penawaran ini.');
+                setText('confirmText', 'Pastikan Anda telah membaca seluruh syarat dalam Offering Letter sebelum menerima.');
                 btn.style.background = '#059669';
                 btn.textContent = 'Ya, Terima Penawaran';
+                fieldAlasan.style.display = 'none';
+                textarea.required = false;
+                textarea.value = '';
             } else {
                 icon.style.background = '#FEE2E2';
                 icon.innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"
@@ -604,9 +704,11 @@ ob_start();
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
                 setText('confirmTitle', 'Tolak Penawaran?');
-                setText('confirmText', 'Tindakan ini tidak dapat dibatalkan. Anda yakin ingin menolak penawaran ini?');
+                setText('confirmText', 'Berikan alasan penolakan agar HR dapat memahami keputusan Anda.');
                 btn.style.background = '#DC2626';
                 btn.textContent = 'Ya, Tolak Penawaran';
+                fieldAlasan.style.display = 'block';
+                textarea.required = true;
             }
 
             box.style.transform = 'scale(0.93)';

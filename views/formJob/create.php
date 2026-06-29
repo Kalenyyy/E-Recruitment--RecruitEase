@@ -39,7 +39,10 @@ ob_start();
     <a href="<?= BASE_URL ?>views/formJob/index.php"
         class="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition hover:bg-slate-100"
         style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
         Kembali
     </a>
 </div>
@@ -47,7 +50,11 @@ ob_start();
 <?php if (isset($errors['umum'])): ?>
     <div class="mb-4 p-4 rounded-xl border flex items-center gap-3"
         style="background: #FEF2F2; border-color: #FECACA; color: #991B1B;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
         <span class="text-sm font-semibold"><?= $errors['umum'] ?></span>
     </div>
 <?php endif; ?>
@@ -61,7 +68,12 @@ ob_start();
         <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
             <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
                 <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
                 </span>
                 <h2 class="font-bold text-sm" style="color: #1E293B;">Informasi Utama</h2>
             </div>
@@ -74,7 +86,10 @@ ob_start();
                     </label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
                         </span>
                         <input type="text" name="judul_job" required placeholder="Contoh: Senior Backend Engineer"
                             class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none"
@@ -94,7 +109,10 @@ ob_start();
                     </label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 23H4v-7L13.41 5.59a2 2 0 0 1 2.82 0l4.36 4.36a2 2 0 0 1 0 2.82Z"></path><circle cx="7.5" cy="15.5" r=".5" fill="currentColor"></circle></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.59 13.41 11 23H4v-7L13.41 5.59a2 2 0 0 1 2.82 0l4.36 4.36a2 2 0 0 1 0 2.82Z"></path>
+                                <circle cx="7.5" cy="15.5" r=".5" fill="currentColor"></circle>
+                            </svg>
                         </span>
                         <select name="posisi_id" required
                             class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none appearance-none"
@@ -121,7 +139,10 @@ ob_start();
                     </label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
                         </span>
                         <input type="text" name="lokasi" required placeholder="Contoh: Jakarta Selatan"
                             class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none"
@@ -151,7 +172,10 @@ ob_start();
                     ?>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2" style="color:#94A3B8;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
                         </span>
                         <select name="tipe_pekerjaan" required
                             class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none appearance-none"
@@ -167,17 +191,31 @@ ob_start();
                 </div>
 
                 <!-- GAJI -->
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-semibold" style="color: #475569;">
-                        Gaji <span class="font-normal" style="color:#94A3B8;">(opsional)</span>
+                <div class="col-span-2 flex flex-col gap-1">
+                    <label class="text-xs font-semibold" style="color: <?= isset($errors['gaji']) ? '#EF4444' : '#475569' ?>;">
+                        Rentang Gaji <span class="font-normal" style="color:#94A3B8;">(opsional)</span>
                     </label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold" style="color:#94A3B8;">Rp</span>
-                        <input type="number" name="gaji" placeholder="Contoh: 8000000" min="0"
-                            class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none"
-                            style="border: 1px solid #CBD5E1; background: #F8FAFC; color: #1E293B;"
-                            value="<?= htmlspecialchars($_POST['gaji'] ?? '') ?>">
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Gaji Minimal -->
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold" style="color:#94A3B8;">Rp</span>
+                            <input type="text" name="gaji_min" id="gaji_min" placeholder="Min (Misal: 5.000.000)"
+                                class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none gaji-input"
+                                style="border: 1px solid #CBD5E1; background: #F8FAFC; color: #1E293B;"
+                                value="<?= htmlspecialchars($_POST['gaji_min'] ?? '') ?>">
+                        </div>
+                        <!-- Gaji Maksimal -->
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold" style="color:#94A3B8;">Rp</span>
+                            <input type="text" name="gaji_max" id="gaji_max" placeholder="Max (Misal: 8.000.000)"
+                                class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none gaji-input"
+                                style="border: 1px solid #CBD5E1; background: #F8FAFC; color: #1E293B;"
+                                value="<?= htmlspecialchars($_POST['gaji_max'] ?? '') ?>">
+                        </div>
                     </div>
+                    <?php if (isset($errors['gaji'])): ?>
+                        <p class="text-[10px] font-bold" style="color:#EF4444;"><?= $errors['gaji'] ?></p>
+                    <?php endif; ?>
                 </div>
 
                 <!-- DESKRIPSI -->
@@ -202,7 +240,11 @@ ob_start();
         <div class="bg-white border border-slate-200 rounded-[16px] overflow-hidden shadow-sm mb-6">
             <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
                 <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 9-5-9-5-9 5 9 5Z"></path><path d="m22 9-10 5L2 9"></path><path d="M6 11.5v4.5a6 3 0 0 0 12 0v-4.5"></path></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 14 9-5-9-5-9 5 9 5Z"></path>
+                        <path d="m22 9-10 5L2 9"></path>
+                        <path d="M6 11.5v4.5a6 3 0 0 0 12 0v-4.5"></path>
+                    </svg>
                 </span>
                 <h2 class="font-bold text-sm" style="color: #1E293B;">Skills</h2>
             </div>
@@ -214,7 +256,10 @@ ob_start();
                 <!-- Input Pencarian -->
                 <div class="relative mb-2.5">
                     <span class="absolute left-[11px] top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
                     </span>
                     <input
                         type="text"
@@ -244,7 +289,10 @@ ob_start();
         <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
             <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
                 <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+                    </svg>
                 </span>
                 <h2 class="font-bold text-sm" style="color: #1E293B;">Opsi Pekerjaan</h2>
             </div>
@@ -293,7 +341,12 @@ ob_start();
         <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15,23,42,0.04);">
             <div class="px-6 py-4 flex items-center gap-2.5" style="border-bottom: 1px solid #F1F5F9;">
                 <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.5"></circle><path d="M9 9h6l-1 4 4 2v6"></path><path d="M7 21h10"></path><path d="M9 13a4 4 0 0 0 4 6"></path></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="5" r="1.5"></circle>
+                        <path d="M9 9h6l-1 4 4 2v6"></path>
+                        <path d="M7 21h10"></path>
+                        <path d="M9 13a4 4 0 0 0 4 6"></path>
+                    </svg>
                 </span>
                 <h2 class="font-bold text-sm" style="color: #1E293B;">Aksesibilitas &amp; Disabilitas</h2>
             </div>
@@ -374,13 +427,20 @@ ob_start();
             <a href="<?= BASE_URL ?>views/job/index.php"
                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition hover:bg-slate-50"
                 style="background: #fff; color: #64748B; border: 1px solid #CBD5E1;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
                 Batal
             </a>
             <button type="submit"
                 class="inline-flex items-center gap-2 px-8 py-2.5 text-sm font-bold rounded-xl text-white transition shadow-lg shadow-blue-900/20 hover:opacity-95"
                 style="background: #1E3A8A; border: none;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
                 Simpan
             </button>
         </div>
@@ -485,6 +545,42 @@ ob_start();
     document.addEventListener('click', function(e) {
         if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add('hidden');
     });
+
+    /* === JAVASCRIPT FORMAT RIBUAN & LIMIT 1M === */
+    const gajiInputs = document.querySelectorAll('.gaji-input');
+
+    gajiInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            // 1. Ambil angka saja (buang titik dan huruf jika ada)
+            let rawValue = this.value.replace(/\D/g, '');
+
+            // 2. KUNCI: Jika lebih dari 9 digit, potong paksa jadi 9 digit saja
+            // Ini membuat user tidak bisa mengetik angka ke-10 (tidak bisa menyentuh 1 Miliar)
+            if (rawValue.length > 9) {
+                rawValue = rawValue.substring(0, 9);
+            }
+
+            // 3. Format kembali dengan titik ribuan
+            if (rawValue !== "") {
+                this.value = formatRupiah(rawValue);
+            } else {
+                this.value = "";
+            }
+        });
+    });
+
+    function formatRupiah(angka) {
+        let number_string = angka.toString(),
+            sisa = number_string.length % 3,
+            rupiah = number_string.substr(0, sisa),
+            ribuan = number_string.substr(sisa).match(/\d{3}/g);
+
+        if (ribuan) {
+            let separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+        return rupiah;
+    }
 </script>
 
 <?php

@@ -375,12 +375,34 @@ ob_start();
                         <p class="text-xs font-semibold mb-3" style="color:#64748B;">Pilih jenis disabilitas yang diterima</p>
                         <?php
                         $jenisDisabilitas = [
-                            'visual'         => ['label' => 'Disabilitas Visual',        'desc' => 'Tunanetra, low vision'],
-                            'hearing'        => ['label' => 'Disabilitas Pendengaran',   'desc' => 'Tunarungu, hard of hearing'],
-                            'physical'       => ['label' => 'Disabilitas Fisik/Motorik', 'desc' => 'Keterbatasan gerak atau mobilitas'],
-                            'intellectual'   => ['label' => 'Disabilitas Intelektual',   'desc' => 'Tunagrahita dan sejenisnya'],
-                            'mental'         => ['label' => 'Disabilitas Mental',        'desc' => 'Gangguan jiwa/psikososial'],
-                            'speech'         => ['label' => 'Disabilitas Wicara',        'desc' => 'Tunawicara'],
+                            'fisik' => [
+                                'label' => 'Disabilitas Fisik',
+                                'desc'  => 'Terganggunya fungsi gerak, antara lain amputasi, lumpuh layu, paraplegi, atau akibat stroke.'
+                            ],
+                            'netra' => [
+                                'label' => 'Disabilitas Sensorik Netra',
+                                'desc'  => 'Gangguan pada daya lihat, baik sebagian (low vision) maupun total (blind).'
+                            ],
+                            'rungu' => [
+                                'label' => 'Disabilitas Sensorik Rungu/Wicara',
+                                'desc'  => 'Gangguan pada fungsi pendengaran dan/atau fungsi bicara atau artikulasi suara.'
+                            ],
+                            'intelektual' => [
+                                'label' => 'Disabilitas Intelektual',
+                                'desc'  => 'Hambatan fungsi kognitif disertai hambatan perilaku adaptif (Down Syndrome, lambat belajar).'
+                            ],
+                            'mental' => [
+                                'label' => 'Disabilitas Mental',
+                                'desc'  => 'Terganggunya fungsi pikir, emosi, dan perilaku (Skizofrenia, Bipolar, atau Autisme).'
+                            ],
+                            'ganda' => [
+                                'label' => 'Disabilitas Ganda/Multipel',
+                                'desc'  => 'Memiliki dua atau lebih jenis disabilitas dalam satu waktu (misal: Fisik sekaligus Netra).'
+                            ],
+                            'lainnya' => [
+                                'label' => 'Lainnya',
+                                'desc'  => 'Jenis hambatan lainnya yang memerlukan akomodasi khusus dalam bekerja.'
+                            ],
                         ];
                         $selectedDisabilityTypes = $_POST['disability_types'] ?? [];
                         ?>

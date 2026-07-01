@@ -127,25 +127,6 @@ ob_start();
         </form>
     </div>
 
-    <!-- SECTION 3: DANGER ZONE -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="px-6 py-4 border-b border-slate-100">
-            <h2 class="font-bold text-base text-red-600">Danger Zone</h2>
-        </div>
-        <div class="p-6 flex items-center justify-between">
-            <div>
-                <h4 class="text-sm font-bold text-slate-800">Hapus Akun Pengguna</h4>
-                <p class="text-xs text-slate-500 mt-1">Setelah Anda menghapus akun, seluruh data yang tertaut tidak
-                    dapat dikembalikan kembali secara meluas.</p>
-            </div>
-            <a href="delete.php?id=<?= $hrd['id'] ?>"
-                onclick="return confirm('Apakah Anda yakin ingin menghapus akun ini secara permanen?')"
-                class="px-5 py-2.5 text-xs font-bold rounded-xl text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition">
-                Hapus Akun
-            </a>
-        </div>
-    </div>
-
 </div>
 <div id="toastMsg"
     class="fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl text-sm font-semibold shadow-lg transition-all duration-300 opacity-0 pointer-events-none">

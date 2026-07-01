@@ -1,21 +1,29 @@
 <?php
 require_once __DIR__ . '/../../init.php';
 
-// Proteksi Halaman: Wajib login dan harus HR
 AuthController::requireLogin();
 AuthController::isHRD() or die("Access denied");
 
-// Ambil data lowongan berstatus open
-$openJobs = PelamarPekerjaanController::index($conn);
+// --- LOGIKA SEARCH & PAGINATION ---
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+
+$perPage = 5; // Set 5 atau sesuai keinginan
+$totalData = PelamarPekerjaanController::getTotalCount($conn, $search);
+$totalPages = ($totalData > 0) ? ceil($totalData / $perPage) : 1;
+
+$openJobs = PelamarPekerjaanController::getPaginated($conn, $page, $perPage, $search);
+$jobCountInPage = mysqli_num_rows($openJobs);
 
 ob_start();
 ?>
 
 <!-- PAGE HEADER -->
-<div class="flex items-center justify-between mb-8">
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
     <div class="flex items-center gap-4">
-        <div class="inline-flex items-center justify-center rounded-2xl" style="width:52px;height:52px;background:linear-gradient(135deg,#1E3A8A,#2563EB);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <div class="inline-flex items-center justify-center rounded-2xl shadow-sm" style="width:48px;height:48px;background:linear-gradient(135deg,#1E3A8A,#2563EB);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                 <circle cx="9" cy="7" r="4"></circle>
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -23,100 +31,85 @@ ob_start();
             </svg>
         </div>
         <div>
-            <h1 class="text-2xl font-bold" style="color: #1E293B;">Daftar Pelamar Kerja</h1>
-            <p class="text-sm mt-0.5" style="color: #64748B;">Memantau kandidat masuk pada lowongan aktif (Status: Open)</p>
+            <h1 class="text-xl font-bold" style="color: #1E293B;">Daftar Pelamar Kerja</h1>
+            <p class="text-xs mt-0.5" style="color: #64748B;">Kelola kandidat pada lowongan aktif</p>
         </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mr-1">Export:</span>
+            <a href="<?= BASE_URL ?>views/laporan/export_kandidat.php"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-blue-200 text-blue-700 rounded-xl text-[10px] font-bold uppercase tracking-tight hover:bg-blue-50 transition-all shadow-sm">
+                <i class="fa-solid fa-users text-sm text-blue-500"></i>
+                Kandidat
+            </a>
+        </div>
+
+        <!-- SEARCH FORM -->
+        <form id="searchForm" method="GET" class="relative">
+            <input type="text" name="search" id="searchInput"
+                value="<?= htmlspecialchars($search) ?>"
+                placeholder="Cari lowongan..."
+                autocomplete="off"
+                oninput="doSearch()"
+                class="pl-10 pr-4 py-2 rounded-xl text-xs border border-slate-200 focus:ring-2 focus:ring-blue-100 outline-none w-64 shadow-inner">
+            <div class="absolute left-3 top-2.5 text-slate-400">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+        </form>
     </div>
 </div>
 
-<!-- MAIN CARD -->
 <div class="rounded-2xl overflow-hidden" style="background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 1px 4px rgba(15,23,42,0.06);">
-
-    <!-- CARD HEADER -->
     <div class="px-6 py-5 flex items-center gap-3" style="border-bottom: 1px solid #E2E8F0; background: linear-gradient(135deg,#1E3A8A,#2563EB);">
-        <span class="inline-flex items-center justify-center rounded-xl" style="width:40px;height:40px;background:rgba(255,255,255,0.15);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-            </svg>
-        </span>
-        <div>
-            <h2 class="font-bold text-base text-white">Lowongan Pekerjaan Aktif</h2>
-            <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.65);">
-                <?= count($openJobs) ?> lowongan tersedia
-            </p>
-        </div>
+        <h2 class="font-bold text-base text-white">Lowongan Pekerjaan Aktif</h2>
+        <span class="px-2 py-0.5 rounded-lg bg-white/20 text-white text-[10px] font-bold">Total <?= $totalData ?></span>
     </div>
 
-    <div class="p-6">
-        <?php if (empty($openJobs)): ?>
-            <!-- EMPTY STATE -->
+    <div class="p-0"> <!-- P-0 agar table border pas -->
+        <?php if ($jobCountInPage === 0): ?>
             <div class="text-center py-16">
-                <span class="inline-flex items-center justify-center mb-5 rounded-full" style="width:72px;height:72px;background:#F1F5F9;color:#94A3B8;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                </span>
-                <p class="text-base font-bold text-slate-700">Belum ada lowongan pekerjaan berstatus "Open"</p>
-                <p class="text-sm text-slate-400 mt-2">Aktifkan atau publish beberapa lowongan kerja terlebih dahulu.</p>
+                <p class="text-sm text-slate-400 italic">Data tidak ditemukan.</p>
             </div>
         <?php else: ?>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr style="background: #F8FAFC; border-bottom: 2px solid #E2E8F0;">
-                            <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Judul Pekerjaan / Posisi</th>
-                            <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Tipe / Lokasi</th>
-                            <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center" style="color: #64748B;">Jumlah Pelamar</th>
-                            <th class="px-5 py-4 text-xs font-bold uppercase tracking-wider text-center" style="color: #64748B;">Aksi</th>
+                        <tr style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+                            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Judul Pekerjaan / Posisi</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500">Tipe / Lokasi</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500 text-center">Jumlah Pelamar</th>
+                            <th class="px-6 py-4 text-xs font-bold uppercase text-slate-500 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         <?php foreach ($openJobs as $job): ?>
                             <tr class="hover:bg-slate-50/80 transition-colors group">
-                                <!-- JUDUL / POSISI -->
                                 <td class="px-6 py-5">
                                     <div class="font-bold text-slate-800 text-[15px] group-hover:text-blue-600 transition-colors">
                                         <?= htmlspecialchars($job['judul_job']) ?>
                                     </div>
                                     <div class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">
-                                        <i class="fa-solid fa-briefcase mr-1.5 text-slate-300"></i><?= htmlspecialchars($job['nama_posisi']) ?>
+                                        <?= htmlspecialchars($job['nama_posisi']) ?>
                                     </div>
                                 </td>
-
-                                <!-- TIPE / LOKASI -->
                                 <td class="px-6 py-5">
-                                    <div class="flex flex-col gap-1.5">
-                                        <div class="text-sm font-semibold text-slate-600 flex items-center gap-2">
-                                            <i class="fa-solid fa-location-dot text-slate-300 w-4"></i>
-                                            <?= htmlspecialchars($job['lokasi']) ?>
-                                        </div>
-                                        <div class="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
-                                            <i class="fa-solid fa-clock text-blue-200 w-4"></i>
-                                            <?= htmlspecialchars($job['tipe_pekerjaan']) ?>
-                                        </div>
+                                    <div class="text-sm font-semibold text-slate-600"><?= htmlspecialchars($job['lokasi']) ?></div>
+                                    <div class="text-[10px] font-black text-blue-500 uppercase"><?= htmlspecialchars($job['tipe_pekerjaan']) ?></div>
+                                </td>
+                                <td class="px-6 py-5 text-center">
+                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl <?= $job['total_pelamar'] > 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100' ?> border">
+                                        <span class="text-sm font-black"><?= $job['total_pelamar'] ?></span>
+                                        <span class="text-[9px] font-black uppercase tracking-tighter">Pelamar</span>
                                     </div>
                                 </td>
-
-                                <!-- JUMLAH PELAMAR (Badge Minimalis) -->
-                                <td class="px-6 py-5 text-center">
-                                    <?php if ($job['total_pelamar'] > 0): ?>
-                                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100">
-                                            <span class="text-sm font-black"><?= $job['total_pelamar'] ?></span>
-                                            <span class="text-[9px] font-black uppercase tracking-tighter">Pelamar</span>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 text-slate-400 border border-slate-100">
-                                            <span class="text-sm font-black">0</span>
-                                            <span class="text-[9px] font-black uppercase tracking-tighter text-slate-300">Pelamar</span>
-                                        </div>
-                                    <?php endif; ?>
-                                </td>
-
-                                <!-- AKSI -->
                                 <td class="px-6 py-5 text-center">
                                     <a href="<?= BASE_URL ?>views/pelamarPekerjaan/detail.php?job_id=<?= $job['id'] ?>"
                                         class="inline-flex items-center gap-2 px-6 py-3 bg-blue-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-800 transition-all shadow-lg shadow-blue-900/10 active:scale-95">
-                                        <i class="fa-solid fa-users-viewfinder text-xs"></i>
                                         Review Pelamar
                                     </a>
                                 </td>
@@ -125,9 +118,56 @@ ob_start();
                     </tbody>
                 </table>
             </div>
+
+            <!-- PAGINATION FOOTER -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 bg-slate-50/30">
+                <span class="text-xs font-medium text-slate-500">
+                    Menampilkan <?= ($jobCountInPage > 0) ? (($page - 1) * $perPage) + 1 : 0 ?> - <?= ($page - 1) * $perPage + $jobCountInPage ?> dari <?= $totalData ?> data
+                </span>
+
+                <div class="flex items-center gap-1">
+                    <?php $searchQuery = !empty($search) ? "&search=" . urlencode($search) : ""; ?>
+                    <?php if ($page > 1): ?>
+                        <a href="?page=<?= $page - 1 ?><?= $searchQuery ?>" class="px-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition font-bold">‹</a>
+                    <?php endif; ?>
+
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <a href="?page=<?= $i ?><?= $searchQuery ?>"
+                            class="px-2.5 py-1 text-xs rounded-lg font-bold transition <?= $i == $page ? 'bg-blue-800 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' ?>">
+                            <?= $i ?>
+                        </a>
+                    <?php endfor; ?>
+
+                    <?php if ($page < $totalPages): ?>
+                        <a href="?page=<?= $page + 1 ?><?= $searchQuery ?>" class="px-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition font-bold">›</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         <?php endif; ?>
     </div>
 </div>
+
+<script>
+    let timeout = null;
+
+    function doSearch() {
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            document.getElementById('searchForm').submit();
+        }, 500);
+    }
+
+    // Tetap fokus di input setelah reload
+    window.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('searchInput');
+        if (input.value !== '') {
+            input.focus();
+            const val = input.value;
+            input.value = '';
+            input.value = val;
+        }
+    });
+</script>
 
 <?php
 $content = ob_get_clean();

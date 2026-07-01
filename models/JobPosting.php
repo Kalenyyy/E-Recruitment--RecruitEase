@@ -24,6 +24,49 @@ class JobPostingModel
         return $data;
     }
 
+    public static function countOpenJobs($conn, $search = '')
+    {
+        $query = "SELECT COUNT(*) as total FROM job_posting WHERE status = 'open'";
+
+        if ($search != '') {
+            $query .= " AND judul_job LIKE ?";
+            $stmt = $conn->prepare($query);
+            $searchParam = "%$search%";
+            $stmt->bind_param("s", $searchParam);
+            $stmt->execute();
+            $result = $stmt->get_result();
+        } else {
+            $result = mysqli_query($conn, $query);
+        }
+
+        $row = $result->fetch_assoc();
+        return $row['total'];
+    }
+
+    // Fungsi untuk mengambil data lowongan OPEN secara paginated
+    public static function getOpenJobsPaginated($conn, $offset, $perPage, $search = '')
+    {
+        $query = "SELECT jp.id, jp.judul_job, jp.tipe_pekerjaan, jp.lokasi, jp.created_at, p.nama_posisi,
+              (SELECT COUNT(*) FROM candidate_apply_job tl WHERE tl.id_lowongan = jp.id) as total_pelamar
+              FROM job_posting jp
+              JOIN positions p ON jp.posisi_id = p.id
+              WHERE jp.status = 'open'";
+
+        if ($search != '') {
+            $query .= " AND jp.judul_job LIKE ? ORDER BY jp.created_at DESC LIMIT ?, ?";
+            $stmt = $conn->prepare($query);
+            $searchParam = "%$search%";
+            $stmt->bind_param("sii", $searchParam, $offset, $perPage);
+        } else {
+            $query .= " ORDER BY jp.created_at DESC LIMIT ?, ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("ii", $offset, $perPage);
+        }
+
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
     public static function getJobDetails($conn, $job_id)
     {
         $query = "SELECT jp.*, p.nama_posisi 
@@ -108,6 +151,57 @@ class JobPostingModel
         $stmt->execute();
 
         return $stmt->get_result()->fetch_assoc();
+    }
+
+    public static function countApplicantsByJob($conn, $job_id, $search = '')
+    {
+        $query = "SELECT COUNT(*) as total 
+              FROM candidate_apply_job caj
+              JOIN candidates c ON caj.id_kandidat = c.id
+              WHERE caj.id_lowongan = ?";
+
+        if ($search != '') {
+            $query .= " AND c.nama_lengkap LIKE ?";
+            $stmt = $conn->prepare($query);
+            $searchParam = "%$search%";
+            $stmt->bind_param("is", $job_id, $searchParam);
+        } else {
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("i", $job_id);
+        }
+
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc()['total'];
+    }
+
+    // Ambil data pelamar secara paginated
+    public static function getApplicantsPaginated($conn, $job_id, $offset, $perPage, $search = '')
+    {
+        $query = "SELECT 
+                c.*, 
+                caj.id as id_transaksi, 
+                caj.status_lamaran, 
+                caj.tanggal_melamar, 
+                caj.catatan, 
+                caj.expert_bidang, 
+                caj.pengalaman_bidang
+              FROM candidate_apply_job caj
+              JOIN candidates c ON caj.id_kandidat = c.id
+              WHERE caj.id_lowongan = ?";
+
+        if ($search != '') {
+            $query .= " AND c.nama_lengkap LIKE ? ORDER BY caj.tanggal_melamar DESC LIMIT ?, ?";
+            $stmt = $conn->prepare($query);
+            $searchParam = "%$search%";
+            $stmt->bind_param("isii", $job_id, $searchParam, $offset, $perPage);
+        } else {
+            $query .= " ORDER BY caj.tanggal_melamar DESC LIMIT ?, ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("iii", $job_id, $offset, $perPage);
+        }
+
+        $stmt->execute();
+        return $stmt->get_result();
     }
 
     public static function moveKandidatKeInterview($conn, $id_transaksi, $id_kandidat, $tanggal_interview, $catatan)

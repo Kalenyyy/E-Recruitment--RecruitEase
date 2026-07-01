@@ -9,6 +9,28 @@ class PelamarPekerjaanController
         return JobPostingModel::getOpenJobsWithApplicantCount($conn);
     }
 
+    public static function getTotalCount($conn, $search = '')
+    {
+        return JobPostingModel::countOpenJobs($conn, $search);
+    }
+
+    public static function getPaginated($conn, $page, $perPage, $search = '')
+    {
+        $offset = ($page - 1) * $perPage;
+        return JobPostingModel::getOpenJobsPaginated($conn, $offset, $perPage, $search);
+    }
+
+    public static function getTotalApplicants($conn, $job_id, $search = '')
+    {
+        return JobPostingModel::countApplicantsByJob($conn, $job_id, $search);
+    }
+
+    public static function getApplicantsPaginated($conn, $job_id, $page, $perPage, $search = '')
+    {
+        $offset = ($page - 1) * $perPage;
+        return JobPostingModel::getApplicantsPaginated($conn, $job_id, $offset, $perPage, $search);
+    }
+
     public static function getDetailJob($conn, $job_id)
     {
         return JobPostingModel::getJobDetails($conn, $job_id);

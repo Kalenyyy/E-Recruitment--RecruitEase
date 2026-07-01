@@ -12,6 +12,80 @@ class LamaranModel
         return $stmt->get_result()->fetch_assoc();
     }
 
+    public static function countInterviews($conn, $role, $id, $type = 'upcoming', $search = '')
+    {
+        $filterCondition = ($type === 'upcoming')
+            ? "ji.status_interview = 'JADWAL' AND ji.tanggal_interview >= NOW()"
+            : "(ji.status_interview IN ('SELESAI', 'BATAL') OR ji.tanggal_interview < NOW())";
+
+        $roleCondition = ($role === 'candidate') ? "AND ji.id_kandidat = ?" : "";
+        $searchCondition = "";
+
+        if ($search != '') {
+            // Cari berdasarkan judul job atau nama kandidat
+            $searchCondition = " AND (jp.judul_job LIKE ? OR c.nama_lengkap LIKE ?)";
+        }
+
+        $query = "SELECT COUNT(*) as total 
+              FROM jadwal_interview ji
+              JOIN candidates c ON ji.id_kandidat = c.id
+              JOIN candidate_apply_job caj ON ji.id_candidate_apply_job = caj.id
+              JOIN job_posting jp ON caj.id_lowongan = jp.id
+              WHERE $filterCondition $roleCondition $searchCondition";
+
+        $stmt = $conn->prepare($query);
+
+        if ($role === 'candidate' && $search != '') {
+            $searchParam = "%$search%";
+            $stmt->bind_param('iss', $id, $searchParam, $searchParam);
+        } elseif ($role === 'candidate') {
+            $stmt->bind_param('i', $id);
+        } elseif ($search != '') {
+            $searchParam = "%$search%";
+            $stmt->bind_param('ss', $searchParam, $searchParam);
+        }
+
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc()['total'];
+    }
+
+    public static function getInterviewsPaginated($conn, $role, $id, $type = 'upcoming', $offset = 0, $perPage = 10, $search = '')
+    {
+        $filterCondition = ($type === 'upcoming')
+            ? "ji.status_interview = 'JADWAL' AND ji.tanggal_interview >= NOW()"
+            : "(ji.status_interview IN ('SELESAI', 'BATAL') OR ji.tanggal_interview < NOW())";
+
+        $roleCondition = ($role === 'candidate') ? "AND ji.id_kandidat = ?" : "";
+        $searchCondition = ($search != '') ? " AND (jp.judul_job LIKE ? OR c.nama_lengkap LIKE ?)" : "";
+
+        $query = "
+        SELECT ji.*, c.nama_lengkap AS nama_kandidat, jp.judul_job, jp.lokasi, caj.status_lamaran
+        FROM jadwal_interview ji
+        JOIN candidates c ON ji.id_kandidat = c.id
+        JOIN candidate_apply_job caj ON ji.id_candidate_apply_job = caj.id
+        JOIN job_posting jp ON caj.id_lowongan = jp.id
+        WHERE $filterCondition $roleCondition $searchCondition
+        ORDER BY ji.tanggal_interview " . ($type === 'upcoming' ? 'ASC' : 'DESC') . " 
+        LIMIT ?, ?";
+
+        $stmt = $conn->prepare($query);
+
+        if ($role === 'candidate' && $search != '') {
+            $searchParam = "%$search%";
+            $stmt->bind_param('issii', $id, $searchParam, $searchParam, $offset, $perPage);
+        } elseif ($role === 'candidate') {
+            $stmt->bind_param('iii', $id, $offset, $perPage);
+        } elseif ($search != '') {
+            $searchParam = "%$search%";
+            $stmt->bind_param('ssii', $searchParam, $searchParam, $offset, $perPage);
+        } else {
+            $stmt->bind_param('ii', $offset, $perPage);
+        }
+
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
     public static function getApplicationsByCandidateId($conn, $candidate_id)
     {
         // ← Eksplisit ambil tolak_hr dan tolak_candidate
@@ -43,6 +117,34 @@ class LamaranModel
         ";
         $stmt = $conn->prepare($query);
         $stmt->bind_param('i', $candidate_id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public static function countApplicationsByCandidateId($conn, $candidate_id)
+    {
+        $query = "SELECT COUNT(*) as total FROM candidate_apply_job WHERE id_kandidat = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('i', $candidate_id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc()['total'];
+    }
+
+    public static function getApplicationsPaginatedByCandidateId($conn, $candidate_id, $offset, $perPage)
+    {
+        $query = "
+        SELECT
+            caj.*, jp.judul_job, jp.lokasi, jp.tipe_pekerjaan,
+            ol.gaji_offering, ol.file_offering, ol.status AS status_respon_offering
+        FROM candidate_apply_job caj
+        JOIN job_posting jp ON caj.id_lowongan = jp.id
+        LEFT JOIN offering_letter ol ON caj.id = ol.id_candidate_apply_job
+        WHERE caj.id_kandidat = ?
+        ORDER BY caj.tanggal_melamar DESC
+        LIMIT ?, ?
+    ";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('iii', $candidate_id, $offset, $perPage);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }

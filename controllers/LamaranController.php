@@ -22,6 +22,21 @@ class LamaranController
         return LamaranModel::getApplicationsByCandidateId($conn, $candidate['id']);
     }
 
+    public static function getCandidateHistoryPaginated($conn, $user_id, $page, $perPage)
+    {
+        $candidate = self::getCandidateData($conn, $user_id);
+        if (!$candidate) return ['data' => [], 'total' => 0];
+
+        $offset = ($page - 1) * $perPage;
+        $total = LamaranModel::countApplicationsByCandidateId($conn, $candidate['id']);
+        $data = LamaranModel::getApplicationsPaginatedByCandidateId($conn, $candidate['id'], $offset, $perPage);
+
+        return [
+            'data' => $data,
+            'total' => $total
+        ];
+    }
+
     public static function getAppliedJobIds($conn, $candidate_id)
     {
         return LamaranModel::getAppliedJobIds($conn, $candidate_id);
@@ -53,7 +68,7 @@ class LamaranController
         return LamaranModel::updateOfferingResponse($conn, $id_transaksi, $respon, $alasan_tolak);
     }
 
-    public static function getInterviewList($conn)
+    public static function getInterviewListPaginated($conn, $page, $perPage, $search, $activeTab)
     {
         $user_id     = $_SESSION['user_id'];
         $role        = $_SESSION['role'];
@@ -64,9 +79,21 @@ class LamaranController
             $id_kandidat = $candidate['id'];
         }
 
+        $offset = ($page - 1) * $perPage;
+
+        // Kita hitung total untuk tab yang sedang aktif saja untuk pagination
+        $total = LamaranModel::countInterviews($conn, $role, $id_kandidat, $activeTab, $search);
+        $data  = LamaranModel::getInterviewsPaginated($conn, $role, $id_kandidat, $activeTab, $offset, $perPage, $search);
+
+        // Untuk badge jumlah di tab, kita tetap butuh count total tanpa limit (opsional)
+        $countUpcoming = LamaranModel::countInterviews($conn, $role, $id_kandidat, 'upcoming', '');
+        $countPast     = LamaranModel::countInterviews($conn, $role, $id_kandidat, 'past', '');
+
         return [
-            'upcoming' => LamaranModel::getInterviews($conn, $role, $id_kandidat, 'upcoming'),
-            'past'     => LamaranModel::getInterviews($conn, $role, $id_kandidat, 'past'),
+            'data' => $data,
+            'total' => $total,
+            'countUpcoming' => $countUpcoming,
+            'countPast' => $countPast
         ];
     }
 }

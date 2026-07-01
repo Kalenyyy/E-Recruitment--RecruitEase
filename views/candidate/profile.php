@@ -38,13 +38,34 @@ $hasFoto = !empty($candidate['foto']) && file_exists($fotoPathLocal);
 $isDisabled = !empty($candidate['is_disabled']);
 
 $jenisDisabilitas = [
-    'fisik' => ['label' => 'Disabilitas Fisik', 'desc' => 'Gangguan fungsi gerak, anggota tubuh, atau mobilitas'],
-    'netra' => ['label' => 'Disabilitas Netra', 'desc' => 'Gangguan penglihatan sebagian atau total'],
-    'rungu' => ['label' => 'Disabilitas Rungu/Wicara', 'desc' => 'Gangguan pendengaran atau kemampuan berbicara'],
-    'intelektual' => ['label' => 'Disabilitas Intelektual', 'desc' => 'Hambatan dalam fungsi intelektual dan adaptif'],
-    'mental' => ['label' => 'Disabilitas Mental', 'desc' => 'Kondisi kesehatan mental yang memengaruhi aktivitas'],
-    'sensorik' => ['label' => 'Disabilitas Sensorik', 'desc' => 'Gangguan pada indra selain penglihatan dan pendengaran'],
-    'lainnya' => ['label' => 'Lainnya', 'desc' => 'Jenis disabilitas lain yang tidak tercantum di atas'],
+    'fisik' => [
+        'label' => 'Disabilitas Fisik',
+        'desc'  => 'Terganggunya fungsi gerak, antara lain amputasi, lumpuh layu, paraplegi, atau akibat stroke.'
+    ],
+    'netra' => [
+        'label' => 'Disabilitas Sensorik Netra',
+        'desc'  => 'Gangguan pada daya lihat, baik sebagian (low vision) maupun total (blind).'
+    ],
+    'rungu' => [
+        'label' => 'Disabilitas Sensorik Rungu/Wicara',
+        'desc'  => 'Gangguan pada fungsi pendengaran dan/atau fungsi bicara atau artikulasi suara.'
+    ],
+    'intelektual' => [
+        'label' => 'Disabilitas Intelektual',
+        'desc'  => 'Hambatan fungsi kognitif disertai hambatan perilaku adaptif (contoh: Down Syndrome atau lambat belajar).'
+    ],
+    'mental' => [
+        'label' => 'Disabilitas Mental',
+        'desc'  => 'Terganggunya fungsi pikir, emosi, dan perilaku (contoh: Skizofrenia, Bipolar, atau Autisme).'
+    ],
+    'ganda' => [
+        'label' => 'Disabilitas Ganda/Multipel',
+        'desc'  => 'Memiliki dua atau lebih jenis disabilitas dalam satu waktu (misal: Fisik sekaligus Netra).'
+    ],
+    'lainnya' => [
+        'label' => 'Lainnya',
+        'desc'  => 'Jenis hambatan lainnya yang memerlukan akomodasi khusus dalam bekerja.'
+    ],
 ];
 
 ob_start();
@@ -851,26 +872,6 @@ ob_start();
 
         </div>
 
-    </div>
-
-
-    <!-- ========== DANGER ZONE ========== -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="px-6 py-4 border-b border-slate-100">
-            <h2 class="font-bold text-base text-red-600">Danger Zone</h2>
-        </div>
-        <div class="p-6 flex items-center justify-between">
-            <div>
-                <h4 class="text-sm font-bold text-slate-800">Hapus Akun</h4>
-                <p class="text-xs text-slate-500 mt-1">Setelah dihapus, semua data tidak dapat dikembalikan. Harap
-                    berhati-hati.</p>
-            </div>
-            <a href="delete.php?id=<?= $candidate['id'] ?>"
-                onclick="return confirm('Yakin ingin menghapus akun ini secara permanen?')"
-                class="px-5 py-2.5 text-xs font-bold rounded-xl text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition">
-                Hapus Akun
-            </a>
-        </div>
     </div>
 
 </div>

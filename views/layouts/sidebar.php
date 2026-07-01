@@ -7,7 +7,7 @@ function isActive($path)
 {
     global $current_page;
     // Cek apakah kata kunci ada di URL sekarang
-    if (strpos($current_page, $path) !== false) {
+    if (stripos($current_page, $path) !== false) {
         return 'bg-white/20 text-white shadow-sm ring-1 ring-white/10';
     }
     return 'text-white/70 hover:bg-white/10 hover:text-white';
@@ -89,7 +89,7 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                 <span class="sidebar-text">Pelamar</span>
             </a>
 
-            <a href="<?= BASE_URL ?>views/jadwalInterview/index.php" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('jadwal') ?>">
+            <a href="<?= BASE_URL ?>views/jadwalInterview/index.php" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('interview') ?>">
                 <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>

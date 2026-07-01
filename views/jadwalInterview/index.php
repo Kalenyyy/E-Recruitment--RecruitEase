@@ -5,65 +5,99 @@ require_once __DIR__ . '/../../controllers/LamaranController.php';
 AuthController::requireLogin();
 $role = $_SESSION['role'];
 
-// Ambil data interview (Sudah dipisah upcoming & past oleh controller)
-$interviewData = LamaranController::getInterviewList($conn);
-$upcoming = $interviewData['upcoming'];
-$past = $interviewData['past'];
+// --- LOGIKA SEARCH, TAB & PAGINATION ---
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'upcoming'; // Tab default
+if ($page < 1) $page = 1;
+
+$perPage = 10;
+$interviewData = LamaranController::getInterviewListPaginated($conn, $page, $perPage, $search, $activeTab);
+
+$interviews = $interviewData['data'];
+$totalData = $interviewData['total'];
+$totalPages = ceil($totalData / $perPage);
+if ($totalPages < 1) $totalPages = 1;
 
 ob_start();
 ?>
 
 <div class="min-h-screen bg-slate-50 pb-20">
-
-    <!-- Header Section -->
     <header class="max-w-6xl mx-auto px-6 pt-10 mb-8">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
                 <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Log Jadwal Interview</h1>
                 <p class="text-slate-500 mt-1 text-sm">Daftar riwayat dan jadwal pertemuan rekrutmen.</p>
             </div>
-            <!-- Interactive Tabs -->
-            <div class="flex bg-slate-200/50 p-1 rounded-xl w-fit border border-slate-200">
-                <button onclick="switchTab('upcoming')" id="btn-upcoming" class="tab-btn px-5 py-2 rounded-lg text-xs font-bold transition-all bg-white text-indigo-600 shadow-sm">
-                    MENDATANG (<?= count($upcoming) ?>)
-                </button>
-                <button onclick="switchTab('past')" id="btn-past" class="tab-btn px-5 py-2 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-700">
-                    SELESAI (<?= count($past) ?>)
-                </button>
+
+            <div class="flex flex-col md:flex-row items-center gap-4">
+                <!-- SEARCH FORM -->
+                <form id="searchForm" method="GET" class="relative w-full md:w-64">
+                    <input type="hidden" name="tab" value="<?= $activeTab ?>">
+                    <input type="text" name="search" id="searchInput" value="<?= htmlspecialchars($search) ?>"
+                        placeholder="Cari job atau kandidat..." oninput="doSearch()"
+                        class="w-full pl-10 pr-4 py-2 rounded-xl text-xs border border-slate-200 focus:ring-2 focus:ring-indigo-100 outline-none shadow-sm">
+                    <div class="absolute left-3 top-2.5 text-slate-400">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                </form>
+
+                <!-- Interactive Tabs -->
+                <div class="flex bg-slate-200/50 p-1 rounded-xl w-fit border border-slate-200 shadow-sm">
+                    <a href="?tab=upcoming&search=<?= urlencode($search) ?>"
+                        class="px-5 py-2 rounded-lg text-xs font-bold transition-all <?= $activeTab === 'upcoming' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500' ?>">
+                        MENDATANG (<?= $interviewData['countUpcoming'] ?>)
+                    </a>
+                    <a href="?tab=past&search=<?= urlencode($search) ?>"
+                        class="px-5 py-2 rounded-lg text-xs font-bold transition-all <?= $activeTab === 'past' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500' ?>">
+                        SELESAI (<?= $interviewData['countPast'] ?>)
+                    </a>
+                </div>
             </div>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto px-6">
-        <!-- Content Wrapper -->
         <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+            <?php if (empty($interviews)): ?>
+                <?= renderEmptyState("Data interview tidak ditemukan."); ?>
+            <?php else: ?>
+                <?= renderInterviewTable($interviews, $role); ?>
 
-            <!-- Tab: Mendatang -->
-            <div id="tab-upcoming" class="tab-content">
-                <?php if (empty($upcoming)): ?>
-                    <?= renderEmptyState("Belum ada jadwal mendatang."); ?>
-                <?php else: ?>
-                    <?= renderInterviewTable($upcoming, $role); ?>
-                <?php endif; ?>
-            </div>
+                <!-- PAGINATION FOOTER -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 bg-slate-50/30">
+                    <span class="text-xs font-medium text-slate-500">
+                        Menampilkan <?= (($page - 1) * $perPage) + 1 ?> - <?= ($page - 1) * $perPage + count($interviews) ?> dari <?= $totalData ?> data
+                    </span>
 
-            <!-- Tab: Selesai -->
-            <div id="tab-past" class="tab-content hidden">
-                <?php if (empty($past)): ?>
-                    <?= renderEmptyState("Tidak ada riwayat interview."); ?>
-                <?php else: ?>
-                    <?= renderInterviewTable($past, $role); ?>
-                <?php endif; ?>
-            </div>
+                    <div class="flex items-center gap-1">
+                        <?php $baseQuery = "?tab=$activeTab&search=" . urlencode($search); ?>
 
+                        <?php if ($page > 1): ?>
+                            <a href="<?= $baseQuery ?>&page=<?= $page - 1 ?>" class="px-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-bold transition">‹</a>
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <a href="<?= $baseQuery ?>&page=<?= $i ?>"
+                                class="px-2.5 py-1 text-xs rounded-lg font-bold transition <?= $i == $page ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' ?>">
+                                <?= $i ?>
+                            </a>
+                        <?php endfor; ?>
+
+                        <?php if ($page < $totalPages): ?>
+                            <a href="<?= $baseQuery ?>&page=<?= $page + 1 ?>" class="px-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-bold transition">›</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </main>
 </div>
 
 <?php
-/**
- * Helper: Render Table
- */
 function renderInterviewTable($data, $role)
 {
     ob_start();
@@ -85,14 +119,9 @@ function renderInterviewTable($data, $role)
                 <?php foreach ($data as $row):
                     $date = date('d M Y', strtotime($row['tanggal_interview']));
                     $time = date('H:i', strtotime($row['tanggal_interview']));
-
-                    // Logic Warna Status
-                    $statusClass = "bg-slate-100 text-slate-600";
-                    if ($row['status_interview'] === 'SELESAI') $statusClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
-                    if ($row['status_interview'] === 'JADWAL') $statusClass = "bg-indigo-50 text-indigo-600 border-indigo-100";
-                    if ($row['status_interview'] === 'BATAL') $statusClass = "bg-rose-50 text-rose-600 border-rose-100";
+                    $statusClass = ($row['status_interview'] === 'SELESAI') ? "bg-emerald-50 text-emerald-600 border-emerald-100" : (($row['status_interview'] === 'JADWAL') ? "bg-indigo-50 text-indigo-600 border-indigo-100" : "bg-rose-50 text-rose-600 border-rose-100");
                 ?>
-                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-6 py-5">
                             <div class="flex flex-col">
                                 <span class="text-sm font-bold text-slate-700"><?= $date ?></span>
@@ -106,22 +135,11 @@ function renderInterviewTable($data, $role)
                             </div>
                         </td>
                         <?php if ($role !== 'candidate'): ?>
-                            <td class="px-6 py-5">
-                                <span class="text-sm font-medium text-slate-600"><?= htmlspecialchars($row['nama_kandidat']) ?></span>
-                            </td>
+                            <td class="px-6 py-5 text-sm font-medium text-slate-600"><?= htmlspecialchars($row['nama_kandidat']) ?></td>
                         <?php endif; ?>
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-2 text-sm text-slate-500">
-                                <svg class="w-4 h-4 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                </svg>
-                                <?= htmlspecialchars($row['lokasi']) ?>
-                            </div>
-                        </td>
+                        <td class="px-6 py-5 text-sm text-slate-500"><?= htmlspecialchars($row['lokasi']) ?></td>
                         <td class="px-6 py-5 text-center">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-black border <?= $statusClass ?>">
-                                <?= $row['status_interview'] ?>
-                            </span>
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black border <?= $statusClass ?>"><?= $row['status_interview'] ?></span>
                         </td>
                     </tr>
                     <?php if (!empty($row['catatan'])): ?>
@@ -137,44 +155,23 @@ function renderInterviewTable($data, $role)
             </tbody>
         </table>
     </div>
-<?php
-    return ob_get_clean();
+<?php return ob_get_clean();
 }
 
-/**
- * Helper: Empty State
- */
 function renderEmptyState($msg)
 {
-    return "
-    <div class='p-20 text-center'>
-        <div class='w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100'>
-            <span class='text-2xl'>📁</span>
-        </div>
-        <h4 class='text-slate-800 font-bold'>$msg</h4>
-        <p class='text-sm text-slate-400 mt-1'>Data tidak ditemukan dalam database.</p>
-    </div>";
+    return "<div class='p-20 text-center'><div class='w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100'><span class='text-2xl'>📁</span></div><h4 class='text-slate-800 font-bold'>$msg</h4><p class='text-sm text-slate-400 mt-1'>Data tidak ditemukan.</p></div>";
 }
 ?>
 
 <script>
-    function switchTab(type) {
-        // Hide all
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    let timeout = null;
 
-        // Reset buttons style
-        document.querySelectorAll('.tab-btn').forEach(el => {
-            el.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
-            el.classList.add('text-slate-500');
-        });
-
-        // Show active
-        document.getElementById('tab-' + type).classList.remove('hidden');
-
-        // Active button style
-        const activeBtn = document.getElementById('btn-' + type);
-        activeBtn.classList.remove('text-slate-500');
-        activeBtn.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+    function doSearch() {
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            document.getElementById('searchForm').submit();
+        }, 500);
     }
 </script>
 

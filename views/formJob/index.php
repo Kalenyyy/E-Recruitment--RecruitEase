@@ -43,7 +43,7 @@ ob_start();
     }
 </style>
 
-<div >
+<div>
 
     <?php if (isset($_SESSION['success'])): ?>
         <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-xl border border-green-100 bg-green-50 text-green-800 shadow-sm animate-slide-down">
@@ -67,7 +67,10 @@ ob_start();
         <a href="<?= BASE_URL ?>views/formJob/create.php"
             class="inline-flex items-center gap-2 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition hover:opacity-90 shadow-xs active:scale-95 shrink-0"
             style="background: linear-gradient(135deg,#1E3A8A,#2563EB);">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
             Buat Lowongan Baru
         </a>
     </div>
@@ -92,10 +95,29 @@ ob_start();
         </div>
 
         <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-end gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mr-1">Export:</span>
+                <a href="<?= BASE_URL ?>views/laporan/export_lowongan.php<?= !empty($search) ? '?search=' . urlencode($search) : '' ?>"
+                    title="Export Data Lowongan ke Excel"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-emerald-200 text-emerald-700 rounded-xl text-[10px] font-bold uppercase tracking-tight hover:bg-emerald-50 transition-all active:scale-95 shadow-sm">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Lowongan (Excel)
+                </a>
+            </div>
+            
             <form id="searchForm" method="GET" class="flex items-center gap-2 max-w-md w-full md:w-auto">
                 <div class="relative flex-1 md:w-72 flex items-center gap-2">
                     <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-blue-50 text-blue-700 border border-blue-100 shadow-inner font-bold shrink-0">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
                     </div>
                     <input type="text" id="searchInput" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari judul lowongan..." autocomplete="off"
                         oninput="doSearch()"
@@ -165,10 +187,18 @@ ob_start();
                                             PUBLISH
                                         </button>
                                         <a href="edit.php?id=<?= $job['id'] ?>" class="p-1.5 text-slate-400 hover:text-amber-600 border border-transparent hover:border-slate-100 hover:bg-slate-50 rounded-lg transition" title="Edit Data">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 20h9"></path>
+                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                            </svg>
                                         </a>
                                         <button onclick="openModal('delete', <?= $job['id'] ?>)" class="p-1.5 text-slate-400 hover:text-red-600 border border-transparent hover:border-slate-100 hover:bg-slate-50 rounded-lg transition" title="Hapus Permanen">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                                            </svg>
                                         </button>
                                     <?php elseif ($job['status'] === 'open'): ?>
                                         <button onclick="openModal('status', <?= $job['id'] ?>, 'closed')"
@@ -177,7 +207,10 @@ ob_start();
                                         </button>
                                     <?php endif; ?>
                                     <a href="view.php?id=<?= $job['id'] ?>" class="p-1.5 text-slate-400 hover:text-slate-700 border border-transparent hover:border-slate-100 hover:bg-slate-50 rounded-lg transition" title="Lihat Detail">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
                                     </a>
                                 </div>
                             </td>
@@ -222,7 +255,7 @@ ob_start();
 
 <div id="confirmModal" class="hidden fixed inset-0 z-[999] flex justify-center items-center p-4 modal-backdrop">
     <div class="bg-white rounded-2xl w-full max-w-md shadow-xl animate-slide-down overflow-hidden border border-slate-100">
-        
+
         <div id="modalAccent" class="h-1.5 w-full bg-blue-600"></div>
 
         <div class="p-6">
@@ -251,6 +284,7 @@ ob_start();
 <script>
     // Fitur Debounce pencarian: otomatis kirim form setelah 400ms berhenti ngetik
     let timeout = null;
+
     function doSearch() {
         clearTimeout(timeout);
         timeout = setTimeout(function() {
@@ -261,7 +295,7 @@ ob_start();
     // Mempertahankan fokus kursor teks di inputan setelah submit/reload halaman
     window.addEventListener('DOMContentLoaded', () => {
         const input = document.getElementById('searchInput');
-        if(input.value !== '') {
+        if (input.value !== '') {
             input.focus();
             const val = input.value;
             input.value = '';

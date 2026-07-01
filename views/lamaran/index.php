@@ -5,10 +5,14 @@ AuthController::requireLogin();
 if ($_SESSION['role'] !== 'candidate') {
     die("Access denied.");
 }
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+$perPage = 5; // Tampilkan 5 lamaran per halaman
 
-$candidate     = CandidateController::getCandidateByUserId($_SESSION['user_id']);
-$daftarLamaran = LamaranController::getCandidateHistory($conn, $_SESSION['user_id']);
-$totalLamaran  = count($daftarLamaran);
+$history = LamaranController::getCandidateHistoryPaginated($conn, $_SESSION['user_id'], $page, $perPage);
+$daftarLamaran = $history['data'];
+$totalLamaran  = $history['total'];
+$totalPages    = ceil($totalLamaran / $perPage);
 
 $statusConfig = [
     'administrasi' => ['bg' => '#DBEAFE', 'color' => '#1D4ED8', 'label' => 'Administrasi'],
@@ -212,6 +216,30 @@ ob_start();
                 <?php endif; ?>
             </tbody>
         </table>
+    </div>
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-100 bg-slate-50/30">
+        <span class="text-xs font-medium text-slate-500">
+            Menampilkan <?= $totalLamaran > 0 ? (($page - 1) * $perPage) + 1 : 0 ?> - <?= min($page * $perPage, $totalLamaran) ?> dari <?= $totalLamaran ?> lamaran
+        </span>
+
+        <?php if ($totalPages > 1): ?>
+            <div class="flex items-center gap-1">
+                <?php if ($page > 1): ?>
+                    <a href="?page=<?= $page - 1 ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition font-bold">‹</a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="?page=<?= $i ?>"
+                        class="px-3 py-1 text-xs rounded-lg font-bold transition <?= $i == $page ? 'bg-blue-800 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+
+                <?php if ($page < $totalPages): ?>
+                    <a href="?page=<?= $page + 1 ?>" class="px-3 py-1 text-xs rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition font-bold">›</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 

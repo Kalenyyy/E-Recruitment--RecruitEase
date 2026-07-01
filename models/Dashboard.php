@@ -130,31 +130,52 @@ class Dashboard
     // 4. Rekomendasi Lowongan (Skill Matching & Disabilitas)
     public static function getRecommendedJobs($conn, $candidateId)
     {
-        // Ambil info disabilitas kandidat
-        $qKandidat = "SELECT is_disabled FROM candidates WHERE id = $candidateId";
-        $kandidat = mysqli_fetch_assoc(mysqli_query($conn, $qKandidat));
-        $is_disabled = $kandidat['is_disabled'];
+        // 1. Ambil data profil kandidat (status disabilitas & tipe disabilitasnya)
+        $qKandidat = "SELECT is_disabled FROM candidates WHERE id = ?";
+        $stmtC = $conn->prepare($qKandidat);
+        $stmtC->bind_param("i", $candidateId);
+        $stmtC->execute();
+        $kandidat = $stmtC->get_result()->fetch_assoc();
+        $is_disabled = $kandidat['is_disabled'] ?? 0;
 
-        // Query Rekomendasi:
-        // 1. Utamakan lowongan yang sesuai status disabilitas
-        // 2. Hitung jumlah skill yang match antara candidate_skills dan job_skills
+        // 2. Query Rekomendasi Pintar
         $query = "
-        SELECT jp.*, 
-               (SELECT COUNT(*) FROM job_skills js 
-                JOIN candidate_skills cs ON js.skill_id = cs.skill_id 
-                WHERE js.job_id = jp.id AND cs.candidate_id = $candidateId) as match_count
-        FROM job_posting jp
-        WHERE jp.status = 'open'
-        ORDER BY 
-            (CASE WHEN jp.is_disabilitas = $is_disabled THEN 1 ELSE 0 END) DESC,
-            match_count DESC
-        LIMIT 3";
+    SELECT 
+        jp.*, 
+        p.nama_posisi,
+        -- Hitung berapa skill yang diminta lowongan ini
+        (SELECT COUNT(*) FROM job_skills WHERE job_id = jp.id) as total_needed,
+        -- Hitung berapa skill kandidat yang cocok dengan lowongan ini
+        (SELECT COUNT(*) FROM job_skills js 
+         JOIN candidate_skills cs ON js.skill_id = cs.skill_id 
+         WHERE js.job_id = jp.id AND cs.candidate_id = ?) as match_count
+    FROM job_posting jp
+    JOIN positions p ON jp.posisi_id = p.id
+    WHERE jp.status = 'open'
+    -- JANGAN tampilkan lowongan yang sudah dilamar
+    AND jp.id NOT IN (
+        SELECT id_lowongan FROM candidate_apply_job WHERE id_kandidat = ?
+    )
+    ORDER BY 
+        -- Prioritas 1: Jika kandidat disabilitas, tunjukkan loker disabilitas dulu
+        (CASE WHEN jp.is_disabilitas = ? THEN 1 ELSE 0 END) DESC,
+        -- Prioritas 2: Skill yang paling banyak cocok
+        match_count DESC,
+        -- Prioritas 3: Lowongan terbaru
+        jp.created_at DESC
+    LIMIT 3";
 
-        $result = mysqli_query($conn, $query);
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("iii", $candidateId, $candidateId, $is_disabled);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
         $jobs = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            // Hitung persentase kecocokan sederhana (misal max skill job adalah 5)
-            $row['match_percent'] = ($row['match_count'] > 0) ? min(100, ($row['match_count'] / 3) * 100) : 0;
+        while ($row = $result->fetch_assoc()) {
+            // Logika Persentase Kecocokan (Skill Matching)
+            $totalNeeded = ($row['total_needed'] > 0) ? $row['total_needed'] : 1;
+            $row['match_percent'] = ($row['match_count'] / $totalNeeded) * 100;
+
             $jobs[] = $row;
         }
         return $jobs;

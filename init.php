@@ -10,6 +10,8 @@ require_once __DIR__ . '/config/config.php';
 // 3. Koneksi Database
 require_once __DIR__ . '/config/koneksi.php';
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 // 4. CONTROLLER 
 require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/CandidateController.php';
@@ -28,6 +30,8 @@ require_once __DIR__ . '/controllers/LowonganPekerjaanController.php';
 require_once __DIR__ . '/controllers/LamaranController.php'; 
 require_once __DIR__ . '/controllers/DashboardController.php';
 require_once __DIR__ . '/controllers/PelamarPekerjaanController.php';
+require_once __DIR__ . '/controllers/LaporanController.php';
+
 // 5. MODEL
 require_once __DIR__ . '/models/User.php'; 
 require_once __DIR__ . '/models/Candidate.php'; 
@@ -44,6 +48,7 @@ require_once __DIR__ . '/models/JobForm.php';
 require_once __DIR__ . '/models/LowonganPekerjaan.php';
 require_once __DIR__ . '/models/Lamaran.php';
 require_once __DIR__ . '/models/Dashboard.php';
+require_once __DIR__ . '/models/Laporan.php';
 
 //helper
 require_once __DIR__ . '/views/helpers/ProfileHelper.php';

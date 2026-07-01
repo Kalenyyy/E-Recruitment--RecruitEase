@@ -258,12 +258,34 @@ ob_start();
                     <div class="grid grid-cols-1 gap-2">
                         <?php
                         $jenisDisabilitas = [
-                            'visual' => ['label' => 'Visual', 'desc' => 'Tunanetra, low vision'],
-                            'hearing' => ['label' => 'Pendengaran', 'desc' => 'Tunarungu, hard of hearing'],
-                            'physical' => ['label' => 'Fisik/Motorik', 'desc' => 'Keterbatasan gerak'],
-                            'intellectual' => ['label' => 'Intelektual', 'desc' => 'Tunagrahita'],
-                            'mental' => ['label' => 'Mental', 'desc' => 'Gangguan jiwa'],
-                            'speech' => ['label' => 'Wicara', 'desc' => 'Tunawicara'],
+                            'fisik' => [
+                                'label' => 'Disabilitas Fisik',
+                                'desc'  => 'Terganggunya fungsi gerak, antara lain amputasi, lumpuh layu, paraplegi, atau akibat stroke.'
+                            ],
+                            'netra' => [
+                                'label' => 'Disabilitas Sensorik Netra',
+                                'desc'  => 'Gangguan pada daya lihat, baik sebagian (low vision) maupun total (blind).'
+                            ],
+                            'rungu' => [
+                                'label' => 'Disabilitas Sensorik Rungu/Wicara',
+                                'desc'  => 'Gangguan pada fungsi pendengaran dan/atau fungsi bicara atau artikulasi suara.'
+                            ],
+                            'intelektual' => [
+                                'label' => 'Disabilitas Intelektual',
+                                'desc'  => 'Hambatan fungsi kognitif disertai hambatan perilaku adaptif (Down Syndrome, lambat belajar).'
+                            ],
+                            'mental' => [
+                                'label' => 'Disabilitas Mental',
+                                'desc'  => 'Terganggunya fungsi pikir, emosi, dan perilaku (Skizofrenia, Bipolar, atau Autisme).'
+                            ],
+                            'ganda' => [
+                                'label' => 'Disabilitas Ganda/Multipel',
+                                'desc'  => 'Memiliki dua atau lebih jenis disabilitas dalam satu waktu (misal: Fisik sekaligus Netra).'
+                            ],
+                            'lainnya' => [
+                                'label' => 'Lainnya',
+                                'desc'  => 'Jenis hambatan lainnya yang memerlukan akomodasi khusus dalam bekerja.'
+                            ],
                         ];
                         $selectedDisabilityTypes = $_POST['disability_types'] ?? $job['disability_types'] ?? [];
                         foreach ($jenisDisabilitas as $key => $info): ?>

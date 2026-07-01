@@ -62,12 +62,16 @@ ob_start();
                             </div>
                             <a href="<?= BASE_URL ?>views/candidate/profile.php?id=<?= $candidateData['id'] ?>" class="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">
                                 Lengkapi Sekarang
-                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
                             </a>
                         </div>
                     </div>
                     <button onclick="document.getElementById('profileAlert').remove()" class="text-amber-400 hover:text-amber-600 transition-colors p-1 rounded-lg">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </div>
             <?php endif; ?>
@@ -84,15 +88,26 @@ ob_start();
                 </span></p>
         </div>
         <div class="flex items-center gap-3">
+            <!-- Kotak Tanggal -->
             <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-600 shadow-sm">
                 <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 <?= date('d M Y') ?>
             </div>
+
             <?php if ($_SESSION['role'] !== 'candidate'): ?>
+                <!-- Tombol Export (Rapi & Seimbang) -->
+                <a href="<?= BASE_URL ?>views/laporan/export_rekap_status_job.php"
+                    title="Export Rekapitulasi Status"
+                    class="inline-flex items-center gap-2 px-3 py-2 bg-white border border-emerald-200 text-emerald-700 rounded-xl text-[11px] font-bold uppercase tracking-tight hover:bg-emerald-50 transition-all active:scale-95 shadow-sm">
+                    <i class="fa-solid fa-file-excel text-sm text-emerald-500"></i>
+                    <span>Export Recap</span>
+                </a>
+
+                <!-- Tombol Buat Lowongan -->
                 <a href="<?= BASE_URL ?>views/formJob/create.php">
-                    <button class="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-sm">
+                    <button class="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-sm active:scale-95">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                         </svg>
@@ -184,7 +199,7 @@ ob_start();
                     <canvas id="donutChart"></canvas>
                 </div>
                 <div id="donutLegend" class="flex flex-col gap-2 mt-4 overflow-y-auto max-h-[120px] pr-1">
-                    </div>
+                </div>
             </div>
         </div>
 
@@ -219,10 +234,35 @@ ob_start();
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
                         scales: {
-                            x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#94a3b8' } },
-                            y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 }, color: '#94a3b8' }, beginAtZero: true }
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11
+                                    },
+                                    color: '#94a3b8'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: '#f1f5f9'
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11
+                                    },
+                                    color: '#94a3b8'
+                                },
+                                beginAtZero: true
+                            }
                         }
                     }
                 });
@@ -251,7 +291,11 @@ ob_start();
                         responsive: true,
                         maintainAspectRatio: false,
                         cutout: '75%',
-                        plugins: { legend: { display: false } }
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
                     }
                 });
 
@@ -462,7 +506,7 @@ ob_start();
                     <h3 class="text-sm font-semibold text-slate-900">Rekomendasi Posisi</h3>
                     <p class="text-xs text-slate-400">Disesuaikan dengan kompetensi dan fleksibilitas Anda</p>
                 </div>
-                <a href="<?= BASE_URL ?>views/formJob/index.php" class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">Lihat Semua →</a>
+                <a href="<?= BASE_URL ?>views/lowonganPekerjaan/index.php" class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">Lihat Semua →</a>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <?php if (!empty($candidateDashboard['recommendations'])): ?>
@@ -481,7 +525,8 @@ ob_start();
                                             <?= htmlspecialchars($job['lokasi']) ?>
                                         </p>
                                     </div>
-                                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded shrink-0">
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded shrink-0 
+    <?= $job['match_percent'] >= 75 ? 'bg-emerald-50 text-emerald-700' : ($job['match_percent'] >= 40 ? 'bg-amber-50 text-amber-700' : 'bg-slate-50 text-slate-600') ?>">
                                         <?= round($job['match_percent']) ?>% Match
                                     </span>
                                 </div>
@@ -507,14 +552,17 @@ ob_start();
 
                             <div class="flex items-center justify-between pt-3 border-t border-slate-100 mt-2">
                                 <div class="min-w-0">
-                                    <?php if (!empty($job['gaji'])): ?>
-                                        <p class="text-xs font-bold text-slate-800 truncate">Rp <?= number_format($job['gaji'], 0, ',', '.') ?></p>
+                                    <?php if (!empty($job['gaji_min']) && !empty($job['gaji_max'])): ?>
+                                        <!-- Menampilkan Rentang Gaji -->
+                                        <p class="text-xs font-bold text-slate-800 truncate">
+                                            Rp <?= number_format($job['gaji_min'], 0, ',', '.') ?> - <?= number_format($job['gaji_max'], 0, ',', '.') ?>
+                                        </p>
                                     <?php else: ?>
                                         <p class="text-[11px] text-slate-400 italic">Gaji Kompetitif</p>
                                     <?php endif; ?>
                                 </div>
 
-                                <a href="<?= BASE_URL ?>views/formJob/detail.php?id=<?= $job['id'] ?>" class="text-xs font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1 whitespace-nowrap">
+                                <a href="<?= BASE_URL ?>views/lowonganPekerjaan/detailById.php?id=<?= $job['id'] ?>" class="text-xs font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1 whitespace-nowrap">
                                     Detail
                                     <svg class="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path d="M9 5l7 7-7 7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />

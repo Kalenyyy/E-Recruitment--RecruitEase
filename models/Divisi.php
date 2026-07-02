@@ -92,11 +92,17 @@ class Divisi
 
     public static function delete($conn, $id)
     {
-        $sql = "DELETE FROM divisions WHERE id = ?";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $id);
-
-        return $stmt->execute();
+        try {
+            $sql = "DELETE FROM divisions WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $id);
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            // Jika error kode 1451 adalah constraint fails
+            if ($e->getCode() == 1451) {
+                return false;
+            }
+            throw $e;
+        }
     }
 }

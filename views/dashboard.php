@@ -96,7 +96,7 @@ ob_start();
                 <?= date('d M Y') ?>
             </div>
 
-            <?php if ($_SESSION['role'] !== 'candidate'): ?>
+            <?php if ($_SESSION['role'] === 'hr' && $_SESSION['role'] !== 'admin'): ?>
                 <!-- Tombol Export (Rapi & Seimbang) -->
                 <a href="<?= BASE_URL ?>views/laporan/export_rekap_status_job.php"
                     title="Export Rekapitulasi Status"

@@ -61,6 +61,25 @@ ob_start();
     <?php unset($_SESSION['success']); ?>
 <?php endif; ?>
 
+<?php if (isset($_SESSION['error'])): ?>
+    <div id="alert-error" class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down shadow-sm"
+        style="background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full flex-shrink-0" style="width:40px;height:40px;background:#FEE2E2;border:1px solid #FCA5A5;">
+                <i class="fas fa-exclamation-circle text-lg"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm">Gagal!</h4>
+                <p class="text-xs"><?= $_SESSION['error'] ?></p>
+            </div>
+        </div>
+        <button onclick="document.getElementById('alert-error').remove()" class="hover:opacity-70 transition">
+            <i class="fas fa-times px-2"></i>
+        </button>
+    </div>
+    <?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
 <!-- HEADER -->
 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
     <div>

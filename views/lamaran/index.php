@@ -60,11 +60,22 @@ ob_start();
 </div>
 
 <?php if (isset($_SESSION['success'])): ?>
-    <div class="mb-6 px-5 py-4 rounded-2xl text-sm font-semibold"
-        style="background:#D1FAE5;color:#065F46;border:1px solid #A7F3D0;">
-        <?= htmlspecialchars($_SESSION['success']);
-        unset($_SESSION['success']); ?>
+    <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down shadow-sm"
+        style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full flex-shrink-0" style="width:40px;height:40px;background:#DCFCE7;border:1px solid #86EFAC;">
+                <i class="fas fa-check-circle text-lg"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm">Berhasil!</h4>
+                <p class="text-xs"><?= $_SESSION['success'] ?></p>
+            </div>
+        </div>
+        <button onclick="document.getElementById('alert-success').remove()" class="hover:opacity-70 transition">
+            <i class="fas fa-times px-2"></i>
+        </button>
     </div>
+    <?php unset($_SESSION['success']); ?>
 <?php endif; ?>
 
 <!-- MAIN CARD -->
@@ -647,8 +658,8 @@ ob_start();
                 let alasan = '';
                 let pihak = '';
 
-                if (data.tolak_hr && data.tolak_hr.trim() !== '') {
-                    alasan = data.tolak_hr;
+                if (data.tolak_HR && data.tolak_HR.trim() !== '') {
+                    alasan = data.tolak_HR;
                     pihak = 'Penolakan dilakukan oleh HRD';
                 } else if (data.tolak_candidate && data.tolak_candidate.trim() !== '') {
                     alasan = data.tolak_candidate;

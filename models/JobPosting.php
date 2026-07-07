@@ -301,42 +301,44 @@ class JobPostingModel
         $status_baru,
         $alasan = null
     ) {
-
         if ($status_baru == "DITOLAK") {
+            mysqli_begin_transaction($conn);
 
-            $query = "
-        UPDATE candidate_apply_job
-        SET
-            status_lamaran = ?,
-            tolak_hr = ?
-        WHERE id = ?
-        ";
+            try {
+                // 1. Update status utama 
+                $query1 = "
+                UPDATE candidate_apply_job
+                SET status_lamaran = ?,
+                    tolak_HR = ? 
+                WHERE id = ?
+            ";
+                $stmt1 = $conn->prepare($query1);
+                $stmt1->bind_param("ssi", $status_baru, $alasan, $id_transaksi);
+                $stmt1->execute();
 
-            $stmt = $conn->prepare($query);
+                // 2. Update jadwal interview 
+                $query2 = "
+                UPDATE jadwal_interview 
+                SET status_interview = 'BATAL' 
+                WHERE id_candidate_apply_job = ? 
+                AND status_interview = 'JADWAL'
+            ";
+                $stmt2 = $conn->prepare($query2);
+                $stmt2->bind_param("i", $id_transaksi);
+                $stmt2->execute();
 
-            $stmt->bind_param(
-                "ssi",
-                $status_baru,
-                $alasan,
-                $id_transaksi
-            );
+                mysqli_commit($conn);
+                return true;
+            } catch (Exception $e) {
+                mysqli_rollback($conn);
+                return false;
+            }
         } else {
-
-            $query = "
-        UPDATE candidate_apply_job
-        SET status_lamaran = ?
-        WHERE id = ?
-        ";
-
+            // Logika untuk status lainnya
+            $query = "UPDATE candidate_apply_job SET status_lamaran = ? WHERE id = ?";
             $stmt = $conn->prepare($query);
-
-            $stmt->bind_param(
-                "si",
-                $status_baru,
-                $id_transaksi
-            );
+            $stmt->bind_param("si", $status_baru, $id_transaksi);
+            return $stmt->execute();
         }
-
-        return $stmt->execute();
     }
 }

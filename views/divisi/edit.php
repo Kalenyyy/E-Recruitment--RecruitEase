@@ -1,23 +1,18 @@
 <?php
-
 require_once __DIR__ . '/../../init.php';
-
 AuthController::requireLogin();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id_divisi'];
     $nama = trim($_POST['nama_divisi']);
+    $result = DivisiController::update($id, $nama);
 
-    if (DivisiController::update($id, $nama))
-    {
-        $_SESSION['success'] =
-            "Divisi berhasil diperbarui";
-    }
-    else
-    {
-        $_SESSION['error'] =
-            "Gagal memperbarui divisi";
+    if ($result === "duplicate") {
+        $_SESSION['error'] = "Nama Divisi sudah terdaftar.";
+    } elseif ($result) {
+        $_SESSION['success'] = "Divisi berhasil diperbarui";
+    } else {
+        $_SESSION['error'] = "Gagal memperbarui divisi";
     }
 }
 

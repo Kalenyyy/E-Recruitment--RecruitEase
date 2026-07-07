@@ -79,11 +79,24 @@ ob_start();
                 <div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gaji Bulanan</p>
                     <p class="text-xs font-bold text-emerald-600">
-                        <?php if ($job['gaji_min']): ?>
-                            Rp<?= number_format($job['gaji_min'] / 1000, 0, ',', '.') ?>k+
-                        <?php else: ?>
-                            Kompetitif
-                        <?php endif; ?>
+                        <?php
+                        $min = $job['gaji_min'];
+                        $max = $job['gaji_max'];
+
+                        if ($min > 0 && $max > 0) {
+                            // Rentang Gaji ringkas: Rp5.000k - 8.000k
+                            echo "Rp" . number_format($min / 1000, 0, ',', '.') . "k - " . number_format($max / 1000, 0, ',', '.') . "k";
+                        } elseif ($min > 0) {
+                            // Hanya Min: Rp5.000k+
+                            echo "Rp" . number_format($min / 1000, 0, ',', '.') . "k+";
+                        } elseif ($max > 0) {
+                            // Hanya Max: < Rp8.000k
+                            echo "< Rp" . number_format($max / 1000, 0, ',', '.') . "k";
+                        } else {
+                            // Kosong
+                            echo "Kompetitif";
+                        }
+                        ?>
                     </p>
                 </div>
                 <div>
@@ -156,11 +169,24 @@ ob_start();
                 </div>
                 <div class="text-center md:text-right">
                     <p class="text-xl font-black text-blue-600">
-                        <?php if ($job['gaji_min'] && $job['gaji_max']): ?>
-                            Rp<?= number_format($job['gaji_min'], 0, ',', '.') ?> - <?= number_format($job['gaji_max'], 0, ',', '.') ?>
-                        <?php else: ?>
-                            Gaji Kompetitif
-                        <?php endif; ?>
+                        <?php
+                        $min = $job['gaji_min'];
+                        $max = $job['gaji_max'];
+
+                        if ($min > 0 && $max > 0) {
+                            // Jika keduanya diisi
+                            echo "Rp" . number_format($min, 0, ',', '.') . " - " . number_format($max, 0, ',', '.');
+                        } elseif ($min > 0) {
+                            // Jika hanya Min yang diisi
+                            echo "Mulai dari Rp" . number_format($min, 0, ',', '.');
+                        } elseif ($max > 0) {
+                            // Jika hanya Max yang diisi
+                            echo "Hingga Rp" . number_format($max, 0, ',', '.');
+                        } else {
+                            // Jika keduanya kosong atau null
+                            echo "Gaji Kompetitif";
+                        }
+                        ?>
                     </p>
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Nett / Month</p>
                 </div>

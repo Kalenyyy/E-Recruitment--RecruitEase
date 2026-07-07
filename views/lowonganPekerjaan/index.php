@@ -130,11 +130,24 @@ ob_start();
                                             <span><i class="fa-solid fa-clock text-slate-400 mr-1"></i> <?= $job['tipe_pekerjaan'] ?></span>
                                             <span class="text-emerald-600 font-bold">
                                                 <i class="fa-solid fa-money-bill-wave mr-1"></i>
-                                                <?php if ($job['gaji_min'] && $job['gaji_max']): ?>
-                                                    Rp<?= number_format($job['gaji_min'], 0, ',', '.') ?> - <?= number_format($job['gaji_max'], 0, ',', '.') ?>
-                                                <?php else: ?>
-                                                    Gaji Kompetitif
-                                                <?php endif; ?>
+                                                <?php
+                                                $min = $job['gaji_min'];
+                                                $max = $job['gaji_max'];
+
+                                                if ($min > 0 && $max > 0) {
+                                                    // Jika keduanya diisi
+                                                    echo "Rp" . number_format($min, 0, ',', '.') . " - " . number_format($max, 0, ',', '.');
+                                                } elseif ($min > 0) {
+                                                    // Jika hanya Min yang diisi
+                                                    echo "Mulai dari Rp" . number_format($min, 0, ',', '.');
+                                                } elseif ($max > 0) {
+                                                    // Jika hanya Max yang diisi
+                                                    echo "Hingga Rp" . number_format($max, 0, ',', '.');
+                                                } else {
+                                                    // Jika keduanya kosong atau null
+                                                    echo "Gaji Kompetitif";
+                                                }
+                                                ?>
                                             </span>
                                         </div>
 

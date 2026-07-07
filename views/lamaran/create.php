@@ -55,7 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sukses = LamaranController::kirimLamaran($conn, $candidate_id, $job_id, $catatan, $expert_bidang, $pengalaman_bidang);
 
     if ($sukses) {
-        header("Location: " . BASE_URL . "views/lowonganPekerjaan/index.php?applied=success");
+        $_SESSION['success'] = "Lamaran berhasil dikirim!";
+        header("Location: " . BASE_URL . "views/lamaran/index.php");
         exit;
     } else {
         $error_msg = "Gagal memproses data lamaran.";

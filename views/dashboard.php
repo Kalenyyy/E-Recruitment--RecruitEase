@@ -552,12 +552,26 @@ ob_start();
 
                             <div class="flex items-center justify-between pt-3 border-t border-slate-100 mt-2">
                                 <div class="min-w-0">
-                                    <?php if (!empty($job['gaji_min']) && !empty($job['gaji_max'])): ?>
-                                        <!-- Menampilkan Rentang Gaji -->
+                                    <?php
+                                    $min = $job['gaji_min'];
+                                    $max = $job['gaji_max'];
+                                    ?>
+
+                                    <?php if ($min > 0 || $max > 0): ?>
+                                        <!-- Menampilkan Gaji (Jika ada salah satu atau keduanya) -->
                                         <p class="text-xs font-bold text-slate-800 truncate">
-                                            Rp <?= number_format($job['gaji_min'], 0, ',', '.') ?> - <?= number_format($job['gaji_max'], 0, ',', '.') ?>
+                                            <?php
+                                            if ($min > 0 && $max > 0) {
+                                                echo "Rp " . number_format($min, 0, ',', '.') . " - " . number_format($max, 0, ',', '.');
+                                            } elseif ($min > 0) {
+                                                echo "Mulai Rp " . number_format($min, 0, ',', '.');
+                                            } else {
+                                                echo "Hingga Rp " . number_format($max, 0, ',', '.');
+                                            }
+                                            ?>
                                         </p>
                                     <?php else: ?>
+                                        <!-- Jika Keduanya Kosong -->
                                         <p class="text-[11px] text-slate-400 italic">Gaji Kompetitif</p>
                                     <?php endif; ?>
                                 </div>

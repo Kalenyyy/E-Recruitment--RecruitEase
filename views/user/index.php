@@ -40,6 +40,25 @@ $hrdCountInPage = mysqli_num_rows($hrdList);
 ob_start();
 ?>
 
+<?php if (isset($_SESSION['success'])): ?>
+    <div id="alert-success" class="mb-6 flex items-center justify-between p-4 rounded-2xl border animate-fade-in-down shadow-sm"
+        style="background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full flex-shrink-0" style="width:40px;height:40px;background:#DCFCE7;border:1px solid #86EFAC;">
+                <i class="fas fa-check-circle text-lg"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm">Berhasil!</h4>
+                <p class="text-xs"><?= $_SESSION['success'] ?></p>
+            </div>
+        </div>
+        <button onclick="document.getElementById('alert-success').remove()" class="hover:opacity-70 transition">
+            <i class="fas fa-times px-2"></i>
+        </button>
+    </div>
+    <?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
 <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
     <div>
         <h1 class="text-2xl font-bold tracking-tight" style="color: #1E293B;">Manajemen HRD</h1>

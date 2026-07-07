@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS pendidikan (
     tahun_masuk YEAR NOT NULL,
     tahun_lulus YEAR DEFAULT NULL,
 
-    ipk DECIMAL(3,2) DEFAULT NULL,
+    ipk DECIMAL(5,2) DEFAULT NULL,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 

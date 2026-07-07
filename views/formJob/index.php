@@ -148,7 +148,7 @@ ob_start();
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="px-6 py-4.5">
                                 <div class="font-bold text-slate-800 text-sm tracking-tight"><?= htmlspecialchars($job['judul_job']) ?></div>
-                                <div class="text-[10px] text-slate-400 mt-1 font-medium">ID Lowongan: #<?= $job['id'] ?></div>
+                                <div class="text-[10px] text-slate-400 mt-1 font-medium">Posisi Pekerjaan : <?= $job['nama_posisi'] ?></div>
                             </td>
                             <td class="px-6 py-4.5">
                                 <div class="text-slate-700 font-bold"><?= htmlspecialchars($job['lokasi']) ?></div>

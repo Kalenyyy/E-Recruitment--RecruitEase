@@ -27,12 +27,23 @@ class JobFormController
 
         if (empty($postData['judul_job'])) $errors['judul_job'] = "Judul wajib diisi";
 
+        if (empty($postData['skill_ids'])) {
+            $errors['skill_ids'] = "Minimal pilih satu skill yang dibutuhkan";
+        }
+
         // Validasi Gaji
         if ($gmin > 999999999 || $gmax > 999999999) {
             $errors['gaji'] = "Gaji tidak boleh mencapai 1 Miliar";
         }
-        if ($gmin > 0 && $gmax > 0 && $gmax < $gmin) {
-            $errors['gaji'] = "Gaji maksimal harus lebih besar dari minimal";
+
+        if ($gmin > 0 && $gmax > 0) {
+            if ($gmax < $gmin) {
+                $errors['gaji'] = "Gaji maksimal harus lebih besar dari minimal";
+            }
+        }
+
+        if (JobForm::isDuplicate($conn, $postData['judul_job'], $postData['posisi_id'])) {
+            $errors['judul_job'] = "Lowongan dengan judul dan posisi ini sudah ada dan masih aktif!";
         }
 
         if (!empty($errors)) {
@@ -52,13 +63,36 @@ class JobFormController
     public static function update($conn, $id, $postData)
     {
         $errors = [];
+
+        // 1. Validasi Field Wajib
         if (empty($postData['judul_job'])) $errors['judul_job'] = "Judul wajib diisi";
         if (empty($postData['posisi_id'])) $errors['posisi_id'] = "Posisi wajib dipilih";
 
+        // 2. Bersihkan format titik untuk validasi angka gaji
+        $gmin = (int)str_replace('.', '', $postData['gaji_min'] ?? 0);
+        $gmax = (int)str_replace('.', '', $postData['gaji_max'] ?? 0);
+
+        // 3. Validasi Batas & Rentang Gaji
+        if ($gmin > 999999999 || $gmax > 999999999) {
+            $errors['gaji'] = "Gaji tidak boleh mencapai 1 Miliar";
+        }
+
+        if ($gmin > 0 && $gmax > 0) {
+            if ($gmax < $gmin) {
+                $errors['gaji'] = "Gaji maksimal harus lebih besar dari minimal";
+            }
+        }
+
+        if (JobForm::isDuplicate($conn, $postData['judul_job'], $postData['posisi_id'], $id)) {
+            $errors['judul_job'] = "Lowongan dengan judul dan posisi ini sudah ada dan masih aktif!";
+        }
+
+        // Jika ada error validasi, langsung kembalikan
         if (!empty($errors)) {
             return ['status' => false, 'errors' => $errors];
         }
 
+        // Jika lolos validasi, panggil model update
         $result = JobForm::update($conn, $id, $postData);
         return $result ? ['status' => true] : ['status' => false, 'errors' => ['umum' => 'Gagal memperbarui data.']];
     }

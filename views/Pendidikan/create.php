@@ -18,28 +18,34 @@ $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    PendidikanController::create($conn, [
-        'candidate_id' => $_POST['candidate_id'],
-        'institusi' => trim($_POST['institusi']),
-        'jenjang' => $_POST['jenjang'],
-        'jurusan' => $_POST['jurusan'] ?? '',
-        'tahun_masuk' => $_POST['tahun_masuk'],
-        'tahun_lulus' => $_POST['tahun_lulus'] ?: null,
-        'ipk' => $_POST['ipk'] ?: null
-    ]);
+    // Panggil controller dan tampung hasilnya
+    $response = PendidikanController::create($conn, $_POST);
 
-    header(
-        "Location: " .
-            BASE_URL .
-            "views/candidate/profile.php?id=" .
-            $_POST['candidate_id'] .
-            "#pendidikan"
-    );
-    exit;
+    if ($response['success']) {
+        // Jika sukses, redirect
+        header(
+            "Location: " . BASE_URL . "views/candidate/profile.php?id=" .
+                $_POST['candidate_id'] . "#pendidikan"
+        );
+        exit;
+    } else {
+        // Jika gagal, ambil pesan errornya
+        $errors = $response['messages'];
+    }
 }
 
 ob_start();
 ?>
+
+<?php if (!empty($errors)): ?>
+    <div class="mb-4 p-4 rounded-xl" style="background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;">
+        <ul class="list-disc ml-5">
+            <?php foreach ($errors as $error): ?>
+                <li class="text-sm"><?= $error ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
 
 <!-- HEADER -->
 <div class="flex items-center justify-between mb-6">
@@ -312,54 +318,41 @@ ob_start();
         const jurusanInput = document.getElementById('jurusan');
 
         function updateValidation() {
+            const jenjangValue = jenjang.value;
 
-            const tanpaJurusan = [
-                'SD',
-                'SMP',
-                'SMA'
-            ];
+            // 1. Logika JURUSAN (Hanya SD, SMP, SMA yang tidak butuh jurusan)
+            const listTanpaJurusan = ['SD', 'SMP', 'SMA'];
 
-            if (tanpaJurusan.includes(jenjang.value)) {
-
-                // =========================
-                // SD - SMK
-                // =========================
-
+            if (listTanpaJurusan.includes(jenjangValue)) {
                 jurusanInput.value = '';
                 jurusanInput.disabled = true;
                 jurusanInput.required = false;
                 jurusanInput.placeholder = 'Tidak diperlukan';
+            } else {
+                jurusanInput.disabled = false;
+                jurusanInput.required = true;
+                jurusanInput.placeholder = 'Teknik Komputer / Akuntansi';
+            }
 
+            // 2. Logika NILAI vs IPK (SD, SMP, SMA, SMK pakai Nilai 0-100)
+            const listSekolah = ['SD', 'SMP', 'SMA', 'SMK'];
+
+            if (listSekolah.includes(jenjangValue)) {
+                // Mode Nilai 0-100
                 label.innerHTML = 'Nilai';
-
                 ipk.max = 100;
                 ipk.min = 0;
                 ipk.step = 1;
                 ipk.placeholder = '90';
-
-                info.innerHTML =
-                    'Nilai untuk SD/SMP/SMA/SMK : 0 - 100';
-
+                info.innerHTML = 'Nilai untuk SD/SMP/SMA/SMK: 0 - 100';
             } else {
-
-                // =========================
-                // D1 - S3
-                // =========================
-
-                jurusanInput.disabled = false;
-                jurusanInput.required = true;
-                jurusanInput.placeholder =
-                    'Teknik Informatika';
-
+                // Mode IPK 0-4
                 label.innerHTML = 'IPK';
-
                 ipk.max = 4;
                 ipk.min = 0;
                 ipk.step = 0.01;
                 ipk.placeholder = '3.75';
-
-                info.innerHTML =
-                    'IPK untuk D1-D4/S1-S3 : 0.00 - 4.00';
+                info.innerHTML = 'IPK untuk D1-S3: 0.00 - 4.00';
             }
         }
 

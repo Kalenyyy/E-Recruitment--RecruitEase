@@ -164,7 +164,7 @@ ob_start();
                                     <?php endif; ?>
                                     <?php if ($status === 'INTERVIEW'): ?>
                                         <button onclick="openOfferingModal('<?= $app['id_transaksi'] ?>', '<?= addslashes($app['nama_lengkap']) ?>')" class="px-3 py-1.5 bg-blue-800 text-white text-[11px] font-bold rounded-lg hover:bg-blue-900 transition">Offering</button>
-                                        <button onclick="openStatusModal('DITOLAK', '<?= $app['id_transaksi'] ?>', '<?= addslashes($app['nama_lengkap']) ?>')" class="px-3 py-1.5 border border-red-200 text-red-600 text-[11px] font-bold rounded-lg hover:bg-red-50 transition">Gagal</button>
+                                        <button onclick="openStatusModal('DITOLAK', '<?= $app['id_transaksi'] ?>', '<?= addslashes($app['nama_lengkap']) ?>')" class="px-3 py-1.5 border border-red-200 text-red-600 text-[11px] font-bold rounded-lg hover:bg-red-50 transition">Tolak</button>
                                     <?php endif; ?>
                                 </div>
                             </td>

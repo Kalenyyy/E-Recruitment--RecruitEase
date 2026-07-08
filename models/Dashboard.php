@@ -63,14 +63,28 @@ class Dashboard
     // Distribusi Status untuk Donut Chart
     public static function getStatusDistribution($conn)
     {
+        // Ambil data asli dari DB
         $query = "SELECT status_lamaran as status, COUNT(*) as jumlah 
-                  FROM candidate_apply_job 
-                  GROUP BY status_lamaran";
+              FROM candidate_apply_job 
+              GROUP BY status_lamaran";
         $result = mysqli_query($conn, $query);
 
-        $data = [];
+        $statusCounts = [
+            'ADMINISTRASI' => 0,
+            'INTERVIEW'    => 0,
+            'OFFERING'     => 0,
+            'DITOLAK'      => 0,
+            'DITERIMA'     => 0
+        ];
+
         while ($row = mysqli_fetch_assoc($result)) {
-            $data[] = $row;
+            $statusCounts[$row['status']] = (int)$row['jumlah'];
+        }
+
+        // Ubah kembali ke format array objek untuk dikirim ke JS
+        $data = [];
+        foreach ($statusCounts as $status => $jumlah) {
+            $data[] = ['status' => $status, 'jumlah' => $jumlah];
         }
         return $data;
     }

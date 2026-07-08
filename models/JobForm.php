@@ -1,6 +1,28 @@
 <?php
 class JobForm
 {
+    public static function isDuplicate($conn, $judul, $posisi_id, $exclude_id = null)
+    {
+        $sql = "SELECT id FROM job_posting WHERE judul_job = ? AND posisi_id = ? AND status != 'closed'";
+
+        // Jika sedang update, abaikan ID yang sedang diedit
+        if ($exclude_id) {
+            $sql .= " AND id != ?";
+        }
+
+        $stmt = $conn->prepare($sql);
+
+        if ($exclude_id) {
+            $stmt->bind_param("sii", $judul, $posisi_id, $exclude_id);
+        } else {
+            $stmt->bind_param("si", $judul, $posisi_id);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->num_rows > 0; // Mengembalikan true jika ditemukan duplikat
+    }
+
     public static function create($conn, $data, $staff_id)
     {
         mysqli_begin_transaction($conn);
@@ -191,10 +213,10 @@ class JobForm
     }
 
     public static function update($conn, $id, $data)
-{
-    mysqli_begin_transaction($conn);
-    try {
-        $sqlJob = "UPDATE job_posting SET 
+    {
+        mysqli_begin_transaction($conn);
+        try {
+            $sqlJob = "UPDATE job_posting SET 
             posisi_id = ?,          -- 1
             judul_job = ?,          -- 2
             deskripsi = ?,          -- 3
@@ -206,61 +228,61 @@ class JobForm
             is_remote_interview = ?,-- 9
             is_remote_work = ?,     -- 10
             additional_support = ?  -- 11
-            WHERE id = ?"; 
+            WHERE id = ?";
 
-        $stmt = $conn->prepare($sqlJob);
-        
-        $gmin = (!empty($data['gaji_min'])) ? (float)str_replace('.', '', $data['gaji_min']) : null;
-        $gmax = (!empty($data['gaji_max'])) ? (float)str_replace('.', '', $data['gaji_max']) : null;
-        $is_dis = isset($data['is_disabilitas']) ? (int)$data['is_disabilitas'] : 0;
-        $is_int = isset($data['is_remote_interview']) ? (int)$data['is_remote_interview'] : 0;
-        $is_work = isset($data['is_remote_work']) ? (int)$data['is_remote_work'] : 0;
-        $support = !empty($data['additional_support']) ? $data['additional_support'] : null;
+            $stmt = $conn->prepare($sqlJob);
 
-        // Pattern: i(1) s(2) s(3) s(4) s(5) d(6) d(7) i(8) i(9) i(10) s(11) i(12)
-        $stmt->bind_param(
-            "issssddiiisi", 
-            $data['posisi_id'],     // 1
-            $data['judul_job'],     // 2
-            $data['deskripsi'],     // 3
-            $data['lokasi'],        // 4
-            $data['tipe_pekerjaan'],// 5
-            $gmin,                  // 6
-            $gmax,                  // 7
-            $is_dis,                // 8
-            $is_int,                // 9
-            $is_work,               // 10
-            $support,               // 11
-            $id                     // 12
-        );
-        $stmt->execute();
+            $gmin = (!empty($data['gaji_min'])) ? (float)str_replace('.', '', $data['gaji_min']) : null;
+            $gmax = (!empty($data['gaji_max'])) ? (float)str_replace('.', '', $data['gaji_max']) : null;
+            $is_dis = isset($data['is_disabilitas']) ? (int)$data['is_disabilitas'] : 0;
+            $is_int = isset($data['is_remote_interview']) ? (int)$data['is_remote_interview'] : 0;
+            $is_work = isset($data['is_remote_work']) ? (int)$data['is_remote_work'] : 0;
+            $support = !empty($data['additional_support']) ? $data['additional_support'] : null;
 
-        // Sync Skills & Disabilitas (Hapus lama, Insert baru)
-        $conn->query("DELETE FROM job_skills WHERE job_id = $id");
-        if (!empty($data['skill_ids'])) {
-            $stmtS = $conn->prepare("INSERT INTO job_skills (job_id, skill_id, created_at) VALUES (?, ?, NOW())");
-            foreach ($data['skill_ids'] as $sid) {
-                $stmtS->bind_param("ii", $id, $sid);
-                $stmtS->execute();
+            // Pattern: i(1) s(2) s(3) s(4) s(5) d(6) d(7) i(8) i(9) i(10) s(11) i(12)
+            $stmt->bind_param(
+                "issssddiiisi",
+                $data['posisi_id'],     // 1
+                $data['judul_job'],     // 2
+                $data['deskripsi'],     // 3
+                $data['lokasi'],        // 4
+                $data['tipe_pekerjaan'], // 5
+                $gmin,                  // 6
+                $gmax,                  // 7
+                $is_dis,                // 8
+                $is_int,                // 9
+                $is_work,               // 10
+                $support,               // 11
+                $id                     // 12
+            );
+            $stmt->execute();
+
+            // Sync Skills & Disabilitas (Hapus lama, Insert baru)
+            $conn->query("DELETE FROM job_skills WHERE job_id = $id");
+            if (!empty($data['skill_ids'])) {
+                $stmtS = $conn->prepare("INSERT INTO job_skills (job_id, skill_id, created_at) VALUES (?, ?, NOW())");
+                foreach ($data['skill_ids'] as $sid) {
+                    $stmtS->bind_param("ii", $id, $sid);
+                    $stmtS->execute();
+                }
             }
-        }
 
-        $conn->query("DELETE FROM job_disabilitas WHERE job_id = $id");
-        if ($is_dis === 1 && !empty($data['disability_types'])) {
-            $stmtD = $conn->prepare("INSERT INTO job_disabilitas (job_id, disability_type, created_at) VALUES (?, ?, NOW())");
-            foreach ($data['disability_types'] as $type) {
-                $stmtD->bind_param("is", $id, $type);
-                $stmtD->execute();
+            $conn->query("DELETE FROM job_disabilitas WHERE job_id = $id");
+            if ($is_dis === 1 && !empty($data['disability_types'])) {
+                $stmtD = $conn->prepare("INSERT INTO job_disabilitas (job_id, disability_type, created_at) VALUES (?, ?, NOW())");
+                foreach ($data['disability_types'] as $type) {
+                    $stmtD->bind_param("is", $id, $type);
+                    $stmtD->execute();
+                }
             }
-        }
 
-        mysqli_commit($conn);
-        return true;
-    } catch (Exception $e) {
-        mysqli_rollback($conn);
-        return false;
+            mysqli_commit($conn);
+            return true;
+        } catch (Exception $e) {
+            mysqli_rollback($conn);
+            return false;
+        }
     }
-}
 
     // Fungsi delete juga harus menghapus anak-anaknya jika tidak pakai ON DELETE CASCADE di database
     public static function delete($conn, $id)

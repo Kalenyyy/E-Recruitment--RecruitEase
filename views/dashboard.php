@@ -185,7 +185,7 @@ ob_start();
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Diterima
                     </span>
                 </div>
-                <div class="relative w-full h-[260px]">
+                <div class="relative w-full h-[330px]">
                     <canvas id="barChart"></canvas>
                 </div>
             </div>
@@ -198,7 +198,7 @@ ob_start();
                 <div class="relative w-full h-[200px] flex items-center justify-center">
                     <canvas id="donutChart"></canvas>
                 </div>
-                <div id="donutLegend" class="flex flex-col gap-2 mt-4 overflow-y-auto max-h-[120px] pr-1">
+                <div id="donutLegend" class="flex flex-col gap-2 mt-4 overflow-y-auto max-h-[170px] pr-1">
                 </div>
             </div>
         </div>
@@ -272,9 +272,19 @@ ob_start();
                 const ctx = document.getElementById('donutChart');
                 if (!ctx) return;
 
+                // 1. Pastikan jumlah adalah NUMBER, bukan string
                 const labels = statusDist.map(item => item.status);
-                const counts = statusDist.map(item => item.jumlah);
-                const colors = ['#3b82f6', '#f59e0b', '#10b981', '#f43f5e', '#8b5cf6'];
+                const counts = statusDist.map(item => Number(item.jumlah)); // <--- FIX UTAMA
+
+                // 2. Mapping warna berdasarkan nama status agar konsisten
+                const colorMapping = {
+                    'ADMINISTRASI': '#3b82f6', // Biru
+                    'INTERVIEW': '#8b5cf6', // Ungu
+                    'OFFERING': '#f59e0b', // Oranye
+                    'DITOLAK': '#f43f5e', // Merah
+                    'DITERIMA': '#10b981' // Hijau
+                };
+                const colors = labels.map(label => colorMapping[label] || '#cbd5e1');
 
                 new Chart(ctx, {
                     type: 'doughnut',
@@ -299,19 +309,27 @@ ob_start();
                     }
                 });
 
+                // 3. Perbaikan perhitungan total dan persentase di Legend
                 const legendContainer = document.getElementById('donutLegend');
                 const total = counts.reduce((a, b) => a + b, 0);
+
                 legendContainer.innerHTML = '';
                 labels.forEach((label, i) => {
+                    // Hitung persen dengan benar
                     const percent = total > 0 ? Math.round((counts[i] / total) * 100) : 0;
+
                     legendContainer.innerHTML += `
-                        <div class="flex items-center justify-between py-0.5 border-b border-slate-50">
-                            <span class="flex items-center gap-2 text-xs text-slate-500">
-                                <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${colors[i % colors.length]}"></span> ${label}
-                            </span>
-                            <span class="text-xs font-semibold text-slate-700">${percent}%</span>
-                        </div>
-                    `;
+            <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                <span class="flex items-center gap-2 text-xs text-slate-600">
+                    <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${colors[i]}"></span> 
+                    ${label}
+                </span>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-400">(${counts[i]})</span>
+                    <span class="text-xs font-bold text-slate-700">${percent}%</span>
+                </div>
+            </div>
+        `;
                 });
             }
 
@@ -552,12 +570,26 @@ ob_start();
 
                             <div class="flex items-center justify-between pt-3 border-t border-slate-100 mt-2">
                                 <div class="min-w-0">
-                                    <?php if (!empty($job['gaji_min']) && !empty($job['gaji_max'])): ?>
-                                        <!-- Menampilkan Rentang Gaji -->
+                                    <?php
+                                    $min = $job['gaji_min'];
+                                    $max = $job['gaji_max'];
+                                    ?>
+
+                                    <?php if ($min > 0 || $max > 0): ?>
+                                        <!-- Menampilkan Gaji (Jika ada salah satu atau keduanya) -->
                                         <p class="text-xs font-bold text-slate-800 truncate">
-                                            Rp <?= number_format($job['gaji_min'], 0, ',', '.') ?> - <?= number_format($job['gaji_max'], 0, ',', '.') ?>
+                                            <?php
+                                            if ($min > 0 && $max > 0) {
+                                                echo "Rp " . number_format($min, 0, ',', '.') . " - " . number_format($max, 0, ',', '.');
+                                            } elseif ($min > 0) {
+                                                echo "Mulai Rp " . number_format($min, 0, ',', '.');
+                                            } else {
+                                                echo "Hingga Rp " . number_format($max, 0, ',', '.');
+                                            }
+                                            ?>
                                         </p>
                                     <?php else: ?>
+                                        <!-- Jika Keduanya Kosong -->
                                         <p class="text-[11px] text-slate-400 italic">Gaji Kompetitif</p>
                                     <?php endif; ?>
                                 </div>

@@ -53,22 +53,38 @@ class Skill
 
     public static function create($conn, $nama_skill)
     {
-        $stmt = $conn->prepare("INSERT INTO skills (nama_skill) VALUES (?)");
-        $stmt->bind_param("s", $nama_skill);
-        return $stmt->execute();
+        try {
+            $stmt = $conn->prepare("INSERT INTO skills (nama_skill) VALUES (?)");
+            $stmt->bind_param("s", $nama_skill);
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            if ($e->getCode() == 1062) return "duplicate";
+            return false;
+        }
     }
 
     public static function update($conn, $id, $nama_skill)
     {
-        $stmt = $conn->prepare("UPDATE skills SET nama_skill = ? WHERE id_skill = ?");
-        $stmt->bind_param("si", $nama_skill, $id);
-        return $stmt->execute();
+        try {
+            $stmt = $conn->prepare("UPDATE skills SET nama_skill = ? WHERE id_skill = ?");
+            $stmt->bind_param("si", $nama_skill, $id);
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            if ($e->getCode() == 1062) return "duplicate";
+            return false;
+        }
     }
 
     public static function delete($conn, $id)
     {
-        $stmt = $conn->prepare("DELETE FROM skills WHERE id_skill = ?");
-        $stmt->bind_param("i", $id);
-        return $stmt->execute();
+        try {
+            $stmt = $conn->prepare("DELETE FROM skills WHERE id_skill = ?");
+            $stmt->bind_param("i", $id);
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            // Error 1451: Data sedang digunakan di tabel lain (Foreign Key)
+            if ($e->getCode() == 1451) return "restricted";
+            return false;
+        }
     }
 }

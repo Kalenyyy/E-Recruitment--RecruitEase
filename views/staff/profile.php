@@ -62,8 +62,10 @@ ob_start();
             ?>
 
             <div class="flex flex-col md:flex-row items-center gap-6 mb-8 pb-2">
+                <!-- Cari bagian ini di file profile kamu -->
                 <div class="relative group">
-                    <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-slate-50 shadow-sm bg-slate-100">
+                    <!-- Tambahkan id="profile-preview-container" di bawah ini -->
+                    <div id="profile-preview-container" class="w-28 h-28 rounded-full overflow-hidden border-4 border-slate-50 shadow-sm bg-slate-100">
                         <?php if ($hasFoto): ?>
                             <img src="<?= BASE_URL ?>public/uploads/staff/<?= $hrd['foto'] ?>"
                                 class="w-full h-full object-cover">
@@ -77,6 +79,7 @@ ob_start();
                     <label
                         class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition text-white text-xs font-semibold">
                         Ganti Foto
+                        <!-- Input file tetap sama, pastikan onchange="previewImage(this)" ada -->
                         <input type="file" name="foto" class="hidden" accept="image/*" onchange="previewImage(this)">
                     </label>
                 </div>
@@ -99,7 +102,7 @@ ob_start();
                 <!-- Username -->
                 <div class="flex flex-col gap-1.5">
                     <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Username</label>
-                    <input type="text" name="username" value="<?= htmlspecialchars($hrd['username']) ?>"
+                    <input type="text" name="username" value="<?= htmlspecialchars($hrd['username']) ?>" onkeypress="return event.charCode != 32"
                         class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
 
@@ -113,7 +116,7 @@ ob_start();
                 <!-- Phone Number -->
                 <div class="flex flex-col gap-1.5">
                     <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Phone Number</label>
-                    <input type="text" name="no_telp" value="<?= htmlspecialchars($hrd['no_telp']) ?>"
+                    <input type="text" name="no_telp" value="<?= htmlspecialchars($hrd['no_telp']) ?>" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
                         class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
 
@@ -146,7 +149,7 @@ ob_start();
     }
 
     // ===== AJAX Submit Main Form =====
-    document.getElementById('mainForm').addEventListener('submit', async function (e) {
+    document.getElementById('mainForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const formData = new FormData(this);
@@ -167,6 +170,36 @@ ob_start();
             showToast('Terjadi kesalahan jaringan.', 'error');
         }
     });
+
+    function previewImage(input) {
+        const container = document.getElementById('profile-preview-container');
+        const file = input.files[0];
+
+        if (file) {
+            // Validasi tipe file (opsional tapi bagus untuk UX)
+            if (!file.type.startsWith('image/')) {
+                showToast('File harus berupa gambar!', 'error');
+                input.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                // Ganti isi container (entah itu foto lama atau inisial) dengan foto baru
+                container.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover animate-pulse">
+            `;
+
+                // Hilangkan efek pulse setelah 1 detik (hanya pemanis)
+                setTimeout(() => {
+                    container.querySelector('img').classList.remove('animate-pulse');
+                }, 1000);
+            }
+
+            reader.readAsDataURL(file);
+        }
+    }
 </script>
 
 <style>

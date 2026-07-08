@@ -12,15 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result['status'] === true) {
         $_SESSION['success'] = "Akun HRD " . htmlspecialchars($_POST['nama_staff']) . " berhasil dibuat!";
         header(
-            "Location: " . BASE_URL .
-                "views/candidate/profile.php?id=" .
-                $_POST['candidate_id'] .
-                "#pendidikan"
+            "Location: " . BASE_URL . "views/user/index.php"
         );
     } else {
         $errors = $result['errors'];
     }
-    exit;
 }
 
 ob_start();
@@ -54,7 +50,11 @@ ob_start();
         <!-- ===== SECTION: INFORMASI AKUN ===== -->
         <div class="px-6 py-4 flex items-center gap-2" style="border-bottom: 1px solid #F1F5F9;">
             <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="10" r="3"></circle><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="10" r="3"></circle>
+                    <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path>
+                </svg>
             </span>
             <h2 class="font-bold text-sm" style="color: #1E293B;">Informasi Akun</h2>
         </div>
@@ -72,7 +72,8 @@ ob_start();
                         placeholder="Contoh: Budi Santoso"
                         class="w-full px-3 py-2 text-sm rounded-lg outline-none"
                         style="border: 1px solid #CBD5E1; background: #F8FAFC; color: #1E293B;"
-                        value="<?= htmlspecialchars($_POST['nama_staff'] ?? '') ?>" />
+                        value="<?= htmlspecialchars($_POST['nama_staff'] ?? '') ?>"
+                        oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')" />
                 </div>
 
                 <!-- EMAIL -->
@@ -101,12 +102,12 @@ ob_start();
                         style="border: 1px solid <?= isset($errors['username']) ? '#EF4444' : '#CBD5E1' ?>; 
                background: <?= isset($errors['username']) ? '#FFF1F2' : '#F8FAFC' ?>; 
                color: #1E293B;"
-                        value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" />
+                        value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
+                        oninput="this.value = this.value.replace(/\s/g, '')" />
                     <?php if (isset($errors['username'])): ?>
                         <p class="text-[10px] font-bold mt-1" style="color: #EF4444;"><?= $errors['username'] ?></p>
                     <?php endif; ?>
                 </div>
-
                 <!-- PASSWORD -->
                 <div class="flex flex-col gap-1">
                     <label class="text-xs font-semibold" style="color: #475569;">
@@ -127,11 +128,13 @@ ob_start();
                     <label class="text-xs font-semibold" style="color: #475569;">
                         No. Telepon <span style="color: #EF4444;">*</span>
                     </label>
-                    <input type="tel" name="no_telp" required
+                    <input type="text" name="no_telp" required
                         placeholder="08xx-xxxx-xxxx"
-                        class="w-5/10 - px-3 py-2 text-sm rounded-lg outline-none"
+                        class="w-full px-3 py-2 text-sm rounded-lg outline-none"
                         style="border: 1px solid #CBD5E1; background: #F8FAFC; color: #1E293B;"
-                        value="<?= htmlspecialchars($_POST['no_telp'] ?? '') ?>" />
+                        value="<?= htmlspecialchars($_POST['no_telp'] ?? '') ?>"
+                        maxlength="15"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                 </div>
 
             </div>
@@ -141,7 +144,12 @@ ob_start();
         <!-- ===== SECTION: DATA PRIBADI ===== -->
         <div class="px-6 py-4 flex items-center gap-2" style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9;">
             <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
             </span>
             <h2 class="font-bold text-sm" style="color: #1E293B;">Data Pribadi</h2>
         </div>
@@ -204,7 +212,11 @@ ob_start();
         <!-- ===== SECTION: FOTO ===== -->
         <div class="px-6 py-4 flex items-center gap-2" style="border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9;">
             <span class="inline-flex items-center justify-center" style="width:32px;height:32px;border-radius:9px;background:#EFF6FF;color:#1E3A8A;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="9" cy="9" r="2"></circle>
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                </svg>
             </span>
             <h2 class="font-bold text-sm" style="color: #1E293B;">Foto Profil</h2>
         </div>
@@ -217,7 +229,10 @@ ob_start();
                 <div id="previewWrap"
                     class="flex items-center justify-center rounded-full flex-shrink-0 overflow-hidden"
                     style="width: 64px; height: 64px; background: #DBEAFE; border: 2px solid #BFDBFE; color:#1E3A8A;">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
                 </div>
 
                 <!-- UPLOAD BOX -->
@@ -227,7 +242,11 @@ ob_start();
                         style="border: 1.5px dashed #BFDBFE; background: #F0F7FF;"
                         onmouseover="this.style.borderColor='#3B82F6'; this.style.background='#EFF6FF'"
                         onmouseout="this.style.borderColor='#BFDBFE'; this.style.background='#F0F7FF'">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
                         <span class="text-sm font-semibold" style="color: #1E3A8A;">Klik untuk upload foto</span>
                         <span class="text-xs" style="color: #64748B;">PNG, JPG, JPEG — maks. 2MB</span>
                     </div>

@@ -280,6 +280,10 @@ ob_start();
                     <span id="emptyNote" class="text-[13px] text-slate-400 py-1">Belum ada skill dipilih</span>
                 </div>
 
+                <?php if (isset($errors['skill_ids'])): ?>
+                    <p class="text-[10px] font-bold mt-1" style="color:#EF4444;"><?= $errors['skill_ids'] ?></p>
+                <?php endif; ?>
+
                 <!-- Counter Kecil -->
                 <p class="mt-3 text-[12px] text-slate-500">Total dipilih: <span id="countLabel" class="font-bold text-slate-800">0</span></p>
             </div>
@@ -490,6 +494,11 @@ ob_start();
 
     function updateUI() {
         emptyNote.style.display = selected.size === 0 ? '' : 'none';
+
+        const countLabel = document.getElementById('countLabel');
+        if (countLabel) {
+            countLabel.textContent = selected.size;
+        }
     }
 
     function addChip(id, name) {

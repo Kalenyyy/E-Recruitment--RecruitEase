@@ -62,6 +62,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $fieldErrors['confirm_password'] = "Konfirmasi password tidak cocok.";
     }
 
+    if (empty($username)) {
+        $fieldErrors['username'] = "Username wajib diisi.";
+    } elseif (preg_match('/\s/', $username)) { // Cek apakah ada spasi
+        $fieldErrors['username'] = "Username tidak boleh mengandung spasi.";
+    }
+
+    if (empty($phone)) {
+        $fieldErrors['phone'] = "Nomor HP wajib diisi.";
+    } elseif (!preg_match('/^[0-9]+$/', $phone)) { // Cek apakah hanya angka
+        $fieldErrors['phone'] = "Nomor HP hanya boleh berisi angka.";
+    }
+
     // ------------------------------------------
     // PROSES REGISTRASI JIKA VALIDASI LOLOS
     // ------------------------------------------
@@ -107,15 +119,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
  * @param array $formData    Array data form untuk repopulate
  * @param bool $isPassword   Apakah field adalah password (untuk toggle visibility)
  */
-function printInputField($name, $label, $type, $icon, $placeholder, $fieldErrors, $formData, $isPassword = false) {
+function printInputField($name, $label, $type, $icon, $placeholder, $fieldErrors, $formData, $isPassword = false)
+{
     $hasError = isset($fieldErrors[$name]);
-    $errorClass = $hasError 
-        ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10' 
+    $errorClass = $hasError
+        ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500/10'
         : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/10';
-    
+
     $value = htmlspecialchars($formData[$name] ?? '');
     $id = $isPassword ? "id=\"{$name}\"" : "";
-    
+
     $toggleButton = '';
     if ($isPassword) {
         $eyeId = $name === 'password' ? 'eyeIcon' : 'eyeConfirmIcon';
@@ -127,8 +140,8 @@ function printInputField($name, $label, $type, $icon, $placeholder, $fieldErrors
                 <i class=\"ti ti-eye text-base\" id=\"{$eyeId}\"></i>
             </button>";
     }
-    
-    ?>
+
+?>
     <div>
         <label class="block text-sm font-medium text-slate-700 mb-1.5">
             <?= $label ?>
@@ -141,10 +154,11 @@ function printInputField($name, $label, $type, $icon, $placeholder, $fieldErrors
             <input type="<?= $type ?>" name="<?= $name ?>" <?= $id ?>
                 value="<?= $isPassword ? '' : $value ?>"
                 placeholder="<?= $placeholder ?>"
+                <?php if ($name === 'phone') echo 'inputmode="numeric" pattern="[0-9]*"'; ?>
                 class="w-full h-[42px] pl-9 <?= $isPassword ? 'pr-10' : 'pr-3' ?> border rounded-lg
-               text-sm bg-white text-slate-800 placeholder-slate-400
-               outline-none transition focus:ring-2 <?= $errorClass ?>">
-            
+                        text-sm bg-white text-slate-800 placeholder-slate-400
+                        outline-none transition focus:ring-2 <?= $errorClass ?>">
+
             <?= $toggleButton ?>
         </div>
 
@@ -155,7 +169,7 @@ function printInputField($name, $label, $type, $icon, $placeholder, $fieldErrors
             </p>
         <?php endif; ?>
     </div>
-    <?php
+<?php
 }
 ?>
 
@@ -336,7 +350,7 @@ function printInputField($name, $label, $type, $icon, $placeholder, $fieldErrors
                 const countdownInterval = setInterval(function() {
                     countdown--;
                     successText.textContent = `Akun berhasil dibuat! Mengarahkan ke halaman login dalam ${countdown} detik...`;
-                    
+
                     // Jika countdown habis, redirect
                     if (countdown <= 0) {
                         clearInterval(countdownInterval);
@@ -351,6 +365,23 @@ function printInputField($name, $label, $type, $icon, $placeholder, $fieldErrors
                 }, 3000);
             }
         });
+
+        const phoneInput = document.getElementsByName('phone')[0];
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                // Hapus semua karakter yang BUKAN angka
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        }
+
+        // Validasi Username (Hapus Spasi Otomatis)
+        const usernameInput = document.getElementsByName('username')[0];
+        if (usernameInput) {
+            usernameInput.addEventListener('input', function(e) {
+                // Hapus semua karakter spasi
+                this.value = this.value.replace(/\s/g, '');
+            });
+        }
     </script>
 </body>
 

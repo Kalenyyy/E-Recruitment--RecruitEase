@@ -51,13 +51,18 @@ class Divisi
 
     public static function insert($conn, $nama_divisi)
     {
-
-        $sql = "INSERT INTO divisions (nama_divisi) VALUES (?)";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $nama_divisi);
-
-        return $stmt->execute();
+        try {
+            $sql = "INSERT INTO divisions (nama_divisi) VALUES (?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $nama_divisi);
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            // Kode error 1062 adalah Duplicate Entry
+            if ($e->getCode() == 1062) {
+                return "duplicate";
+            }
+            throw $e;
+        }
     }
 
     // KLO BUTUH FUNGSI CARI DIVISI BERDASARKAN ID, BISA PAKE FUNGSI INI
@@ -75,21 +80,18 @@ class Divisi
 
     public static function update($conn, $id, $nama_divisi)
     {
-
-        $sql = "UPDATE divisions
-                SET nama_divisi = ?
-                WHERE id = ?";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param(
-            "si",
-            $nama_divisi,
-            $id
-        );
-
-        return $stmt->execute();
+        try {
+            $sql = "UPDATE divisions SET nama_divisi = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("si", $nama_divisi, $id);
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            if ($e->getCode() == 1062) {
+                return "duplicate";
+            }
+            throw $e;
+        }
     }
-
     public static function delete($conn, $id)
     {
         try {

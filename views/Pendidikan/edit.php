@@ -20,39 +20,38 @@ if (!$data) {
     die("Data pendidikan tidak ditemukan");
 }
 
+$errors = [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Kirim data POST ke controller
+    $response = PendidikanController::update($conn, $id, $_POST);
 
-    try {
-
-        PendidikanController::update(
-            $conn,
-            $id,
-            [
-                'institusi'    => $_POST['institusi'],
-                'jenjang'      => $_POST['jenjang'],
-                'jurusan'      => $_POST['jurusan'],
-                'tahun_masuk'  => $_POST['tahun_masuk'],
-                'tahun_lulus'  => $_POST['tahun_lulus'],
-                'ipk'          => $_POST['ipk']
-            ]
-        );
-
-        header(
-            "Location: " .
-                BASE_URL .
-                "views/candidate/profile.php?id=" .
-                $data['candidate_id'] .
-                "#pendidikan"
-        );
+    if ($response['success']) {
+        header("Location: " . BASE_URL . "views/candidate/profile.php?id=" . $data['candidate_id'] . "#pendidikan");
         exit;
-    } catch (Exception $e) {
-
-        $error = $e->getMessage();
+    } else {
+        $errors = $response['messages'];
+        // Update data lokal agar input form tetap berisi apa yang diketik user saat error
+        $data['institusi'] = $_POST['institusi'];
+        $data['jenjang'] = $_POST['jenjang'];
+        $data['jurusan'] = $_POST['jurusan'];
+        $data['tahun_masuk'] = $_POST['tahun_masuk'];
+        $data['tahun_lulus'] = $_POST['tahun_lulus'];
+        $data['ipk'] = $_POST['ipk'];
     }
 }
-
 ob_start();
 ?>
+
+<?php if (!empty($errors)): ?>
+    <div class="mb-4 p-4 rounded-xl text-sm" style="background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;">
+        <ul class="list-disc ml-5">
+            <?php foreach ($errors as $err): ?>
+                <li><?= $err ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
 
 <!-- HEADER -->
 <div class="flex items-center justify-between mb-6">
@@ -188,31 +187,16 @@ ob_start();
 
                 <!-- IPK -->
                 <div class="flex flex-col gap-1">
-
-                    <label
-                        id="nilaiLabel"
-                        class="text-xs font-semibold text-slate-600">
-
-                        IPK / Nilai
-
-                    </label>
-
+                    <label id="nilaiLabel" class="text-xs font-semibold text-slate-600">IPK / Nilai</label>
                     <input
                         type="number"
                         step="0.01"
                         min="0"
-                        max="4"
                         name="ipk"
                         id="ipk"
-                        placeholder="3.75"
-                        value="<?= htmlspecialchars($data['ipk']) ?>"
-                        class="w-full px-3 py-2 text-sm rounded-lg outline-none"
-                        style="border:1px solid #CBD5E1;background:#F8FAFC;">
-
-                    <small
-                        id="ipkInfo"
-                        class="text-xs text-slate-500">
-                    </small>
+                        value="<?= htmlspecialchars($data['ipk'] ?? '') ?>"
+                        class="w-full px-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50">
+                    <small id="ipkInfo" class="text-xs text-slate-500"></small>
                 </div>
             </div>
 
@@ -283,42 +267,66 @@ ob_start();
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
         const jenjang = document.getElementById('jenjang');
         const ipk = document.getElementById('ipk');
         const info = document.getElementById('ipkInfo');
         const label = document.getElementById('nilaiLabel');
+        const jurusan = document.querySelector('[name="jurusan"]'); // Pastikan selektor benar
+        const thnMasuk = document.querySelector('[name="tahun_masuk"]');
+        const thnLulus = document.querySelector('[name="tahun_lulus"]');
 
         function updateValidation() {
+            const val = jenjang.value;
+            const tanpaJurusan = ['SD', 'SMP', 'SMA'];
+            const listSekolah = ['SD', 'SMP', 'SMA', 'SMK'];
 
-            const tanpaJurusan = [
-                'SD',
-                'SMP',
-                'SMA'
-            ];
-
-            if (tanpaJurusan.includes(jenjang.value)) {
-
-                label.innerHTML = 'Nilai';
-                info.innerHTML = 'Nilai untuk SD/SMP/SMA/SMK : 0 - 100';
-                ipk.max = 100;
-                ipk.placeholder = '90.50';
-
+            // --- LOGIKA JURUSAN ---
+            if (tanpaJurusan.includes(val)) {
+                jurusan.value = ''; // 1. Kosongkan isinya
+                jurusan.disabled = true; // 2. Matikan inputnya
+                jurusan.required = false; // 3. Tidak wajib diisi
+                jurusan.placeholder = 'Tidak diperlukan untuk ' + val;
+                jurusan.style.background = '#F1F5F9'; // Beri warna abu-abu tanda mati
+                jurusan.style.cursor = 'not-allowed';
             } else {
+                jurusan.disabled = false; // 1. Aktifkan kembali
+                jurusan.required = true; // 2. Wajib diisi (untuk SMK - S3)
+                jurusan.style.background = '#F8FAFC';
+                jurusan.style.cursor = 'text';
+                // Jangan kosongkan isinya di sini agar data lama tidak hilang saat milih SMK/D3
+            }
 
-                label.innerHTML = 'IPK';
-                info.innerHTML = 'IPK untuk D1-D4/S1-S3 : 0.00 - 4.00';
+            // --- LOGIKA IPK / NILAI ---
+            if (listSekolah.includes(val)) {
+                label.innerText = 'Nilai';
+                ipk.max = 100;
+                ipk.placeholder = '90.00';
+                info.innerText = 'Nilai Sekolah (SD-SMK): 0 - 100';
+            } else {
+                label.innerText = 'IPK';
                 ipk.max = 4;
                 ipk.placeholder = '3.75';
+                info.innerText = 'IPK Kuliah (D1-S3): 0.00 - 4.00';
             }
         }
 
-        updateValidation();
+        // Validasi Tahun
+        function validateYears() {
+            if (thnLulus.value && parseInt(thnMasuk.value) > parseInt(thnLulus.value)) {
+                thnLulus.setCustomValidity('Tahun lulus tidak boleh lebih kecil dari tahun masuk');
+            } else {
+                thnLulus.setCustomValidity('');
+            }
+        }
 
-        jenjang.addEventListener(
-            'change',
-            updateValidation
-        );
+        // Jalankan fungsi saat ada perubahan
+        jenjang.addEventListener('change', updateValidation);
+        thnMasuk.addEventListener('change', validateYears);
+        thnLulus.addEventListener('change', validateYears);
+
+        // JALANKAN SAAT PERTAMA KALI HALAMAN DIBUKA (Penting untuk Edit)
+        updateValidation();
+        validateYears();
     });
 </script>
 

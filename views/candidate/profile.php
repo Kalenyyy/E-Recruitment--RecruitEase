@@ -166,6 +166,7 @@ ob_start();
                     <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">Tanggal Lahir</label>
                     <input type="date" name="tanggal_lahir"
                         value="<?= htmlspecialchars($candidate['tanggal_lahir'] ?? '') ?>"
+                        max="<?= date('Y-m-d') ?>"
                         class="px-0 py-1.5 text-sm font-semibold text-slate-800 border-b-2 border-slate-200 focus:border-blue-800 outline-none bg-transparent transition-colors">
                 </div>
 
@@ -1258,6 +1259,13 @@ ob_start();
             }
 
         });
+
+    const noHpInput = document.getElementsByName('no_hp')[0];
+    if (noHpInput) {
+        noHpInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    }
 </script>
 
 <?php

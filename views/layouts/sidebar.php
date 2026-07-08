@@ -112,25 +112,25 @@ $candidateData = CandidateController::getCandidateByUserId($_SESSION['user_id'] 
                     <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
-                    <span class="sidebar-text">Divisi</span>
+                    <span class="sidebar-text">Manajemen Divisi</span>
                 </a>
                 <a href="<?= BASE_URL ?>views/posisi/index.php" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('posisi') ?>">
                     <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span class="sidebar-text">Posisi</span>
+                    <span class="sidebar-text">Manajemen Posisi</span>
                 </a>
                 <a href="<?= BASE_URL ?>views/skill/index.php" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('skill') ?>">
                     <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    <span class="sidebar-text">Skill</span>
+                    <span class="sidebar-text">Manajemen Skill</span>
                 </a>
                 <a href="<?= BASE_URL ?>views/user/index.php" class="nav-item flex items-center gap-3 rounded-xl px-3 py-2 transition <?= isActive('user') ?>">
                     <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span class="sidebar-text">Pengguna</span>
+                    <span class="sidebar-text">Manajemen HR</span>
                 </a>
 
             <?php endif; ?>

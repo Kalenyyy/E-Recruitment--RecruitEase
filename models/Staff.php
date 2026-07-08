@@ -163,7 +163,6 @@ class Staff
                 $data['foto'],
                 $id
             );
-
         } else {
 
             $sql = "UPDATE staff
@@ -204,5 +203,15 @@ class Staff
         );
 
         return $stmtUser->execute();
+    }
+
+    public static function isUniqueExceptMe($conn, $field, $value, $excludeUserId)
+    {
+        $sql = "SELECT id FROM users WHERE $field = ? AND id != ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("si", $value, $excludeUserId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->num_rows === 0; // Mengembalikan true jika tidak ada yang pakai (unik)
     }
 }

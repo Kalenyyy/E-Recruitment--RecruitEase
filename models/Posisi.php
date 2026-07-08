@@ -63,20 +63,60 @@ class Posisi
         return $stmt->get_result()->fetch_assoc();
     }
 
+    public static function isDuplicate($conn, $nama_posisi, $id_divisi, $exclude_id = null)
+    {
+        $query = "SELECT id FROM positions WHERE nama_posisi = ? AND divisi_id = ?";
+
+        // Jika sedang update, abaikan ID yang sedang diedit
+        if ($exclude_id) {
+            $query .= " AND id != ?";
+        }
+
+        $stmt = $conn->prepare($query);
+
+        if ($exclude_id) {
+            $stmt->bind_param("sii", $nama_posisi, $id_divisi, $exclude_id);
+        } else {
+            $stmt->bind_param("si", $nama_posisi, $id_divisi);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
+    }
+
     public static function insert($conn, $nama_posisi, $id_divisi)
     {
-        $sql = "INSERT INTO positions (nama_posisi, divisi_id) VALUES (?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("si", $nama_posisi, $id_divisi);
-        return $stmt->execute();
+        // 1. Cek Duplikat
+        if (self::isDuplicate($conn, $nama_posisi, $id_divisi)) {
+            return "duplicate";
+        }
+
+        try {
+            $sql = "INSERT INTO positions (nama_posisi, divisi_id) VALUES (?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("si", $nama_posisi, $id_divisi);
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            throw $e;
+        }
     }
 
     public static function update($conn, $id, $nama_posisi, $id_divisi)
     {
-        $sql = "UPDATE positions SET nama_posisi = ?, divisi_id = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sii", $nama_posisi, $id_divisi, $id);
-        return $stmt->execute();
+        // 1. Cek Duplikat (kecuali ID diri sendiri)
+        if (self::isDuplicate($conn, $nama_posisi, $id_divisi, $id)) {
+            return "duplicate";
+        }
+
+        try {
+            $sql = "UPDATE positions SET nama_posisi = ?, divisi_id = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sii", $nama_posisi, $id_divisi, $id);
+            return $stmt->execute();
+        } catch (mysqli_sql_exception $e) {
+            throw $e;
+        }
     }
 
     public static function delete($conn, $id)

@@ -3,15 +3,6 @@ class LowonganPekerjaanController
 {
     public static function jelajahiLowongan($conn)
     {
-        $jenisDisabilitasOptions = [
-            'visual'         => ['label' => 'Disabilitas Visual',        'desc' => 'Tunanetra, low vision'],
-            'hearing'        => ['label' => 'Disabilitas Pendengaran',   'desc' => 'Tunarungu, hard of hearing'],
-            'physical'       => ['label' => 'Disabilitas Fisik/Motorik', 'desc' => 'Keterbatasan gerak atau mobilitas'],
-            'intellectual'   => ['label' => 'Disabilitas Intelektual',   'desc' => 'Tunagrahita dan sejenisnya'],
-            'mental'         => ['label' => 'Disabilitas Mental',        'desc' => 'Gangguan jiwa/psikososial'],
-            'speech'         => ['label' => 'Disabilitas Wicara',        'desc' => 'Tunawicara'],
-        ];
-
         $filters = [
             'search'              => trim($_GET['search'] ?? ''),
             'tipe_pekerjaan'      => trim($_GET['tipe_pekerjaan'] ?? ''),
@@ -23,7 +14,7 @@ class LowonganPekerjaanController
         ];
 
         $page    = max(1, (int)($_GET['page'] ?? 1));
-        $perPage = 9;
+        $perPage = 5;
 
         $result          = LowonganPekerjaan::getJobs($conn, $filters, $page, $perPage);
         $lokasiList      = LowonganPekerjaan::getLokasiList($conn);
@@ -36,7 +27,6 @@ class LowonganPekerjaanController
             'total_pages'              => $result['total_pages'],
             'filters'                  => $filters,
             'lokasi_list'              => $lokasiList,
-            'jenis_disabilitas_options' => $jenisDisabilitasOptions,
         ];
     }
 

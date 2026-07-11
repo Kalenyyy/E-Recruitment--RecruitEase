@@ -34,7 +34,7 @@ if ($deleted) {
         . BASE_URL
         . "views/candidate/profile.php?id="
         . $data['candidate_id']
-        . "#sertifikasi"
+        . "&status=success_delete#sertifikasi"
     );
     exit;
 }

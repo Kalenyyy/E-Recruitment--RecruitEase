@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             . BASE_URL .
             "views/candidate/profile.php?id="
             . $candidate_id .
-            "#sertifikasi"
+            "&status=success_update#sertifikasi"
         );
         exit;
     }

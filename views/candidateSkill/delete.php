@@ -24,7 +24,7 @@ header(
         BASE_URL .
         "views/candidate/profile.php?id=" .
         $candidateId .
-        "#pengalaman-kerja"
+        "&status=success_delete#pengalaman-kerja"
 );
 
 exit;

@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 . BASE_URL .
                 "views/candidate/profile.php?id="
                 . $_POST['id_candidate']
-                . "#sertifikasi"
+                . "&status=success_add#sertifikasi"
         );
         exit;
     }

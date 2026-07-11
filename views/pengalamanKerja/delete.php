@@ -28,7 +28,7 @@ if ($deleted) {
             . BASE_URL
             . "views/candidate/profile.php?id="
             . $data['candidate_id']
-            . "#pengalaman-kerja"
+            . "&status=success_delete#pengalaman-kerja"
     );
     exit;
 }

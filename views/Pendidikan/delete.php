@@ -21,6 +21,6 @@ PendidikanController::delete(
 header(
     "Location: ../candidate/profile.php?id=" .
     $data['candidate_id'] .
-    "#pendidikan"
+    "&status=success_delete#pendidikan"
 );
 exit;

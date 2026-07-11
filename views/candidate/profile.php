@@ -1205,6 +1205,57 @@ ob_start();
 
             }
         )
+
+    // --- PENANGKAP STATUS ---
+    // --- PENANGKAP STATUS DARI URL & AUTO SCROLL ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        const hash = window.location.hash; // Mengambil #pendidikan, #sertifikasi
+
+        if (status) {
+            let message = '';
+            let type = 'success';
+
+            switch (status) {
+                case 'success_add':
+                    message = 'Data berhasil ditambahkan!';
+                    break;
+                case 'success_update':
+                    message = 'Perubahan berhasil disimpan!';
+                    break;
+                case 'success_delete':
+                    message = 'Data berhasil dihapus!';
+                    break;
+                case 'error':
+                    message = 'Terjadi kesalahan, silakan coba lagi.';
+                    type = 'error';
+                    break;
+            }
+
+            if (message) {
+                showToast(message, type);
+            }
+
+            if (hash) {
+                const targetElement = document.querySelector(hash);
+                if (targetElement) {
+                    // Beri sedikit delay agar rendering selesai
+                    setTimeout(() => {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }, 300);
+                }
+            }
+
+            // Bersihkan URL tanpa menghapus Hash agar refresh tidak muncul toast lagi
+            const id = urlParams.get('id');
+            const newUrl = window.location.pathname + (id ? '?id=' + id : '') + hash;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    });
 </script>
 
 <script>

@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 . BASE_URL .
                 "views/candidate/profile.php?id="
                 . $_POST['id_candidate']
-                . "#pengalaman-kerja"
+                . "&status=success_update#pengalaman-kerja"
         );
         exit;
     }

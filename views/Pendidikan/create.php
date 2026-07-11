@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Jika sukses, redirect
         header(
             "Location: " . BASE_URL . "views/candidate/profile.php?id=" .
-                $_POST['candidate_id'] . "#pendidikan"
+                $_POST['candidate_id'] . "&status=success_add#pendidikan"
         );
         exit;
     } else {

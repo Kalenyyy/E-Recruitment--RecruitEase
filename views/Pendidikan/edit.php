@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response = PendidikanController::update($conn, $id, $_POST);
 
     if ($response['success']) {
-        header("Location: " . BASE_URL . "views/candidate/profile.php?id=" . $data['candidate_id'] . "#pendidikan");
+        header("Location: " . BASE_URL . "views/candidate/profile.php?id=" . $data['candidate_id'] . "&status=success_update#pendidikan");
         exit;
     } else {
         $errors = $response['messages'];

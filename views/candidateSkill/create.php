@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($result['status']) {
         $_SESSION['success'] = "Skill kandidat berhasil ditambahkan";
-        header("Location: " . BASE_URL . "views/candidate/profile.php?id=" . $candidateId . "#pengalaman-kerja");
+        header("Location: " . BASE_URL . "views/candidate/profile.php?id=" . $candidateId . "&status=success_add#pengalaman-kerja");
         exit;
     }
 

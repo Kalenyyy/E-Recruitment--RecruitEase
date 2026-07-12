@@ -78,13 +78,6 @@ class StaffController
         return Staff::updateStatus($conn, $id, $newStatus);
     }
 
-    public static function destroy($conn, $id)
-    {
-        $staffDeleted = Staff::delete($conn, $id);
-        $userDeleted = User::delete($conn, $id);
-        return $staffDeleted && $userDeleted;
-    }
-
     public static function updateProfile($conn, $id, $data)
     {
         // 1. Cari data staff saat ini untuk mendapatkan user_id-nya
@@ -96,7 +89,7 @@ class StaffController
         $userId = $currentStaff['user_id'];
 
         // 2. Validasi Format di level Controller (Double Check)
-        
+
         // Cek spasi di username
         if (preg_match('/\s/', $data['username'])) {
             return ['status' => false, 'message' => 'Username tidak boleh mengandung spasi.'];
@@ -114,7 +107,7 @@ class StaffController
 
         // 3. Pengecekan Duplikasi (Username & Email)
         // Kita panggil fungsi isUniqueExceptMe yang tadi kita buat di Model Staff
-        
+
         if (!Staff::isUniqueExceptMe($conn, 'username', $data['username'], $userId)) {
             return ['status' => false, 'message' => 'Username sudah digunakan oleh orang lain.'];
         }
@@ -131,5 +124,5 @@ class StaffController
         } else {
             return ['status' => false, 'message' => 'Gagal memperbarui profil di database.'];
         }
-    } 
+    }
 }

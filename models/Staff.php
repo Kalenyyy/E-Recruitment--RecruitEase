@@ -107,25 +107,6 @@ class Staff
         return $stmt->execute();
     }
 
-    public static function delete($conn, $id)
-    {
-        $staff = self::find($conn, $id);
-        if (!$staff)
-            return false;
-
-        if (!empty($staff['foto'])) {
-            $fotoPath = __DIR__ . "/../public/uploads/staff/" . $staff['foto'];
-            if (file_exists($fotoPath)) {
-                unlink($fotoPath);
-            }
-        }
-
-        $sql = "DELETE FROM staff WHERE user_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $id);
-        return $stmt->execute();
-    }
-
     public static function updateProfile($conn, $id, $data)
     {
         $staff = self::find($conn, $id);

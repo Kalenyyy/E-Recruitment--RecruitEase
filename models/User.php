@@ -43,12 +43,4 @@ class User
 
         return $stmt->insert_id;
     }
-
-    public static function delete($conn, $id)
-    {
-        $sql = "DELETE FROM users WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $id);
-        return $stmt->execute();
-    }
 }

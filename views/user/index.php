@@ -143,10 +143,10 @@ ob_start();
                                         class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition shadow-sm">
                                         <i class="fas fa-sync-alt"></i> Status
                                     </button>
-                                    <button onclick="openDeleteModal(<?= $hrd['user_id'] ?>, '<?= addslashes($hrd['nama_staff']) ?>')"
+                                    <!-- <button onclick="openDeleteModal(<?= $hrd['user_id'] ?>, '<?= addslashes($hrd['nama_staff']) ?>')"
                                         class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition shadow-sm">
                                         <i class="far fa-trash-alt"></i> Hapus
-                                    </button>
+                                    </button> -->
                                 </div>
                             </td>
                         </tr>

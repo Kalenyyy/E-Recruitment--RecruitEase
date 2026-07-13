@@ -130,6 +130,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                   text-slate-400 text-base pointer-events-none"></i>
                             <input type="text" name="username" id="username"
                                 value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
+                                oninput="this.value = this.value.replace(/\s/g, '')"
                                 placeholder="Masukkan username Anda"
                                 class="w-full h-[42px] pl-9 pr-3 border border-slate-300 rounded-lg
                                       text-sm bg-white text-slate-800 placeholder-slate-400
@@ -208,6 +209,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 pw.type = 'password';
                 icon.className = 'ti ti-eye text-base';
             }
+        });
+
+        const usernameInput = document.getElementById('username');
+
+        usernameInput.addEventListener('keydown', function(e) {
+            if (e.which === 32) {
+                e.preventDefault();
+            }
+        });
+
+        usernameInput.addEventListener('blur', function() {
+            this.value = this.value.replace(/\s/g, '');
         });
     </script>
 </body>

@@ -72,9 +72,12 @@ class StaffController
 
     public static function toggleStatus($conn, $id)
     {
-        $staff = Staff::find($conn, $id);
+        $staff = Staff::findByUserId($conn, $id);
+
         if (!$staff) return false;
+
         $newStatus = ($staff['status'] == 'active') ? 'inactive' : 'active';
+
         return Staff::updateStatus($conn, $id, $newStatus);
     }
 

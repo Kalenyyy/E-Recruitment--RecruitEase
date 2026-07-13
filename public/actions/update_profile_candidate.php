@@ -65,19 +65,37 @@ if (empty($alamat)) {
 
 // 4. Handle upload foto (hanya jika ada file baru)
 $fotoName = null;
-if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-    // Validasi tipe file foto
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-    if (!in_array($_FILES['foto']['type'], $allowedTypes)) {
-        echo json_encode(['success' => false, 'message' => 'Format foto harus JPG, PNG, atau WEBP.']);
-        exit;
-    }
+if (!empty($_FILES['foto']['name'])) {
+    if ($_FILES['foto']['error'] === UPLOAD_ERR_OK) {
 
-    $fotoName = time() . "_" . basename($_FILES['foto']['name']);
-    $uploadPath = __DIR__ . "/../../public/uploads/candidate/" . $fotoName;
+        // A. Validasi tipe file
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+        $fileMime = $_FILES['foto']['type'];
+        $fileSize = $_FILES['foto']['size'];
 
-    if (!move_uploaded_file($_FILES['foto']['tmp_name'], $uploadPath)) {
-        echo json_encode(['success' => false, 'message' => 'Gagal mengupload foto ke server.']);
+        if (!in_array($fileMime, $allowedTypes)) {
+            echo json_encode(['success' => false, 'message' => 'Format foto harus JPG, PNG, atau WEBP.']);
+            exit;
+        }
+
+        // B. Validasi ukuran file (2MB)
+        if ($fileSize > 2 * 1024 * 1024) {
+            echo json_encode(['success' => false, 'message' => 'Ukuran foto terlalu besar! Maksimal 2MB.']);
+            exit;
+        }
+
+        // C. Proses Upload
+        // Sanitasi nama file agar aman
+        $cleanFileName = preg_replace("/[^a-zA-Z0-9.]/", "_", basename($_FILES['foto']['name']));
+        $fotoName = time() . "_" . $cleanFileName;
+        $uploadPath = __DIR__ . "/../../public/uploads/candidate/" . $fotoName;
+
+        if (!move_uploaded_file($_FILES['foto']['tmp_name'], $uploadPath)) {
+            echo json_encode(['success' => false, 'message' => 'Gagal menyimpan foto ke server.']);
+            exit;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan pada file foto.']);
         exit;
     }
 }

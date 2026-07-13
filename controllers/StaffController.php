@@ -35,6 +35,8 @@ class StaffController
     public static function store($conn, $post, $files)
     {
         $errors = [];
+
+        // 1. Validasi Duplikasi Akun
         if (User::findByUsername($post['username'])) {
             $errors['username'] = "Username sudah digunakan.";
         }
@@ -42,20 +44,54 @@ class StaffController
             $errors['email'] = "Email sudah terdaftar.";
         }
 
-        if (!empty($errors)) return ['status' => false, 'errors' => $errors];
-
-        $user_id = User::insert($conn, $post['username'], $post['email'], password_hash($post['password'], PASSWORD_DEFAULT), 'hr');
-
-        if (!$user_id) return ['status' => false, 'errors' => ['umum' => 'Gagal membuat akun.']];
-
+        // 2. VALIDASI FILE FOTO (Backend Security)
         $fotoName = null;
         if (!empty($files['foto']['name'])) {
-            $fotoName = time() . '_' . $files['foto']['name'];
-            $targetDir = __DIR__ . "/../public/uploads/staff/";
-            if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
-            move_uploaded_file($files['foto']['tmp_name'], $targetDir . $fotoName);
+            $fileFoto = $files['foto'];
+            $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            $fileExtension = strtolower(pathinfo($fileFoto['name'], PATHINFO_EXTENSION));
+            $fileMime = $fileFoto['type'];
+            $fileSize = $fileFoto['size'];
+
+            // Cek Ekstensi & MIME Type
+            if (!in_array($fileMime, $allowedTypes) || !in_array($fileExtension, ['jpg', 'jpeg', 'png'])) {
+                $errors['foto'] = "Format foto tidak didukung! Gunakan JPG, JPEG, atau PNG.";
+            }
+
+            // Cek Ukuran (2MB)
+            if ($fileSize > 2 * 1024 * 1024) {
+                $errors['foto'] = "Ukuran foto terlalu besar! Maksimal adalah 2MB.";
+            }
         }
 
+        // Jika ada error pada input atau file, hentikan proses sebelum insert ke database
+        if (!empty($errors)) return ['status' => false, 'errors' => $errors];
+
+        // 3. Insert Akun User (Setelah dipastikan data valid)
+        $user_id = User::insert(
+            $conn,
+            $post['username'],
+            $post['email'],
+            password_hash($post['password'], PASSWORD_DEFAULT),
+            'hr'
+        );
+
+        if (!$user_id) return ['status' => false, 'errors' => ['umum' => 'Gagal membuat akun user.']];
+
+        // 4. Proses Upload Foto (Setelah user_id didapat)
+        if (!empty($files['foto']['name'])) {
+            $fotoName = time() . '_' . preg_replace("/[^a-zA-Z0-9.]/", "_", $files['foto']['name']);
+            $targetDir = __DIR__ . "/../public/uploads/staff/";
+
+            if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
+
+            if (!move_uploaded_file($files['foto']['tmp_name'], $targetDir . $fotoName)) {
+                
+                return ['status' => false, 'errors' => ['umum' => 'Gagal mengupload foto ke server.']];
+            }
+        }
+
+        // 5. Insert Data Profil Staff
         $staffCreated = Staff::insert($conn, [
             'user_id' => $user_id,
             'nama_staff' => $post['nama_staff'],
@@ -67,7 +103,7 @@ class StaffController
             'foto' => $fotoName
         ]);
 
-        return $staffCreated ? ['status' => true] : ['status' => false, 'errors' => ['umum' => 'Gagal profil staff.']];
+        return $staffCreated ? ['status' => true] : ['status' => false, 'errors' => ['umum' => 'Gagal membuat profil staff.']];
     }
 
     public static function toggleStatus($conn, $id)

@@ -900,13 +900,30 @@ ob_start();
     // Preview foto sebelum upload
     function previewFoto(input) {
         if (!input.files || !input.files[0]) return;
+
+        const file = input.files[0];
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+        // 1. Validasi Tipe File
+        if (!allowedTypes.includes(file.type)) {
+            showToast('Format file tidak didukung! Gunakan JPG, PNG, atau WEBP.', 'error');
+            input.value = ''; // Reset input
+            return;
+        }
+
+        // 2. Validasi Ukuran File (Contoh: 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('Ukuran foto terlalu besar! Maksimal 2MB.', 'error');
+            input.value = ''; // Reset input
+            return;
+        }
+
+        // 3. Jika Lolos, Tampilkan Preview
         const reader = new FileReader();
         reader.onload = function(e) {
-            // Kalau ada elemen img, update src-nya
             let img = document.getElementById('fotoPreview');
             const initials = document.getElementById('fotoInitials');
             if (!img) {
-                // Buat elemen img baru kalau sebelumnya pakai inisial
                 img = document.createElement('img');
                 img.id = 'fotoPreview';
                 img.className = 'w-full h-full object-cover';
@@ -914,7 +931,7 @@ ob_start();
             }
             img.src = e.target.result;
         };
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(file);
     }
 
     // Toggle section disabilitas

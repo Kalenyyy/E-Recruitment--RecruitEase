@@ -390,51 +390,66 @@ ob_start();
 
             <!-- Gaji -->
             <div style="margin-bottom:1rem;">
-                <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;
-               text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
+                <p style="font-size:10px;font-weight:700;letter-spacing:0.1em; text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
                     Gaji yang Ditawarkan (IDR)
                 </p>
-                <div style="position:relative;">
-                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);
-                     font-size:13px;font-weight:700;color:#94A3B8;">Rp</span>
-                    <input type="text" name="gaji_offering" id="gaji_input" required placeholder="Contoh: 5.000.000" maxlength="13"
-                        style="width:100%;padding:12px 14px 12px 42px;border-radius:0.875rem;
-                      border:1px solid #E2E8F0;background:#F8FAFC;
-                      font-size:15px;font-weight:700;color:#1E293B;
-                      outline:none;box-sizing:border-box;transition:border-color 0.15s,background 0.15s;"
-                        onfocus="this.style.borderColor='#2563EB';this.style.background='#FFFFFF'"
-                        onblur="this.style.borderColor='#E2E8F0';this.style.background='#F8FAFC'">
+
+                <!-- Tampilkan Range Gaji dari Database -->
+                <div style="margin-bottom: 8px; font-size: 11px; color: #64748B; font-weight: 600;">
+                    <?php
+                    $min = $jobDetails['gaji_min'] ?? 0;
+                    $max = $jobDetails['gaji_max'] ?? 0;
+
+                    if ($min > 0 && $max > 0) {
+                        echo "Rentang Anggaran: <span class='text-blue-600'>Rp " . number_format($min, 0, ',', '.') . " - Rp " . number_format($max, 0, ',', '.') . "</span>";
+                    } elseif ($min > 0) {
+                        echo "Anggaran: <span class='text-blue-600'>Mulai dari Rp " . number_format($min, 0, ',', '.') . "</span>";
+                    } else {
+                        // Jika tidak diisi atau 0
+                        echo "Anggaran: <span class='text-slate-500 italic'>Sesuai Kebijakan Perusahaan (Negosiasi)</span>";
+                    }
+                    ?>
                 </div>
+
+                <div style="position:relative;">
+                    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%); font-size:13px;font-weight:700;color:#94A3B8;">Rp</span>
+                    <input type="text" name="gaji_offering" id="gaji_input" required placeholder="Contoh: 5.000.000"
+                        style="width:100%;padding:12px 14px 12px 42px;border-radius:0.875rem; border:1px solid #E2E8F0;background:#F8FAFC; font-size:15px;font-weight:700;color:#1E293B; outline:none;box-sizing:border-box;">
+                </div>
+
+                <!-- Pesan Error Gaji -->
+                <p id="gaji_error_msg" style="display:none; color: #EF4444; font-size: 11px; font-weight: 600; margin-top: 6px;">
+                    <i class="fa-solid fa-circle-exclamation"></i> Gaji harus berada di rentang yang ditentukan.
+                </p>
             </div>
 
             <!-- Upload PDF -->
             <div style="margin-bottom:1.5rem;">
-                <p style="font-size:10px;font-weight:700;letter-spacing:0.08em;
-                           text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
+                <p style="font-size:10px;font-weight:700;letter-spacing:0.08em; text-transform:uppercase;color:#94A3B8;margin:0 0 8px;">
                     Dokumen Surat Penawaran (PDF)
                 </p>
-                <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                              padding:1.5rem;border-radius:0.75rem;cursor:pointer;
-                              border:1.5px dashed #CBD5E1;background:#F8FAFC;
-                              transition:background 0.15s,border-color 0.15s;"
-                    onmouseover="this.style.background='#EFF6FF';this.style.borderColor='#2563EB'"
-                    onmouseout="this.style.background='#F8FAFC';this.style.borderColor='#BFDBFE'">
-                    <div style="width:40px;height:40px;border-radius:0.75rem;margin-bottom:10px;
-                                background:linear-gradient(135deg,#1E3A8A,#2563EB);
-                                display:flex;align-items:center;justify-content:center;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <label id="dropzone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  padding:1.5rem;border-radius:0.75rem;cursor:pointer;
+                  border:1.5px dashed #CBD5E1;background:#F8FAFC;
+                  transition:all 0.2s ease;">
+
+                    <div id="iconContainer" style="width:40px;height:40px;border-radius:0.75rem;margin-bottom:10px;
+                    background:linear-gradient(135deg,#1E3A8A,#2563EB);
+                    display:flex;align-items:center;justify-content:center;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" y1="3" x2="12" y2="15"></line>
                         </svg>
                     </div>
-                    <p id="fileNameDisplay"
-                        style="font-size:13px;font-weight:600;color:#475569;margin:0;">
+
+                    <p id="fileNameDisplay" style="font-size:13px;font-weight:600;color:#475569;margin:0; text-align:center;">
                         Klik untuk upload file PDF
                     </p>
-                    <p style="font-size:11px;color:#94A3B8;margin:4px 0 0;">Format: .pdf</p>
-                    <input type="file" name="file_offering" accept=".pdf" required
+                    <p id="fileSubtitle" style="font-size:11px;color:#94A3B8;margin:4px 0 0;">Format: .pdf</p>
+
+                    <!-- Input file tetap sama -->
+                    <input type="file" name="file_offering" id="fileInput" accept=".pdf" required
                         onchange="updateFileName(this)" style="display:none;">
                 </label>
             </div>
@@ -486,28 +501,73 @@ ob_start();
             }, 250);
         }
 
+        const GAJI_MIN = <?= (int)$jobDetails['gaji_min'] ?>;
+        const GAJI_MAX = <?= (int)$jobDetails['gaji_max'] ?>;
+
         const gajiInput = document.getElementById('gaji_input');
+        const gajiErrorMsg = document.getElementById('gaji_error_msg');
+        const submitOfferingBtn = document.querySelector('#offeringModal button[type="submit"]');
 
         gajiInput.addEventListener('input', function(e) {
-            // 1. Hapus semua karakter yang bukan angka
+            // 1. Bersihkan karakter non-angka
             let rawValue = this.value.replace(/\D/g, '');
+            let numericValue = parseInt(rawValue) || 0;
 
-            // 2. Cek jika angka melebihi 1 Miliar (1.000.000.000)
-            // 1 Miliar adalah 1 diikuti 9 angka nol
-            if (parseInt(rawValue) > 1000000000) {
-                rawValue = "1000000000";
+            // 2. Format Tampilan ke Rupiah
+            this.value = formatRupiah(rawValue);
+
+            // 3. Validasi Range (DIPERBAIKI)
+            let isError = false;
+
+            if (rawValue !== "") {
+                // Kondisi A: Jika ada batas Min DAN batas Max (Rentang Lengkap)
+                if (GAJI_MIN > 0 && GAJI_MAX > 0) {
+                    if (numericValue < GAJI_MIN || numericValue > GAJI_MAX) {
+                        isError = true;
+                    }
+                }
+                // Kondisi B: Jika hanya ada batas Min (Mulai dari...)
+                else if (GAJI_MIN > 0 && GAJI_MAX === 0) {
+                    if (numericValue < GAJI_MIN) {
+                        isError = true;
+                    }
+                }
+                // Kondisi C: Jika hanya ada batas Max (Maksimal...)
+                else if (GAJI_MAX > 0 && GAJI_MIN === 0) {
+                    if (numericValue > GAJI_MAX) {
+                        isError = true;
+                    }
+                }
             }
 
-            // 3. Jika kosong, biarkan kosong
-            if (rawValue === "") {
-                this.value = "";
+            // 4. Update UI berdasarkan status error
+            if (isError) {
+                // Tampilan jika ERROR
+                gajiInput.style.borderColor = "#EF4444";
+                gajiInput.style.background = "#FEF2F2";
+                gajiErrorMsg.style.display = "block";
+                submitOfferingBtn.disabled = true;
+                submitOfferingBtn.style.opacity = "0.5";
+                submitOfferingBtn.style.cursor = "not-allowed";
+            } else if (rawValue !== "") {
+                // Tampilan jika BENAR
+                gajiInput.style.borderColor = "#E2E8F0";
+                gajiInput.style.background = "#F8FAFC";
+                gajiErrorMsg.style.display = "none";
+                submitOfferingBtn.disabled = false;
+                submitOfferingBtn.style.opacity = "1";
+                submitOfferingBtn.style.cursor = "pointer";
             } else {
-                // 4. Format kembali ke Rupiah dengan titik
-                this.value = formatRupiah(rawValue);
+                // Tampilan jika KOSONG
+                gajiInput.style.borderColor = "#E2E8F0";
+                gajiInput.style.background = "#F8FAFC";
+                gajiErrorMsg.style.display = "none";
+                submitOfferingBtn.disabled = true; // Tetap matikan tombol jika kosong
             }
         });
 
         function formatRupiah(angka) {
+            if (!angka) return "";
             let number_string = angka.toString(),
                 sisa = number_string.length % 3,
                 rupiah = number_string.substr(0, sisa),
@@ -593,8 +653,51 @@ ob_start();
         };
 
         window.updateFileName = function(input) {
-            document.getElementById('fileNameDisplay').textContent =
-                input.files[0] ? input.files[0].name : 'Klik untuk upload file PDF';
+            const file = input.files[0];
+            const fileNameDisplay = document.getElementById('fileNameDisplay');
+            const fileSubtitle = document.getElementById('fileSubtitle');
+            const dropzone = document.getElementById('dropzone');
+            const iconContainer = document.getElementById('iconContainer');
+
+            if (file) {
+                const extension = file.name.split('.').pop().toLowerCase();
+
+                if (extension !== 'pdf') {
+                    // JIKA BUKAN PDF (Eror)
+                    fileNameDisplay.textContent = "Format Salah: " + file.name;
+                    fileNameDisplay.style.color = "#B91C1C"; // Merah
+                    fileSubtitle.textContent = "Hanya file PDF yang diperbolehkan!";
+                    fileSubtitle.style.color = "#EF4444";
+
+                    // Ubah Box jadi Merah
+                    dropzone.style.borderColor = "#EF4444";
+                    dropzone.style.background = "#FEF2F2";
+                    iconContainer.style.background = "#EF4444";
+
+                    // Reset input agar tidak bisa disubmit
+                    input.value = "";
+                } else {
+                    // JIKA BENAR (PDF)
+                    fileNameDisplay.textContent = file.name;
+                    fileNameDisplay.style.color = "#1E293B"; // Normal
+                    fileSubtitle.textContent = (file.size / 1024 / 1024).toFixed(2) + " MB";
+                    fileSubtitle.style.color = "#64748B";
+
+                    // Ubah Box jadi Hijau/Biru (Sukses)
+                    dropzone.style.borderColor = "#10B981";
+                    dropzone.style.background = "#F0FDF4";
+                    iconContainer.style.background = "#10B981";
+                }
+            } else {
+                // Jika batal pilih file (Reset ke awal)
+                fileNameDisplay.textContent = 'Klik untuk upload file PDF';
+                fileNameDisplay.style.color = "#475569";
+                fileSubtitle.textContent = "Format: .pdf";
+                fileSubtitle.style.color = "#94A3B8";
+                dropzone.style.borderColor = "#CBD5E1";
+                dropzone.style.background = "#F8FAFC";
+                iconContainer.style.background = "linear-gradient(135deg,#1E3A8A,#2563EB)";
+            }
         };
 
         function setMinDate() {

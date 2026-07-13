@@ -84,9 +84,14 @@ ob_start();
                                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                             </svg>
                         </span>
-                        <input type="text" name="judul_job" required class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50 text-slate-800"
-                            value="<?= htmlspecialchars($_POST['judul_job'] ?? $job['judul_job']) ?>">
+                        <input type="text" name="judul_job" required class="w-full pl-9 pr-3 py-2 text-sm rounded-lg outline-none border border-slate-300 bg-slate-50 text-slate-800 "
+                            value="<?= htmlspecialchars($_POST['judul_job'] ?? $job['judul_job']) ?>"
+                            style="border: 1px solid <?= isset($errors['judul_job']) ? '#EF4444' : '#CBD5E1' ?>;
+                               background: <?= isset($errors['judul_job']) ? '#FFF1F2' : '#F8FAFC' ?>; color: #1E293B;">
                     </div>
+                    <?php if (isset($errors['judul_job'])): ?>
+                        <p class="text-[10px] font-bold" style="color:#EF4444;"><?= $errors['judul_job'] ?></p>
+                    <?php endif; ?>
                 </div>
 
                 <!-- POSISI -->

@@ -5,7 +5,6 @@ AuthController::requireLogin();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama_divisi = trim($_POST['nama_divisi']);
     $result = DivisiController::create($nama_divisi);
-
     if ($result === "duplicate") {
         $_SESSION['error'] = "Nama Divisi sudah terdaftar.";
     } elseif ($result) {
@@ -14,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['error'] = "Data divisi gagal ditambahkan";
     }
 }
+
 
 header("Location: index.php");
 exit;

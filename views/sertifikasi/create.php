@@ -172,31 +172,21 @@ ob_start();
 
                 <!-- FILE -->
                 <div class="flex flex-col gap-1">
-
-                    <label
-                        class="text-xs font-semibold"
-                        style="color:#475569;">
-
+                    <label class="text-xs font-semibold" style="color:#475569;">
                         File Sertifikasi
                     </label>
-
                     <input
                         type="file"
                         name="file_sertifikasi"
+                        id="file_sertifikasi"
                         accept=".pdf,.jpg,.jpeg,.png"
+                        onchange="validateSertifikat(this)"
                         class="w-full px-3 py-2 text-sm rounded-lg outline-none"
                         style="border:1px solid #CBD5E1;background:#F8FAFC;">
 
-                    <small style="color:#64748B;">
-                        Format: PDF, JPG, JPEG, PNG
+                    <small id="file_error_msg" style="color:#64748B;">
+                        Format: PDF, JPG, JPEG, PNG (Maks. 2MB)
                     </small>
-
-                    <?php if (isset($errors['file_sertifikasi'])): ?>
-                        <small style="color:#DC2626;">
-                            <?= $errors['file_sertifikasi']; ?>
-                        </small>
-                    <?php endif; ?>
-
                 </div>
 
             </div>
@@ -227,6 +217,45 @@ ob_start();
     </form>
 
 </div>
+
+<script>
+    function validateSertifikat(input) {
+        const file = input.files[0];
+        const errorMsg = document.getElementById('file_error_msg');
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+
+        if (file) {
+            const extension = file.name.split('.').pop().toLowerCase();
+            const fileSize = file.size / 1024 / 1024; // ke MB
+
+            if (!allowedExtensions.includes(extension)) {
+                errorMsg.textContent = "Format file salah! Harus PDF, JPG, atau PNG.";
+                errorMsg.style.color = "#DC2626";
+                input.style.borderColor = "#DC2626";
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = "0.5";
+                return;
+            }
+
+            if (fileSize > 2) {
+                errorMsg.textContent = "Ukuran file terlalu besar! Maksimal 2MB.";
+                errorMsg.style.color = "#DC2626";
+                input.style.borderColor = "#DC2626";
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = "0.5";
+                return;
+            }
+
+            // Jika benar
+            errorMsg.textContent = "File terpilih: " + file.name;
+            errorMsg.style.color = "#16A34A";
+            input.style.borderColor = "#16A34A";
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+        }
+    }
+</script>
 
 <?php
 $content = ob_get_clean();

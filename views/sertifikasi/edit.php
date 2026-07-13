@@ -38,10 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         header(
             "Location: "
-            . BASE_URL .
-            "views/candidate/profile.php?id="
-            . $candidate_id .
-            "&status=success_update#sertifikasi"
+                . BASE_URL .
+                "views/candidate/profile.php?id="
+                . $candidate_id .
+                "&status=success_update#sertifikasi"
         );
         exit;
     }
@@ -123,9 +123,9 @@ ob_start();
                     <input type="text" name="nama_sertifikasi" required placeholder="Laravel Certified Developer"
                         class="w-full px-3 py-2 text-sm rounded-lg outline-none"
                         style="border:1px solid #CBD5E1;background:#F8FAFC;" value="<?= htmlspecialchars(
-                            $_POST['nama_sertifikasi']
-                            ?? $sertifikasi['nama_sertifikasi']
-                        ) ?>">
+                                                                                        $_POST['nama_sertifikasi']
+                                                                                            ?? $sertifikasi['nama_sertifikasi']
+                                                                                    ) ?>">
 
                 </div>
 
@@ -142,9 +142,9 @@ ob_start();
                     <input type="text" name="penyelenggara" required placeholder="Dicoding Indonesia"
                         class="w-full px-3 py-2 text-sm rounded-lg outline-none"
                         style="border:1px solid #CBD5E1;background:#F8FAFC;" value="<?= htmlspecialchars(
-                            $_POST['penyelenggara']
-                            ?? $sertifikasi['penyelenggara']
-                        ) ?>">
+                                                                                        $_POST['penyelenggara']
+                                                                                            ?? $sertifikasi['penyelenggara']
+                                                                                    ) ?>">
 
                 </div>
 
@@ -165,9 +165,9 @@ ob_start();
                     <input type="date" name="tanggal_terbit" required
                         class="w-full px-3 py-2 text-sm rounded-lg outline-none"
                         style="border:1px solid #CBD5E1;background:#F8FAFC;" value="<?= htmlspecialchars(
-                            $_POST['tanggal_terbit']
-                            ?? $sertifikasi['tanggal_terbit']
-                        ) ?>">
+                                                                                        $_POST['tanggal_terbit']
+                                                                                            ?? $sertifikasi['tanggal_terbit']
+                                                                                    ) ?>">
 
                 </div>
 
@@ -180,12 +180,14 @@ ob_start();
 
                     </label>
 
-                    <input type="file" name="file_sertifikasi" accept=".pdf,.jpg,.jpeg,.png"
+                    <input type="file" name="file_sertifikasi" id="file_sertifikasi"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onchange="validateSertifikat(this)"
                         class="w-full px-3 py-2 text-sm rounded-lg outline-none"
                         style="border:1px solid #CBD5E1;background:#F8FAFC;">
 
-                    <small style="color:#64748B;">
-                        Kosongkan jika tidak ingin mengganti file
+                    <small id="file_error_msg" style="color:#64748B;">
+                        Format: PDF, JPG, JPEG, PNG (Maks. 2MB). Kosongkan jika tidak ingin mengganti file.
                     </small>
 
                     <?php if (!empty($sertifikasi['file_sertifikasi'])): ?>
@@ -246,6 +248,57 @@ ob_start();
     </form>
 
 </div>
+
+<script>
+    function validateSertifikat(input) {
+        const file = input.files[0];
+        const errorMsg = document.getElementById('file_error_msg');
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+
+        if (file) {
+            const extension = file.name.split('.').pop().toLowerCase();
+            const fileSize = file.size / 1024 / 1024; // hitung dalam MB
+
+            // 1. Validasi Ekstensi
+            if (!allowedExtensions.includes(extension)) {
+                errorMsg.textContent = "Format file salah! Harus PDF, JPG, atau PNG.";
+                errorMsg.style.color = "#DC2626"; // Merah
+                input.style.borderColor = "#DC2626";
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = "0.5";
+                submitBtn.style.cursor = "not-allowed";
+                return;
+            }
+
+            // 2. Validasi Ukuran (2MB)
+            if (fileSize > 2) {
+                errorMsg.textContent = "Ukuran file terlalu besar! Maksimal adalah 2MB.";
+                errorMsg.style.color = "#DC2626";
+                input.style.borderColor = "#DC2626";
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = "0.5";
+                submitBtn.style.cursor = "not-allowed";
+                return;
+            }
+
+            // 3. Jika Lolos Validasi
+            errorMsg.textContent = "File siap diganti: " + file.name;
+            errorMsg.style.color = "#16A34A"; // Hijau
+            input.style.borderColor = "#16A34A";
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+            submitBtn.style.cursor = "pointer";
+        } else {
+            // Jika batal pilih file (dikosongkan kembali)
+            errorMsg.textContent = "Kosongkan jika tidak ingin mengganti file (Format: PDF, JPG, PNG)";
+            errorMsg.style.color = "#64748B";
+            input.style.borderColor = "#CBD5E1";
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = "1";
+        }
+    }
+</script>
 
 <?php
 $content = ob_get_clean();

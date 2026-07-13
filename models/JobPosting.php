@@ -229,6 +229,21 @@ class JobPostingModel
         }
     }
 
+    public static function getSalaryRangeByTransaction($conn, $id_transaksi)
+    {
+        $query = "SELECT jp.gaji_min, jp.gaji_max 
+              FROM candidate_apply_job caj
+              JOIN job_posting jp ON caj.id_lowongan = jp.id
+              WHERE caj.id = ? LIMIT 1";
+        $stmt = $conn->prepare($query);
+        if ($stmt) {
+            $stmt->bind_param("i", $id_transaksi);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_assoc();
+        }
+        return null;
+    }
+
     public static function moveKandidatKeOffering(
         $conn,
         $id_transaksi,

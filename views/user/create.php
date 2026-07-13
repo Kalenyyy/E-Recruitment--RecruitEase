@@ -283,13 +283,30 @@ ob_start();
         const file = e.target.files[0];
         if (!file) return;
 
-        // Validasi ukuran 2MB
+        // 1. Validasi Tipe File (Hanya Gambar)
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Format file tidak didukung! Harap pilih gambar (JPG, JPEG, atau PNG).');
+            e.target.value = ''; // Reset input file
+
+            // Kembalikan preview ke icon default
+            const wrap = document.getElementById('previewWrap');
+            wrap.innerHTML = `
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>`;
+            return;
+        }
+
+        // 2. Validasi Ukuran 2MB
         if (file.size > 2 * 1024 * 1024) {
-            alert('Ukuran file maksimal 2MB');
+            alert('Ukuran file terlalu besar! Maksimal 2MB.');
             e.target.value = '';
             return;
         }
 
+        // 3. Tampilkan Preview jika valid
         const reader = new FileReader();
         reader.onload = function(ev) {
             const wrap = document.getElementById('previewWrap');

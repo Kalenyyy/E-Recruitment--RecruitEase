@@ -102,6 +102,46 @@ class PelamarPekerjaanController
         }
     }
 
+    public static function validasiGaji($conn, $id_transaksi, $gaji_input)
+    {
+        $range = JobPostingModel::getSalaryRangeByTransaction($conn, $id_transaksi);
+
+        if (!$range) return ['status' => true];
+
+        $min = (float)($range['gaji_min'] ?? 0);
+        $max = (float)($range['gaji_max'] ?? 0);
+
+        // Kasus 1: Ada batas bawah DAN batas atas
+        if ($min > 0 && $max > 0) {
+            if ($gaji_input < $min || $gaji_input > $max) {
+                return [
+                    'status' => false,
+                    'message' => "Gaji harus antara Rp " . number_format($min, 0, ',', '.') . " s/d Rp " . number_format($max, 0, ',', '.')
+                ];
+            }
+        }
+        // Kasus 2: Hanya ada batas bawah (Mulai dari...)
+        elseif ($min > 0 && $max <= 0) {
+            if ($gaji_input < $min) {
+                return [
+                    'status' => false,
+                    'message' => "Gaji minimal adalah Rp " . number_format($min, 0, ',', '.')
+                ];
+            }
+        }
+        // Kasus 3: Hanya ada batas atas
+        elseif ($max > 0 && $min <= 0) {
+            if ($gaji_input > $max) {
+                return [
+                    'status' => false,
+                    'message' => "Gaji maksimal adalah Rp " . number_format($max, 0, ',', '.')
+                ];
+            }
+        }
+
+        return ['status' => true];
+    }
+
     public static function kirimOffering($conn, $id_transaksi, $gaji, $file_name)
     {
         // 1. Ambil data aplikasi untuk mendapatkan id_kandidat
